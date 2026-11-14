@@ -487,7 +487,7 @@ const CARDS=[
   {id:'dark',kind:'내기',name:'달 없는 밤',text:'그림자가 나올 자리가 보이지 않는다. 대신 경험을 두 배로 얻는다.'},
   {id:'few',kind:'내기',name:'꺼진 등불',text:'마을 등불 셋으로 시작한다. 대신 경험 1.5배, 귀한 것이 나올 확률 1.5배.'}];
 const ORDER=['spear','flail','bow','lamp','fire'],MOVE=[0,20,20],LVL=[0,60,200];
-const TUNE={cheer:.5,cheerT:3,forgeF:.012,forgeA:.01,topRows:3,taunt:10,guard:.7,lampSlow:2.5,linkK:.3,markT:2.2,markK:1.4,runMiss:.7,regenD:.02,beamNeed:8,beamN:.38,beamD:.2,beamB:.09,gap:2,spd:1.3,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.6,fog:.9,atk:.33,ramp:.1,a0:.75,f0:.75,fk:.03,burn:4,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[.8,1.4,2.75],na:[.75,1.45,2.4]};
+const TUNE={lampHeal:.8,regen:.4,cheer:.5,cheerT:3,forgeF:.012,forgeA:.01,topRows:3,taunt:10,guard:.7,lampSlow:2.5,linkK:.3,markT:2.2,markK:1.4,runMiss:.7,regenD:.02,beamNeed:8,beamN:.38,beamD:.2,beamB:.09,gap:2,spd:1.3,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.6,fog:.9,atk:.5,ramp:.1,a0:.75,f0:.75,fk:.03,burn:4,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[.8,1.4,2.4],na:[.85,1.35,1.5]};
 let N=null;
 /* 물결이 12개로 줄어도 강해지는 흐름은 15개 때와 같게: h를 0~14 눈금으로 늘려 쓴다 */
 const hq=h=>h*14/(WAVES-1);
@@ -712,7 +712,7 @@ function step(dt){
       else if(u.sp==='gap'){if(u.cd<=0){let tg=null,bd=26;for(const f of N.foes){const d=Math.hypot(u.x-f.x,u.y-f.y)-f.r;if(d<bd){bd=d;tg=f;}}if(tg){dmgFoe(tg,10*u.pw);hurtFoe(tg,u.x,u.y,1);u.fa=Math.atan2(tg.y-u.y,tg.x-u.x)+Math.PI/2;N.fx.push({k:'poke',x:u.x,y:u.y,tx:tg.x,ty:tg.y});u.cd=.8;}}}
       continue;}
     const U=UNITS[u.kind],t=tierOf(u.kind);
-    if(u.kind==='lamp'){for(const v of N.units)if(v!==u&&v.hp<v.max&&Math.hypot(u.hx-v.x,u.hy-v.y)<lr)v.hp=Math.min(v.max,v.hp+3.5*atkK('lamp')*dt);
+    if(u.kind==='lamp'){for(const v of N.units)if(v!==u&&v.hp<v.max&&Math.hypot(u.hx-v.x,u.hy-v.y)<lr)v.hp=Math.min(v.max,v.hp+TUNE.lampHeal*atkK('lamp')*dt);
       /* 빛 사슬: 그림자 사이를 튀며 차례로 맞힌다 */
       if(u.cd<=0){let tg=null,bd=lr;for(const f of N.foes){const d=Math.hypot(u.x-f.x,u.y-f.y)-f.r;if(d<bd){bd=d;tg=f;}}
         if(tg){const tw2=N.obj[u.c][u.r]&&N.obj[u.c][u.r].k==='tower';let dm=U.dmg*(1+.35*(u.lvl-1))*atkK('lamp')*(u.fresh?TUNE.fresh:1)*(tw2?1.2:1);const n=lbr==='long'?6:4,hit=[tg],pts=[[u.x,u.y-22],[tg.x,tg.y-14]];let cur=tg;
@@ -751,7 +751,7 @@ function step(dt){
     }else{
       const d=Math.hypot(u.hx-u.x,u.hy-u.y),sp=U.run*dt;
       if(d>sp){u.x+=(u.hx-u.x)/d*sp;u.y+=(u.hy-u.y)/d*sp;turnTo(u,Math.atan2(u.hy-u.y,u.hx-u.x)+Math.PI/2);}
-      else{u.x=u.hx;u.y=u.hy;u.out=false;turnTo(u,0);if(u.hp<u.max)u.hp=Math.min(u.max,u.hp+(u.rest?TUNE.rest:1.2)*dt);}
+      else{u.x=u.hx;u.y=u.hy;u.out=false;turnTo(u,0);if(u.hp<u.max)u.hp=Math.min(u.max,u.hp+(u.rest?TUNE.rest:TUNE.regen)*dt);}
     }
   }
   for(const o of N.devObjs)if(o.k==='cannon'&&o.uses>0){o.cd-=dt;if(o.cd<=0){let tg=null,by=-1;for(const f of N.foes){if(f.y<F_TOP-10)continue;const d=Math.hypot(f.x-o.x,f.y-o.y);if(d<170&&f.y>by){by=f.y;tg=f;}}
@@ -1992,7 +1992,7 @@ const WOODI={};for(const k in WOOD){const im=new Image();im.onload=()=>{WOODI[k]
   const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);const r=Math.max(w/im.width,h/im.height),iw=im.width*r,ih=im.height*r;c.drawImage(im,(w-iw)/2,(h-ih)/2,iw,ih);
   c.strokeStyle='#14110f';c.lineWidth=5;c.strokeRect(2.5,2.5,w-5,h-5);};}
 /* ── 첫 화면 안개 걷힘(1편처럼), 이어하기, 기록·설정 ── */
-const VER='0.29',CHLOG=['난이도 다시 맞춤: 물결마다 그림자 수 2배, 유닛 마음 -25%, 셋째 밤 크게 강화','등대 빛 → 응원(우리 편 모두 회복), 유닛 마음 -20%, 물결마다 그림자 힘이 더 크게 오름, 벼린 만큼 그림자도 강해짐','유닛 역할: 근거리 막기 · 중거리 광역 · 원거리 공격','세운 이 거두기, 같은 이 둘 합쳐 승급','난이도, 기록 · 설정 화면, 첫 화면 안개','목판화 삽화(타이틀 · 이야기 · 밤 주제 · 끝 화면)','위에서 본 그림으로 들판 · 그림자 · 영혼 통일','밤마다 주제, 유닛 연계(꿰기 · 빛 잇기 · 불 옮기기)','대장간: 다섯 갈래를 골라 벼림'];
+const VER='0.30',CHLOG=['회복을 크게 줄임(등불지기 빛 3.5→0.8, 쉴 때 1.2→0.4), 그림자 공격력 1.5배','난이도 다시 맞춤: 물결마다 그림자 수 2배, 유닛 마음 -25%, 셋째 밤 크게 강화','등대 빛 → 응원(우리 편 모두 회복), 유닛 마음 -20%, 물결마다 그림자 힘이 더 크게 오름, 벼린 만큼 그림자도 강해짐','유닛 역할: 근거리 막기 · 중거리 광역 · 원거리 공격','세운 이 거두기, 같은 이 둘 합쳐 승급','난이도, 기록 · 설정 화면, 첫 화면 안개','목판화 삽화(타이틀 · 이야기 · 밤 주제 · 끝 화면)','위에서 본 그림으로 들판 · 그림자 · 영혼 통일','밤마다 주제, 유닛 연계(꿰기 · 빛 잇기 · 불 옮기기)','대장간: 다섯 갈래를 골라 벼림'];
 function titleIntro(){const fog=$('titleFog');if(!fog)return;const t0=performance.now(),set=p=>{const m=`radial-gradient(circle at 22% 16%, transparent ${p*125}%, #000 ${p*125+18}%)`;fog.style.webkitMaskImage=m;fog.style.maskImage=m;};
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){set(1);return;}(function f(now){const p=Math.min(1,(now-t0-300)/2600);set(Math.max(.03,p*p*(3-2*p)));if(p<1)requestAnimationFrame(f);})(t0);}
 function hasProgress(){return S.night>0||S.xp>0||Object.keys(S.up||{}).length>0;}
