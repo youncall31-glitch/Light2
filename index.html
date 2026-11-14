@@ -296,6 +296,12 @@ body.night.lay-full #sBattle{position:relative;gap:0}
 body.night.lay-full #stage{position:absolute;inset:0;border-radius:0}
 body.night.lay-full #hud{position:absolute;left:0;right:0;bottom:0;z-index:2;border:0;border-radius:0;box-shadow:none;background:linear-gradient(rgba(8,12,24,0),rgba(8,12,24,.72) 26%,rgba(8,12,24,.9));padding-top:16px}
 body.night.lay-full .ucard,body.night.lay-full .skbtn,body.night.lay-full .spbtn,body.night.lay-full #hud .mini{background:rgba(24,38,66,.7)}
+
+.trk{display:flex;flex-direction:column;gap:6px;grid-column:1/-1}
+.trow{display:grid;grid-template-columns:5.6em 1fr auto;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg3)}
+.trow .tn{font-weight:700;color:var(--gold);font-size:14px}
+.trow .tv{font-size:13.5px;color:var(--cream);min-width:0}
+.trow .tb{padding:6px 9px;font-size:13px;white-space:nowrap}
 </style>
 
 <div id="app">
@@ -453,7 +459,7 @@ function newNight(night,seed,up,o){
   o=o||{};const card=o.card||null,sp=o.spirits||{};
   N={night,phase:'day',t:0,hour:-1,rng:mulberry(seed||1),courage:TUNE.start+(card==='meal'?40:0),lives:card==='few'?3:5,maxLives:5,
     next:0,waveN:0,pts:TUNE.pts+(o.pts||0)+(card==='tools'?4:0),gate:4,block:[],rock:[],pond:[],obj:[],dist:[],posts:null,dayPlaced:0,spUsed:0,sp:{},
-    units:[],foes:[],shots:[],woke:[],patches:[],queue:[],fx:[],over:null,up:up||{},br:o.br||{},depth:o.depth||0,uid:1,placed:0,card,
+    units:[],foes:[],shots:[],woke:[],patches:[],queue:[],fx:[],over:null,up:up||{},tr:o.tr||null,br:o.br||{},depth:o.depth||0,uid:1,placed:0,card,
     mod:{slow:card==='rain'?.8:1,move:card==='rain'?.6:1,burn:card==='rain'?.5:1,bowR:card==='wind'?40:0,boomR:card==='wind'?10:0,tele:card==='moon'?6:3,noTele:card==='dark',fogK:card==='thick'?1.3:1,courK:card==='catch'?1.3:1},
     unlocked:NIGHTS[night].units.slice(),stats:{woke:0,turned:0,back:0,deep:0,xp:0,boss:false,chain:0,pieces:0},
     devs:o.devs||{},beam:{c:4,need:TUNE.beamNeed},chainN:0,lastWake:-9,mid:null,midDone:false,xpK:1,bonusPack:0,tw:[],devObjs:[]};
@@ -464,10 +470,14 @@ function newNight(night,seed,up,o){
   return N;
 }
 function lvOf(kind){return N.up[kind]||0}
-function tierOf(kind){const L=lvOf(kind);return L>=4?2:L>=2?1:0}
-function atkK(kind){const L=lvOf(kind);return 1+.15*((L>=1)+(L>=6)+(L>=8))+.06*Math.max(0,L-8)}
-function hpK(kind){const L=lvOf(kind);return 1+.2*((L>=3)+(L>=7)+(L>=8))+.06*Math.max(0,L-8)}
-function rngK(kind){const L=lvOf(kind);return 1+.1*((L>=5)+(L>=8))}
+/* 다섯 갈래 벼림: a 공격, h 마음, s 빠르기, r 사거리, x 특수(1 새 능력, 2 갈래) */
+function trFromL(L){const e=Math.max(0,L-8);return{a:(L>=1)+(L>=6)+(L>=8)+Math.ceil(e/2),h:(L>=3)+(L>=7)+(L>=8)+Math.floor(e/2),s:0,r:(L>=5)+(L>=8),x:(L>=2)+(L>=4)};}
+function trOf(kind){if(N.tr){const t=N.tr[kind]||{};return{a:t.a||0,h:t.h||0,s:t.s||0,r:t.r||0,x:t.x||0};}return trFromL(lvOf(kind));}
+function tierOf(kind){return Math.min(2,trOf(kind).x)}
+function atkK(kind){return 1+.15*trOf(kind).a}
+function hpK(kind){return 1+.2*trOf(kind).h}
+function rngK(kind){return 1+.1*trOf(kind).r}
+function spdK(kind){return UNITS[kind]?1/Math.pow(.92,trOf(kind).s):1}
 function brOf(kind){return tierOf(kind)>=2?N.br[kind]||null:null}
 function moveOf(kind){return kind==='spear'?(brOf('spear')==='swap'?40:MOVE[tierOf(kind)])*N.mod.move:0}
 function rangeOf(kind){const t=tierOf(kind);if(SPIRITS[kind])return SPIRITS[kind].range;const k=rngK(kind);return kind==='spear'?moveOf(kind)+30*k:kind==='lamp'?(UNITS.lamp.range+(t>=1?14:0))*k:kind==='flail'?UNITS.flail.range*k*(brOf('flail')==='wide'?1.35:1):kind==='bow'?UNITS.bow.range*k+N.mod.bowR:UNITS[kind].range*k}
@@ -614,7 +624,7 @@ function step(dt){
   /* 유닛 */
   for(const u of N.units){
     let hs=1;for(const y of yuns)if(y!==u&&Math.hypot(y.x-u.x,y.y-u.y)<SPIRITS.yun.range){hs=1+.4*y.pw;break;}
-    u.cd-=dt*hs;if(u.lured>0)u.lured-=dt;
+    u.cd-=dt*hs*spdK(u.kind);if(u.lured>0)u.lured-=dt;
     if(u.atLure){u.lureT-=dt;if(u.lureT<=0){u.atLure=false;u.path=[{x:u.hx,y:u.hy}];u.walk=true;}}
     if(u.walk){ /* 걸어가는 중: 길을 막는 그림자와는 붙어 싸운다 */
       let bf=null,bd=BIG;for(const f of N.foes){const d=Math.hypot(u.x-f.x,u.y-f.y)-f.r;if(d<16&&d<bd){bd=d;bf=f;}}
@@ -733,7 +743,7 @@ function pickMid(id){
   else if(id==='gold'){N.extraTreasure=1;N.mod.spdK*=1.1;}else if(id==='dim'){N.lives=Math.max(1,N.lives-1);N.bonusPack=1;}
   N.mid=null;N.midDone=true;N.midCard=id;N.fx.push({k:'midpick',id});
 }
-if(typeof module!=='undefined')module.exports={spawn,DEVS,MIDS,beamAll,ringBell,pickMid,TUNE,atkK,hpK,rngK,lvOf,MOVE,UNITS,SPIRITS,FOES,NIGHTS,CARDS,ORDER,TILE,F_TOP,WAVES,BUILD,waveOf,newNight,place,summon,canPlace,snap,step,toggleBuild,setGate,startNightPhase,rangeOf,get:()=>N};
+if(typeof module!=='undefined')module.exports={spawn,trOf,trFromL,spdK,DEVS,MIDS,beamAll,ringBell,pickMid,TUNE,atkK,hpK,rngK,lvOf,MOVE,UNITS,SPIRITS,FOES,NIGHTS,CARDS,ORDER,TILE,F_TOP,WAVES,BUILD,waveOf,newNight,place,summon,canPlace,snap,step,toggleBuild,setGate,startNightPhase,rangeOf,get:()=>N};
 
 /* ───────── 이야기 ───────── */
 const STORY={
@@ -768,7 +778,7 @@ const jo=(w,a,b)=>w+(((w.charCodeAt(w.length-1)-0xAC00)%28)?a:b);
 /* ───────── 화면 ───────── */
 function boot(){
 const $=id=>document.getElementById(id);
-const FRESH=()=>({bp:0,pieces:0,devs:{},deep:0,night:0,xp:0,up:{},br:{},sp:{},pts:0,pity:0,draws:0,clues:[],mute:false});
+const FRESH=()=>({bp:0,pieces:0,devs:{},deep:0,night:0,xp:0,up:{},tr:{},br:{},sp:{},pts:0,pity:0,draws:0,clues:[],mute:false});
 let S=FRESH();
 try{const s=JSON.parse(localStorage.getItem('saebyeok4')||'null');if(s)S=Object.assign(S,s);}catch(e){}
 const save=()=>{try{localStorage.setItem('saebyeok4',JSON.stringify(S));}catch(e){}};
@@ -776,7 +786,13 @@ const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
 let openedAt=0;
 document.addEventListener('click',e=>{if(performance.now()-openedAt<380){e.stopPropagation();e.preventDefault();}},true);
 document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
-const upC=L=>L<8?UPCOST[L]:280+60*(L-7),lvS=k=>S.up[k]||0,tierS=k=>{const L=lvS(k);return L>=4?2:L>=2?1:0;},brName=k=>{const b=BR[k].find(x=>x[0]===S.br[k]);return b?b[1]:WEAP[k][1];},dispTier=k=>{const t=tierS(k);return t<2?t:BR[k].findIndex(x=>x[0]===S.br[k])>0?3:2;};
+if(!S.trV){S.tr={};for(const k in S.up)S.tr[k]=trFromL(S.up[k]||0);S.trV=1;}
+const TK=k=>S.tr[k]||(S.tr[k]={a:0,h:0,s:0,r:0,x:0});
+/* 다섯 갈래 벼림: 값은 갈래마다 따로 오른다 */
+const TRK=[['a','공격','+15%',n=>40+30*n,99],['h','마음','+20%',n=>35+25*n,99],['s','빠르기','+9%',n=>50+40*n,5],['r','사거리','+10%',n=>60+50*n,4]],XC=[50,90];
+const trCost=(k,id)=>{const t=TK(k);if(id==='x')return t.x<2?XC[t.x]:null;const d=TRK.find(q=>q[0]===id);return t[id]>=d[4]?null:d[3](t[id]);};
+const canUp=k=>['a','h','s','r','x'].some(id=>{const c=trCost(k,id);return c!=null&&S.xp>=c;});
+const lvS=k=>{const t=TK(k);return t.a+t.h+t.s+t.r+t.x;},tierS=k=>Math.min(2,TK(k).x),brName=k=>{const b=BR[k].find(x=>x[0]===S.br[k]);return b?b[1]:WEAP[k][1];},dispTier=k=>{const t=tierS(k);return t<2?t:BR[k].findIndex(x=>x[0]===S.br[k])>0?3:2;};
 const SCR=['sTitle','sHome','sStory','sBattle','sMap'];
 function show(id){SCR.forEach(s=>$(s).hidden=s!==id);openedAt=performance.now();}
 function ov(id,on){$(id).hidden=!on;if(on)openedAt=performance.now();}
@@ -884,27 +900,29 @@ function renderHome(){
   /* 대장간: 위에 다섯 칸, 아래에 고른 이의 다음 벼림 하나 */
   const fg=$('forge');fg.textContent='';
   ORDER.forEach(k=>{const met=open.includes(k),b=document.createElement('button');b.className='utile'+(fsel===k?' on':'')+(met?'':' lock');b.disabled=!met;
-    if(met){b.append(fig(k,'ficon'));const n=document.createElement('span');n.className='un';n.textContent=UNITS[k].name;const l=document.createElement('span');l.className='lv';l.textContent=`${lvS(k)}단`;b.append(n,l);if(S.xp>=upC(lvS(k)))b.classList.add('can');}else b.textContent='?';
+    if(met){b.append(fig(k,'ficon'));const n=document.createElement('span');n.className='un';n.textContent=UNITS[k].name;const l=document.createElement('span');l.className='lv';l.textContent=`${lvS(k)}단`;b.append(n,l);if(canUp(k))b.classList.add('can');}else b.textContent='?';
     b.onclick=()=>{fsel=k;tone(196,.08,.04,'triangle');renderHome();};fg.appendChild(b);});
-  const k=fsel,L=lvS(k),fd=$('fdetail');fd.textContent='';
-  const h=document.createElement('p');h.className='fhead';h.textContent=`${UNITS[k].name} · ${L<2?WEAP[k][0]:L<4?WEAP[k][1]:brName(k)}`;
-  const stat=l=>{const U=UNITS[k],ak=1+.15*((l>=1)+(l>=6)+(l>=8))+.06*Math.max(0,l-8),hk=1+.2*((l>=3)+(l>=7)+(l>=8))+.06*Math.max(0,l-8),rk=1+.1*((l>=5)+(l>=8)),sw=l>=4&&S.br.spear==='swap';
-    return{atk:(k==='lamp'?4:U.dmg)*ak,hp:U.hp*hk,rng:(k==='spear'?30*rk+(l>=2?(sw?40:20):0):k==='lamp'?(78+(l>=2?14:0))*rk:U.range*rk)/40};};
-  const now=stat(L),nx=stat(L+1),f1=v=>(Math.round(v*10)/10).toString();
-  const tb=document.createElement('div');tb.className='fstats';
-  [['공격',now.atk,nx.atk,''],['마음',now.hp,nx.hp,''],['사거리',now.rng,nx.rng,'칸']].forEach(([nm,a,b,u])=>{const d=document.createElement('div'),up=b>a+.001;d.className=up?'up':'';d.innerHTML='<span></span><b></b><i></i>';d.children[0].textContent=nm;const f2=v=>u?(Math.round(v*100)/100).toString():f1(v);d.children[1].textContent=f2(a)+u;d.children[2].textContent=up?`→ ${f2(b)}${u}`:'';tb.append(d);});
-  const pips=document.createElement('div');pips.className='pips';STEP.forEach((s2,i)=>{const p=document.createElement('span');p.innerHTML='<b></b><i></i>';p.children[0].textContent=STEPS[s2][0];p.children[1].textContent=UPCOST[i];p.className=i<L?'done':i===L?'next':'';pips.append(p);});if(L>=8){const p=document.createElement('span');p.innerHTML='<b></b><i></i>';p.children[0].textContent='+'+(L-8);p.children[1].textContent=upC(L);p.className='next';pips.append(p);}
-  fd.append(h,tb,pips);
+  const k=fsel,T=TK(k),fd=$('fdetail');fd.textContent='';
+  const h=document.createElement('p');h.className='fhead';h.textContent=`${UNITS[k].name} · ${T.x<1?WEAP[k][0]:T.x<2?WEAP[k][1]:brName(k)}`;
+  const U=UNITS[k],sw=T.x>=2&&S.br.spear==='swap',f1=v=>(Math.round(v*10)/10).toString(),f2=v=>(Math.round(v*100)/100).toString();
+  const val={a:n=>f1((k==='lamp'?4:U.dmg)*(1+.15*n)),h:n=>f1(U.hp*(1+.2*n)),s:n=>f2(U.cd*(k==='flail'&&T.x>=1?.8:1)*Math.pow(.92,n))+'초',
+    r:n=>f2((k==='spear'?30*(1+.1*n)+(T.x>=1?(sw?40:20):0):k==='lamp'?(78+(T.x>=1?14:0))*(1+.1*n):U.range*(1+.1*n))/40)+'칸'};
   const act=()=>{bell(175,.16);tone(880,.12,.05,'triangle');save();renderHome();};
-  const need=c=>S.xp>=c?`필요 경험 ${c} · 가진 경험 ${S.xp}`:`필요 경험 ${c} · ${c-S.xp} 모자라다`;
-  if(L>=8){const p=document.createElement('p');p.className='fnext';p.innerHTML='<b></b> ';p.children[0].textContent=`${L+1}단 · 더 벼림: 공격 +6%, 마음 +6%.`;p.append(need(upC(L))+'. 끝없이 벼릴 수 있고, 단마다 경험이 60씩 더 든다.');
-    const b=document.createElement('button');b.className='fbtn';b.textContent=`벼린다 · 경험 ${upC(L)}`;b.disabled=S.xp<upC(L);b.onclick=()=>{if(S.xp<upC(L))return;S.xp-=upC(L);S.up[k]=L+1;act();};fd.append(p,b);}
-  else if(STEP[L]==='br'){const p=document.createElement('p');p.className='fnext';p.innerHTML='<b>4단 · 갈래 선택.</b> ';p.append(`${need(UPCOST[L])}. 아래에서 하나를 고르면 벼려진다. 나중에 값 없이 바꿀 수 있다.`);fd.append(p);}
-  else{const p=document.createElement('p');p.className='fnext';p.innerHTML='<b></b> ';p.children[0].textContent=`${L+1}단 · ${STEP[L]==='abil'?'새 능력: '+ABIL1[k]:STEPS[STEP[L]][1]}.`;p.append(need(UPCOST[L])+'.');
-    const b=document.createElement('button');b.className='fbtn';b.textContent=`벼린다 · 경험 ${UPCOST[L]}`;b.disabled=S.xp<UPCOST[L];b.onclick=()=>{if(S.xp<UPCOST[L])return;S.xp-=UPCOST[L];S.up[k]=L+1;act();};fd.append(p,b);}
-  if(L<3){const p=document.createElement('p');p.className='fnext sm';p.textContent=`갈래(4단)는 3단까지 벼린 뒤 경험 ${UPCOST[3]}으로 고른다: ${BR[k].map(x=>x[1]).join(' / ')}.`;fd.append(p);}
-  if(L>=3){const row=document.createElement('div');row.className='brow';BR[k].forEach(([id,nm,tx])=>{const b=document.createElement('button'),on=L>=4&&S.br[k]===id;b.className='brbtn'+(on?' on':'');b.innerHTML='<b></b><span></span>';b.children[0].textContent=nm+(L<4?'':on?' · 쓰는 중':' · 바꾼다');b.children[1].textContent=tx;b.disabled=on||(L<4&&S.xp<UPCOST[3]);
-      b.onclick=()=>{if(L<4){if(S.xp<UPCOST[3])return;S.xp-=UPCOST[3];S.up[k]=4;}S.br[k]=id;act();};row.append(b);});fd.append(row);}
+  const buy=(id,fn)=>{const c=trCost(k,id);if(c==null||S.xp<c)return;S.xp-=c;fn();act();};
+  const tb=document.createElement('div');tb.className='trk';
+  TRK.forEach(([id,nm,st,cf,mx])=>{const n=T[id],c=trCost(k,id),r=document.createElement('div');r.className='trow';
+    r.innerHTML='<span class="tn"></span><span class="tv"></span><button class="tb"></button>';
+    r.children[0].textContent=`${nm} ${n}${mx<99?'/'+mx:''}`;r.children[1].textContent=c==null?`${val[id](n)} · 끝`:`${val[id](n)} → ${val[id](n+1)}`;
+    const bt=r.children[2];if(c==null){bt.textContent='다 벼림';bt.disabled=true;}else{bt.textContent=`${st} · 경험 ${c}`;bt.disabled=S.xp<c;bt.onclick=()=>buy(id,()=>{T[id]++;S.up[k]=lvS(k);});}
+    tb.append(r);});
+  fd.append(h,tb);
+  /* 특수: 새 능력 → 갈래 하나 고르기 */
+  const sx=document.createElement('p');sx.className='fnext';sx.innerHTML='<b></b> ';
+  if(T.x<1){sx.children[0].textContent=`특수 1 · 새 능력: ${ABIL1[k]}.`;sx.append(`경험 ${XC[0]}. 이것을 벼려야 갈래를 고를 수 있다.`);const bt=document.createElement('button');bt.className='fbtn';bt.textContent=`새 능력 · 경험 ${XC[0]}`;bt.disabled=S.xp<XC[0];bt.onclick=()=>buy('x',()=>{T.x=1;S.up[k]=lvS(k);});fd.append(sx,bt);}
+  else{sx.children[0].textContent=T.x<2?`특수 2 · 갈래 ${BR[k].length}개 중 하나.`:`특수 · ${ABIL1[k]}.`;sx.append(T.x<2?`경험 ${XC[1]}. 고른 뒤에도 값 없이 바꿀 수 있다.`:'갈래는 값 없이 바꿀 수 있다.');fd.append(sx);
+    const row=document.createElement('div');row.className='brow';BR[k].forEach(([id,nm,tx])=>{const b=document.createElement('button'),on=T.x>=2&&S.br[k]===id;b.className='brbtn'+(on?' on':'');b.innerHTML='<b></b><span></span>';b.children[0].textContent=nm+(T.x<2?` · 경험 ${XC[1]}`:on?' · 쓰는 중':' · 바꾼다');b.children[1].textContent=tx;b.disabled=on||(T.x<2&&S.xp<XC[1]);
+      b.onclick=()=>{if(T.x<2){buy('x',()=>{T.x=2;S.br[k]=id;S.up[k]=lvS(k);});}else{S.br[k]=id;act();}};row.append(b);});fd.append(row);}
+  {const p=document.createElement('p');p.className='fnext sm';p.textContent=`가진 경험 ${S.xp}. 공격과 마음은 끝없이 벼릴 수 있다.`;fd.append(p);}
   /* 유품 */
   const sl=$('spList');sl.textContent='';
   Object.keys(SPIRITS).forEach(id=>{const s=S.sp[id],d=document.createElement('div');d.className='frow'+(s?'':' unmet');
@@ -933,7 +951,7 @@ const HELP=[['이기는 법','열두 물결의 그림자를 모두 깨우면 해
  ['한밤의 선택','여섯째 물결을 넘기면 카드 셋 가운데 하나를 고른다. 덕은 그냥 좋고, 날씨는 양쪽에 걸리고, 내기는 위험한 만큼 더 받는다.'],
  ['장치','금빛 보물 그림자를 깨우면 설계도 조각이 나온다. 다 모이면 새벽에 조각을 돌려 맞춘다. 돌 대포, 가짜 등불, 마을 종, 거울 순서로 얻는다.'],
  ['홀림과 영혼','마음(발밑 줄)이 다한 이는 약한 그림자가 된다. 깨우면 마을로 돌아가고, 곁에 있던 이들의 마음이 30% 찬다. 영혼은 유품으로 부른다. 한 밤에 둘까지, 40초쯤 머문다.'],
- ['벼림과 새벽','대장간에서 여덟 단까지 벼린다. 공격, 능력, 마음, 갈래, 사거리가 번갈아 오른다. 이기면 새벽 꾸러미 하나를 푼다. 빈 꾸러미는 없다.']];
+ ['벼림과 새벽','대장간에서 공격, 마음, 빠르기, 사거리, 특수를 골라서 벼린다. 특수는 새 능력을 얻은 뒤 갈래 하나를 고른다. 공격과 마음은 끝없이 오른다. 이기면 새벽 꾸러미 하나를 푼다. 빈 꾸러미는 없다.']];
 let hp=0,helpWas=false;
 function helpPage(){$('helpTitle').textContent=HELP[hp][0];$('helpText').textContent=HELP[hp][1];$('helpNo').textContent=`${hp+1} / ${HELP.length}`;$('helpPrev').disabled=hp===0;$('helpNext').disabled=hp===HELP.length-1;}
 $('btnInfo').onclick=()=>{helpWas=paused;paused=true;helpPage();ov('ovHelp',true);};
@@ -1669,7 +1687,7 @@ function pickCard(n){
   ov('ovCards',true);tone(147,.5,.05,'sine');
 }
 function begin(n,cd){
-  newNight(n,(Math.random()*1e9)|0,S.up,{card:cd.id,spirits:S.sp,pts:S.pts,br:S.br,devs:S.devs,depth:S.night>=3?(S.deep||0):0});
+  newNight(n,(Math.random()*1e9)|0,S.up,{tr:S.tr,card:cd.id,spirits:S.sp,pts:S.pts,br:S.br,devs:S.devs,depth:S.night>=3?(S.deep||0):0});
   sel='gate';pend=null;insp=null;paused=false;speed=1;banner={t:0,a:'낮',b:`${cd.name} · 문을 정하고 채비를 놓는다`};$('btnSpeed').textContent='×1';for(const k of ORDER)delete $('u_'+k).dataset.open;$('spRow').dataset.k='-';fxs=[];
   const o=S.night>0;$('nightRow').hidden=true;tut={treasure:!!S.draws&&S.night>1,carry:S.night>1,place:o,wake:o,turn:o,deep:o,promo:o,pend:o,rest:o,back:o,root:o,walk:o};shown=false;dawnA=0;
   document.body.classList.add('battle');show('sBattle');resize();hud();
@@ -1679,7 +1697,7 @@ function begin(n,cd){
 let draw=null,drawQ=[];
 function rollDraw(){
   const rk=N.card==='thick'?2:N.card==='few'?1.5:1,ids=Object.keys(SPIRITS),own=ids.filter(k=>starOf(k)),grow=ids.filter(k=>!S.sp[k]||S.sp[k].star<3||(S.sp[k].w||0)<3);
-  const wp=own.filter(k=>(S.sp[k].w||0)<3),nextU=NIGHTS[Math.min(S.night+1,2)].units.filter(k=>lvS(k)<8&&STEP[lvS(k)]!=='br');
+  const wp=own.filter(k=>(S.sp[k].w||0)<3),nextU=NIGHTS[Math.min(S.night+1,2)].units.filter(k=>true);
   const w={sp:grow.length?.25*rk:0,wp:wp.length?.2:0,big:nextU.length?.05*rk:0,pc:S.bp<4?.12:0,xp:.25,pts:.13};
   let kind='xp';if(!S.draws||(S.pity>=3&&grow.length))kind='sp';else{let r=Math.random()*(w.sp+w.wp+w.big+w.xp+w.pts);for(const k in w){r-=w[k];if(r<0){kind=k;break;}}}
   const first=!S.draws;S.draws++;if(kind==='sp')S.pity=0;else S.pity++;
@@ -1688,7 +1706,7 @@ function rollDraw(){
     if(s.star<3){s.star++;return{r:2,sp:id,kd:'유품',nm:`${N2.name} ${'★'.repeat(s.star)}`,ln:`같은 이의 물건이 또 왔다. 더 오래 머물고 더 세진다.`};}
     s.w=(s.w||0)+1;return{r:1,sp:id,kd:'영혼의 연장',nm:`${N2.name}의 연장 +${s.w}`,ln:'별이 다 찬 이의 물건은 연장이 된다. 힘이 25% 는다.'};}
   if(kind==='wp'){const id=wp[Math.floor(Math.random()*wp.length)],s=S.sp[id];s.w=(s.w||0)+1;return{r:1,sp:id,kd:'영혼의 연장',nm:`${SPIRITS[id].name}의 연장 +${s.w}`,ln:'생전에 쓰던 연장이다. 힘이 25% 는다.'};}
-  if(kind==='big'){const k=nextU[Math.floor(Math.random()*nextU.length)];const L=lvS(k);S.up[k]=L+1;return{r:2,kd:'큰 벼림',nm:`${UNITS[k].name} ${L+1}단`,ln:`무기가 한 단 벼려져 왔다. ${STEP[L]==='abil'?ABIL1[k]:STEPS[STEP[L]][1]}.`};}
+  if(kind==='big'){const k=nextU[Math.floor(Math.random()*nextU.length)];const T=TK(k),id=Math.random()<.5?'a':'h';T[id]++;S.up[k]=lvS(k);return{r:2,kd:'큰 벼림',nm:`${UNITS[k].name} ${id==='a'?'공격':'마음'} ${T[id]}`,ln:id==='a'?'무기가 한 번 더 벼려져 왔다. 공격 +15%.':'단단한 옷 한 벌이 왔다. 마음 +20%.'};}
   if(kind==='pc'){S.pieces++;const need=BPNEED[S.bp];return{r:1,kd:'설계도 조각',nm:`${DEVNAME[DEVS[S.bp]]} 조각`,ln:`대장간 설계도 한 조각. ${Math.min(S.pieces,need)}/${need}.${S.pieces>=need?' 다 모였다. 곧 맞춘다.':''}`};}
   if(kind==='pts'){S.pts++;return{r:1,kd:'일손',nm:'일꾼 한 사람',ln:'깨어난 이웃이 낮일을 돕겠다고 남았다. 낮의 일손이 밤마다 1 는다.'};}
   S.xp+=60;return{r:0,kd:'벼림쇠',nm:'쇳덩이 한 짐',ln:'대장간에 보탤 쇠다. 경험 +60.'};
