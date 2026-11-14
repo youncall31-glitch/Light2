@@ -422,9 +422,9 @@ const MIDS=[
   {id:'gold',kind:'내기',name:'보물 냄새',text:'보물 그림자가 하나 더 온다. 대신 그림자가 10% 빨라진다.'},
   {id:'dim',kind:'내기',name:'꺼져 가는 등불',text:'마을 등불 하나가 꺼진다. 대신 새벽 꾸러미를 하나 더 푼다.'}];
 const NIGHTS=[
-  {place:'등대',name:'첫째 밤',units:['spear','flail','bow'],foes:['walk','run','deep'],newFoe:null},
-  {place:'등대',name:'둘째 밤',units:['spear','flail','bow','lamp'],foes:['walk','run','deep','shield','carry'],newFoe:'방패 든 이와 아이를 업은 이'},
-  {place:'등대',name:'셋째 밤',units:['spear','flail','bow','lamp','fire'],foes:['walk','run','deep','shield','carry','lure'],boss:'만복',newFoe:'꾀는 이'}];
+  {place:'등대',name:'첫째 밤',units:['spear','flail','bow'],foes:['walk','run','deep'],newFoe:null,theme:{id:'run',name:'달음질의 밤',tip:'달려오는 아이가 떼로 온다. 화살이 잘 빗나가니 작살꾼으로 꿰고 도리깨로 쓸어라.'}},
+  {place:'등대',name:'둘째 밤',units:['spear','flail','bow','lamp'],foes:['walk','run','deep','shield','carry'],newFoe:'방패 든 이와 아이를 업은 이',theme:{id:'shield',name:'방패의 밤',tip:'방패 든 이가 줄지어 온다. 화살과 빛이 튕기니 작살과 도리깨를 앞에 세워라.'}},
+  {place:'등대',name:'셋째 밤',units:['spear','flail','bow','lamp','fire'],foes:['walk','run','deep','shield','carry','lure'],boss:'만복',newFoe:'꾀는 이',theme:{id:'deep',name:'되살아나는 안개의 밤',tip:'깊이 홀린 이가 자주 온다. 불이 꺼지면 안개가 되살아나니 화염병을 세워라.'}}];
 const CARDS=[
   {id:'meal',kind:'덕',name:'든든한 저녁',text:'용기 40을 더 들고 시작한다.'},
   {id:'tools',kind:'덕',name:'묵은 연장',text:'헛간에서 연장을 찾았다. 일손 +4.'},
@@ -447,8 +447,12 @@ function waveOf(night,h0){
   let d=h===6?1:h===9||h===11?1:h===13?1+(night>0?1:0):h===14?2:0;
   const a=[];for(let i=0;i<w;i++){a.push('walk');if(i<r)a.push('run');}
   const ins=(t,n)=>{for(let i=0;i<n;i++)a.splice(Math.floor(a.length*(i+1)/(n+1)),0,t);};
+  const TH=NIGHTS[night].theme&&NIGHTS[night].theme.id;
+  if(TH==='run'&&h>=1){const extra=Math.round((1+h*.35)*TUNE.count);for(let i=0;i<extra;i++)a.splice(Math.floor(a.length*(i+1)/(extra+1)),0,'run');for(let i=0;i<Math.floor(extra/2);i++){const j=a.lastIndexOf('walk');if(j>=0&&a.filter(t=>t==='walk').length>1)a.splice(j,1);}}
+  if(TH==='deep'&&h>=2&&h%2===0)d+=1;
   ins('deep',d);
   if(F.includes('shield')&&h>=3&&h%2===1)ins('shield',h>=11?2:1);
+  if(TH==='shield'&&h>=2&&h%2===0)ins('shield',h>=10?2:1);
   if(F.includes('carry')&&h>=4&&h%3===1)ins('carry',1);
   if(F.includes('lure')&&h>=2&&h%4===2)ins('lure',1);
   {let sp=a.filter(t=>t==='shield'||t==='carry'||t==='lure').length;for(let i=a.length-1;i>=0&&sp>0;i--)if(a[i]==='walk'&&a.filter(t=>t==='walk').length>1){a.splice(i,1);sp--;}}
@@ -952,7 +956,7 @@ function renderHome(){
   const cl=$('clues');cl.textContent='';if(!S.clues.length){const p=document.createElement('p');p.className='note';p.textContent='아직 단서가 없다. 밤을 넘길 때마다 하나씩 적힌다.';cl.appendChild(p);}
   S.clues.forEach((t,i)=>{const p=document.createElement('p');p.textContent=`${i+1}. ${t}`;cl.appendChild(p);});
   if(htab==='map')drawMap($('homeMap'),0,S.night>=3?1:0,null,null);
-  const done=S.night>=3;$('btnGo').textContent=done?`셋째 밤 · 깊이 ${(S.deep||0)+1}`:`${NIGHTS[S.night].name}을 맞는다`;$('goNote').hidden=!done;
+  const done=S.night>=3;$('btnGo').textContent=done?`셋째 밤 · 깊이 ${(S.deep||0)+1}`:`${NIGHTS[S.night].name}을 맞는다`;$('goNote').hidden=false;if(!done){const th=NIGHTS[S.night].theme;$('goNote').textContent=`오늘 밤 「${th.name}」 ${th.tip}`;}else $('goNote').textContent='첫 곳은 여기까지다. 셋째 밤을 다시 이길 때마다 꾸러미를 하나 풀고, 그림자가 한 층 짙어진다.';
 }
 for(const t of['forge','dev','sp','clue','map'])$('tab_'+t).onclick=()=>{htab=t;tone(196,.08,.04,'triangle');renderHome();};
 function goHome(){N=null;document.body.classList.remove('battle','night');show('sHome');renderHome();}
@@ -1320,7 +1324,7 @@ function render(dt){
   houseXs().forEach((x,i)=>{const lit=i<N.lives;if(lit){const g=c.createRadialGradient(x,561,0,x,561,20);g.addColorStop(0,'rgba(255,200,60,.85)');g.addColorStop(1,'rgba(255,200,60,0)');c.fillStyle=g;c.beginPath();c.arc(x,561,20,0,7);c.fill();}
     c.beginPath();c.arc(x,561,3.6,0,7);c.fillStyle=lit?'#ffcf3f':'#101a30';c.fill();c.strokeStyle=OUT;c.lineWidth=1.6;c.stroke();});
 
-  for(const u of N.units)if(u.kind==='lamp'){const R=rangeOf('lamp'),g=c.createRadialGradient(u.x,u.y-8,0,u.x,u.y-8,R);g.addColorStop(0,'rgba(255,206,70,.5)');g.addColorStop(.8,'rgba(255,196,60,.18)');g.addColorStop(1,'rgba(255,196,60,0)');c.fillStyle=g;c.beginPath();c.arc(u.x,u.y-8,R,0,7);c.fill();}
+  for(const u of N.units)if(u.kind==='lamp'){const R=rangeOf('lamp'),g=c.createRadialGradient(u.x,u.y-8,0,u.x,u.y-8,R);g.addColorStop(0,'rgba(220,186,120,.14)');g.addColorStop(.75,'rgba(200,170,110,.05)');g.addColorStop(1,'rgba(200,170,110,0)');c.fillStyle=g;c.beginPath();c.arc(u.x,u.y-8,R,0,7);c.fill();}
 
   c.strokeStyle=GOLD;c.lineWidth=1.2;c.globalAlpha=.4;c.lineCap='round';for(const u of N.units)for(const v of N.units){if(u.kind===v.kind)continue;const d=Math.hypot(u.hx-v.hx,u.hy-v.hy);if(u.kind==='bow'&&v.kind==='spear'&&d<72&&v.hy<u.hy){c.beginPath();c.moveTo(u.hx,u.hy-8);c.lineTo(v.hx,v.hy-8);c.stroke();}}c.globalAlpha=1;
 
@@ -1658,26 +1662,51 @@ function ubIcon(c,k,col,lw,now,o){c.save();c.lineCap='round';c.lineJoin='round';
   else if(k==='yeot'){c.fillRect(-9,-3,18,6);}
   else if(k==='fire'){c.beginPath();c.moveTo(-4,-2);c.lineTo(-5,8);c.lineTo(5,8);c.lineTo(4,-2);c.closePath();c.fill();c.fillRect(-2,-6,4,4);c.beginPath();c.moveTo(0,-7);c.quadraticCurveTo(5,-11,1,-15);c.quadraticCurveTo(-4,-11,0,-7);c.fill();}
   c.restore();}
+/* 사람 모양 (1편 등대지기처럼 사다리꼴 몸 + 둥근 머리), 무기는 크림색으로 크게 */
+function ubHat(c,k,col,V){const dk=ubRgb(ubSh(col,.35)),hd=V==='p3';
+  if(hd)return;
+  if(k==='spear'){c.fillStyle='#6f7378';c.beginPath();c.arc(0,-15.4,4,Math.PI,0);c.fill();c.beginPath();c.ellipse(0,-15.2,6.4,1.5,0,0,7);c.fill();}
+  else if(k==='flail'){c.fillStyle='#d8ccb0';c.fillRect(-3.9,-17,7.8,1.6);c.beginPath();c.moveTo(-3.6,-16.4);c.lineTo(-6.6,-14.6);c.lineTo(-5.8,-17);c.fill();}
+  else if(k==='bow'){c.fillStyle=dk;c.beginPath();c.moveTo(-4.4,-12.4);c.quadraticCurveTo(-4.8,-19.6,0,-19.4);c.quadraticCurveTo(4.8,-19.6,4.4,-12.4);c.lineTo(3,-14.2);c.quadraticCurveTo(0,-17.6,-3,-14.2);c.closePath();c.fill();}
+  else if(k==='lamp'){c.fillStyle=dk;c.beginPath();c.arc(0,-15.8,3.9,Math.PI,0);c.fill();c.fillRect(-5.4,-16.2,10.8,1.5);}
+  else if(k==='fire'){c.fillStyle=ubRgb(ubSh(col,.6));c.beginPath();c.arc(0,-15.6,3.8,Math.PI,0);c.fill();c.fillRect(2.6,-16,3,1.3);}}
+function ubWeap(c,k,an,now,o){const W='#e8dec4',WD='#8a6a48';c.lineCap='round';c.lineJoin='round';
+  if(k==='spear'){const th=an*4;c.strokeStyle=WD;c.lineWidth=1.6;c.beginPath();c.moveTo(7,3-th);c.lineTo(7,-24-th);c.stroke();c.fillStyle=W;c.beginPath();c.moveTo(7,-29-th);c.lineTo(9.4,-23-th);c.lineTo(4.6,-23-th);c.closePath();c.fill();}
+  else if(k==='flail'){const sp=(o.spin||0)>0,a=sp?now*22:-.75+Math.sin(now*2+(o.id||0))*.1,hx=7,hy=-15,ex=hx+Math.cos(a)*7,ey=hy+Math.sin(a)*7;c.strokeStyle=WD;c.lineWidth=1.6;c.beginPath();c.moveTo(6,-2);c.lineTo(hx,hy);c.stroke();c.strokeStyle=W;c.lineWidth=2.4;c.beginPath();c.moveTo(hx,hy);c.lineTo(ex,ey);c.stroke();}
+  else if(k==='bow'){c.strokeStyle=W;c.lineWidth=1.9;c.beginPath();c.arc(4,-9,10,-1.2,1.2);c.stroke();c.strokeStyle='rgba(232,222,196,.55)';c.lineWidth=.6;c.beginPath();c.moveTo(4+10*Math.cos(-1.2),-9+10*Math.sin(-1.2));c.lineTo(8-an*4,-9);c.lineTo(4+10*Math.cos(1.2),-9+10*Math.sin(1.2));c.stroke();}
+  else if(k==='lamp'){c.strokeStyle=WD;c.lineWidth=1.4;c.beginPath();c.moveTo(7,1);c.lineTo(7,-20);c.lineTo(10.5,-20);c.stroke();c.fillStyle=W;c.beginPath();c.moveTo(8.4,-18.6);c.lineTo(12.6,-18.6);c.lineTo(12,-12.6);c.lineTo(9,-12.6);c.closePath();c.fill();c.fillStyle='rgba(255,214,140,.9)';c.fillRect(9.6,-17.4,1.8,3.4);}
+  else if(k==='fire'){const l=an*4;c.fillStyle=W;c.beginPath();c.moveTo(5,-12-l);c.lineTo(4.4,-5-l);c.lineTo(9.6,-5-l);c.lineTo(9,-12-l);c.closePath();c.fill();c.fillRect(6,-14.4-l,2,2.4);c.fillStyle='rgba(255,150,80,.95)';c.beginPath();c.moveTo(7,-14.6-l);c.quadraticCurveTo(10,-17-l,7.6,-20-l);c.quadraticCurveTo(4.6,-17-l,7,-14.6-l);c.fill();}}
 function unitFigB(c,o,now,ghostly){
   now=now||0;if(o.cd>(o._c||0)+.05)o.an=.2;o._c=o.cd;if(o.an>0)o.an-=1/60;
-  const k=o.kind,col=UBC[k]||[200,200,200],t=o.tier!=null?o.tier:dispTier(k),an=Math.max(0,o.an||0)/.2;
+  const k=o.kind,col=UBC[k]||[200,200,200],t=o.tier!=null?o.tier:dispTier(k),an=Math.max(0,o.an||0)/.2,V=(typeof window!=='undefined'&&window.UBV)||'p1';
   if(o.hurt>0)o.hurt-=1/60;const hj=o.hurt>0?Math.sin(now*70)*1.2:0;
-  const ic=!!o.icon,x=ic?24.5:o.x+hj,y=ic?25:o.y-4,R=ic?17:13*(1+.04*((o.lvl||1)-1)),s=R/12*(1+an*.12);
+  const ic=!!o.icon,x=ic?22:o.x+hj,y=ic?38:o.y+6,sc=(ic?1.25:1.3)*(1+.04*((o.lvl||1)-1)),walk=o.walk||o.out,bob=walk?Math.abs(Math.sin(now*9+(o.id||0)))*1.2:0;
   c.save();
-  if(!ic){c.fillStyle='rgba(0,0,0,.45)';c.beginPath();c.ellipse(x,o.y+7,R*1.1,R*.38,0,0,7);c.fill();
-    if(!ghostly)sp1(c,glowC(...col),x,y,R*2,.2);}
-  c.globalAlpha=ghostly&&!ic?.7:1;
-  c.fillStyle='#161b25';c.beginPath();c.arc(x,y,R+1.4,0,7);c.fill();
-  c.fillStyle=ubRgb(ubSh(col,.42));c.beginPath();c.arc(x,y,R,0,7);c.fill();
-  c.strokeStyle=ubRgb(col,.95);c.lineWidth=ic?2.2:1.7;c.beginPath();c.arc(x,y,R,0,7);c.stroke();
-  if(t>=1){c.strokeStyle=ubRgb(col,.45);c.lineWidth=1;c.beginPath();c.arc(x,y,R-3,0,7);c.stroke();}
-  if(t>=2){c.strokeStyle='rgba(222,190,110,.95)';c.lineWidth=1.4;c.beginPath();c.arc(x,y,R+2.6,0,7);c.stroke();}
-  c.translate(x,y);c.scale(s,s);ubIcon(c,k,'#efe4c8',2.4,now,o);
+  /* 발밑: 무리 색 고리 */
+  const RX=11*sc,RY=4*sc;c.globalAlpha=ghostly&&!ic?.7:1;
+  c.fillStyle=ubRgb(ubSh(col,.3),.85);c.beginPath();c.ellipse(x,y,RX,RY,0,0,7);c.fill();
+  c.strokeStyle=ubRgb(col,.9);c.lineWidth=1.5;c.beginPath();c.ellipse(x,y,RX,RY,0,0,7);c.stroke();
+  if(t>=2){c.strokeStyle='rgba(222,190,110,.9)';c.lineWidth=1.2;c.beginPath();c.ellipse(x,y,RX+2.5,RY+1.6,0,0,7);c.stroke();}
+  c.translate(x,y-bob);const face=Math.cos((o.fa||0)-Math.PI/2)<0&&!ic?-1:1;c.scale(sc*face,sc);
+  const body=V==='p2'?'#1b2130':ubRgb(ubSh(col,.62)),edge=ubRgb(col,.95),skin=V==='p2'?'#1b2130':'#d6bf9c';
+  /* 몸 */
+  c.fillStyle=body;c.beginPath();
+  if(V==='p3'){c.moveTo(-6,0);c.lineTo(-3.4,-15);c.quadraticCurveTo(0,-20.5,3.4,-15);c.lineTo(6,0);c.closePath();}
+  else{c.moveTo(-5.6,0);c.lineTo(-3.8,-11);c.lineTo(3.8,-11);c.lineTo(5.6,0);c.closePath();}
+  c.fill();if(V==='p2'){c.strokeStyle=edge;c.lineWidth=1.1;c.stroke();}
+  if(V!=='p2'){c.fillStyle='rgba(0,0,0,.22)';c.fillRect(-5.2,-4.6,10.4,1.4);}
+  /* 머리 */
+  if(V==='p3'){c.fillStyle='#10141c';c.beginPath();c.ellipse(0,-14.2,2.5,2.9,0,0,7);c.fill();}
+  else{c.fillStyle=skin;c.beginPath();c.arc(0,-14,3.6,0,7);c.fill();if(V==='p2'){c.strokeStyle=edge;c.lineWidth=1.1;c.stroke();}}
+  if(V!=='p2')ubHat(c,k,col,V);
+  /* 팔 + 무기 */
+  c.strokeStyle=V==='p2'?'#1b2130':body;c.lineWidth=2;c.lineCap='round';c.beginPath();c.moveTo(2.6,-8.5);c.lineTo(6.4,-4.5-an*2);c.stroke();
+  ubWeap(c,k,an,now,o);
   c.restore();
   if(ghostly||ic)return;
-  if(o.rest){c.strokeStyle='rgba(180,210,255,.75)';c.lineWidth=1.3;for(let i=0;i<3;i++){c.beginPath();c.arc(x+R,y-R-6-i*4-((now*3+i)%1)*3,1.3+i*.4,0,7);c.stroke();}}
-  if(o.lvl>1){for(let i=0;i<o.lvl-1;i++){const sx=x-4*(o.lvl-2)+i*8,sy=y-R-6;sp1(c,glowC(255,214,120),sx,sy,4.5,.9);c.fillStyle='#fff3c4';c.beginPath();c.arc(sx,sy,1.6,0,7);c.fill();}}
-  if(o.hp<o.max-.5){const p=Math.max(0,o.hp/o.max);c.fillStyle='rgba(0,0,0,.65)';c.fillRect(x-12,o.y+11,24,3.2);c.fillStyle=p<.35?'#ff8a96':'#9ff0b0';c.fillRect(x-12,o.y+11,24*p,3.2);}
+  if(o.rest){c.strokeStyle='rgba(180,210,255,.75)';c.lineWidth=1.3;for(let i=0;i<3;i++){c.beginPath();c.arc(x+12,y-34-i*4-((now*3+i)%1)*3,1.3+i*.4,0,7);c.stroke();}}
+  if(o.lvl>1){for(let i=0;i<o.lvl-1;i++){const sx=x-4*(o.lvl-2)+i*8,sy=y-38;sp1(c,glowC(255,214,120),sx,sy,4.5,.9);c.fillStyle='#fff3c4';c.beginPath();c.arc(sx,sy,1.6,0,7);c.fill();}}
+  if(o.hp<o.max-.5){const p=Math.max(0,o.hp/o.max);c.fillStyle='rgba(0,0,0,.65)';c.fillRect(x-12,y+5,24,3.2);c.fillStyle=p<.35?'#ff8a96':'#9ff0b0';c.fillRect(x-12,y+5,24*p,3.2);}
 }
 {const u1=unitFig;unitFig=function(c,o,now,g){if(lookOf()==='disc'&&UBC[o.kind])return unitFigB(c,o,now,g);return u1(c,o,now,g);};}
 /* ── 어느 화면이든 스크롤 없이: 넘치면 내용을 조금씩 줄여 한 화면에 맞춘다 ── */
@@ -1759,10 +1788,10 @@ function pickCard(n){
 }
 function begin(n,cd){
   newNight(n,(Math.random()*1e9)|0,S.up,{tr:S.tr,card:cd.id,spirits:S.sp,pts:S.pts,br:S.br,devs:S.devs,depth:S.night>=3?(S.deep||0):0});
-  sel='gate';pend=null;insp=null;paused=false;speed=1;banner={t:0,a:'낮',b:`${cd.name} · 문을 정하고 채비를 놓는다`};$('btnSpeed').textContent='×1';for(const k of ORDER)delete $('u_'+k).dataset.open;$('spRow').dataset.k='-';fxs=[];
+  sel='gate';pend=null;insp=null;paused=false;speed=1;banner={t:0,a:'낮',b:`${NIGHTS[n].theme?NIGHTS[n].theme.name+' · ':''}${cd.name}`};$('btnSpeed').textContent='×1';for(const k of ORDER)delete $('u_'+k).dataset.open;$('spRow').dataset.k='-';fxs=[];
   const o=S.night>0;$('nightRow').hidden=true;tut={treasure:!!S.draws&&S.night>1,carry:S.night>1,place:o,wake:o,turn:o,deep:o,promo:o,pend:o,rest:o,back:o,root:o,walk:o};shown=false;dawnA=0;
   document.body.classList.add('battle');show('sBattle');resize();hud();
-  notice(o?`오늘의 조건: ${cd.name}.`:'낮이다. 울타리를 눌러 문 자리를 정하고, 일손으로 채비를 놓고, 셋까지 미리 세운다.',o?4:10);
+  {const th=NIGHTS[n].theme;notice(o?`「${th.name}」 ${th.tip}`:`낮이다. 문 자리를 정하고 채비를 놓는다. 오늘은 「${th.name}」: ${th.tip}`,o?7:12);}
 }
 /* ── 새벽: 셈과 꾸러미 하나 ── */
 let draw=null,drawQ=[];
