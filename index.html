@@ -396,7 +396,7 @@ const FOES={
   lure:{name:'꾀는 이',fog:60,sp:13,atk:4,r:11,cour:8},
   boss:{name:'안개를 이끄는 이',fog:760,sp:9,atk:12,r:21,cour:60},
   turn:{name:'홀린 아군',fog:40,sp:15,atk:4,r:10,cour:0}};
-const BUILD={moat:{name:'해자',cost:2,tip:'그림자가 건너지 못해 돌아서 온다. 넷까지 판다.'},trap:{name:'구덩이',cost:2,uses:3,tip:'밟은 그림자가 3초 묶이고 안개의 4분의 1이 걷힌다(큰 그림자는 10분의 1). 세 번 쓰면 메워진다.'},tower:{name:'망루',cost:3,tip:'이 위에 선 이는 공격이 20% 세고, 쏘는 이는 25% 더 멀리 쏜다.'},bomb:{name:'등유 통',cost:3,tip:'밟으면 한 번 터져 둘레 그림자의 안개를 40% 걷고 태운다(큰 그림자는 15%).'},
+const BUILD={moat:{name:'해자',cost:2,tip:'그림자가 건너지 못해 돌아서 온다. 셋까지 판다.'},trap:{name:'구덩이',cost:2,uses:3,tip:'밟은 그림자가 3초 묶이고 안개의 4분의 1이 걷힌다(큰 그림자는 10분의 1). 세 번 쓰면 메워진다.'},tower:{name:'망루',cost:3,tip:'이 위에 선 이는 공격이 20% 세고, 쏘는 이는 25% 더 멀리 쏜다.'},bomb:{name:'등유 통',cost:3,tip:'밟으면 한 번 터져 둘레 그림자의 안개를 40% 걷고 태운다(큰 그림자는 15%).'},
   cannon:{name:'돌 대포',cost:5,uses:12,dev:1,tip:'4초마다 문에 가장 가까운 그림자에게 돌을 쏴 둘레 안개를 15% 걷는다(큰 그림자는 6%). 한 밤 12발.'},
   decoy:{name:'가짜 등불',cost:3,uses:3,dev:1,tip:'두 칸 안의 그림자를 끌어들여 2초 동안 홀린 듯 서성이게 한다. 그림자마다 한 번, 한 밤 세 번.'},
   bell:{name:'마을 종',cost:2,uses:1,dev:1,tip:'밤에 한 번 울리면 모든 그림자가 1.5초 멈칫한다. 하나만 놓는다.'},
@@ -425,7 +425,7 @@ const CARDS=[
   {id:'dark',kind:'내기',name:'달 없는 밤',text:'그림자가 나올 자리가 보이지 않는다. 대신 경험을 두 배로 얻는다.'},
   {id:'few',kind:'내기',name:'꺼진 등불',text:'마을 등불 셋으로 시작한다. 대신 경험 1.5배, 귀한 것이 나올 확률 1.5배.'}];
 const ORDER=['spear','flail','bow','lamp','yeot','fire'],MOVE=[0,20,20],LVL=[0,60,200];
-const TUNE={beamNeed:8,beamN:.3,beamD:.16,beamB:.07,gap:2,spd:1.3,rest:5,back:5,iceV:1.25,knock:30,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.22,fog:1.7,atk:.22,ramp:.05,a0:.75,f0:.75,fk:.03,burn:4,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[1,1.3,1.85],na:[1,1.3,1.72]};
+const TUNE={beamNeed:8,beamN:.3,beamD:.16,beamB:.07,gap:2,spd:1.3,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.22,fog:1.7,atk:.22,ramp:.05,a0:.75,f0:.75,fk:.03,burn:4,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[1,1.3,1.85],na:[1,1.3,1.72]};
 let N=null;
 /* 물결이 12개로 줄어도 강해지는 흐름은 15개 때와 같게: h를 0~14 눈금으로 늘려 쓴다 */
 const hq=h=>h*14/(WAVES-1);
@@ -510,7 +510,7 @@ function toggleBuild(kind,x,y){
   if(had){N.block[t.c][t.r]=false;N.obj[t.c][t.r]=null;N.pts+=BUILD[had].cost;flow();return'off';}
   if(unitAt(t.c,t.r))return'unit';if(gateFront(t.c,t.r))return'gate';if(N.pond[t.c][t.r])return'pond';
   const B=BUILD[kind];if(B.dev&&!N.devs[kind])return'lock';if(kind==='bell'&&N.obj.some(col=>col.some(o=>o&&o.k==='bell')))return'one';if(N.pts<B.cost)return'none';
-  if(kind==='moat'){let m=0;for(let c=1;c<COLS-1;c++)for(let r=0;r<ROWS;r++)if(N.block[c][r]&&!N.rock[c][r])m++;if(m>=4)return'cap';N.block[t.c][t.r]=true;if(flow()<1){N.block[t.c][t.r]=false;flow();return'shut';}}
+  if(kind==='moat'){let m=0;for(let c=1;c<COLS-1;c++)for(let r=0;r<ROWS;r++)if(N.block[c][r]&&!N.rock[c][r])m++;if(m>=3)return'cap';N.block[t.c][t.r]=true;if(flow()<1){N.block[t.c][t.r]=false;flow();return'shut';}}
   else N.obj[t.c][t.r]={k:kind,uses:B.uses?Math.round(B.uses*(N.devs[kind]===2?1.34:1)):1,plus:N.devs[kind]===2,c:t.c,r:t.r,x:t.x,y:t.y-8};
   N.pts-=B.cost;return'on';
 }
@@ -944,7 +944,7 @@ for(const t of['forge','dev','sp','clue','map'])$('tab_'+t).onclick=()=>{htab=t;
 function goHome(){N=null;document.body.classList.remove('battle','night');show('sHome');renderHome();}
 /* ── 도움말: 넘겨 보는 쪽지 ── */
 const HELP=[['이기는 법','열두 물결의 그림자를 모두 깨우면 해가 뜬다. 한 물결을 다 깨워야 다음 물결이 온다. 그림자가 문으로 들어오면 마을 등불이 하나 꺼지고, 다 꺼지면 진다. 뒤로 갈수록 그림자가 짙고 세다.'],
- ['낮','울타리를 눌러 문 자리를 정한다. 일손 12로 채비를 놓는다: 해자(돌아가게 함, 넷까지), 구덩이, 망루, 등유통, 그리고 맞춘 장치. 다시 누르면 치운다. 셋까지 미리 세울 수 있고, 그 셋은 밤새 20% 세다.'],
+ ['낮','울타리를 눌러 문 자리를 정한다. 일손 12로 채비를 놓는다: 해자(돌아가게 함, 셋까지), 구덩이, 망루, 등유통, 그리고 맞춘 장치. 다시 누르면 치운다. 셋까지 미리 세울 수 있고, 그 셋은 밤새 20% 세다.'],
  ['밤','세운 이는 문에서 걸어 나온다. 길을 막는 그림자와는 싸우며 간다. 그림자를 깨울수록 「등대 빛」이 차오른다. 다 차면 누르고 떨어뜨릴 곳을 누른다. 짧은 사이에 잇달아 깨우면 연쇄가 되어 용기를 더 얻는다.'],
  ['우리 편','작살꾼은 앞을 막는다. 도리깨꾼은 둘레를 한꺼번에 친다. 사냥꾼은 멀리 쏘고, 바로 앞 칸에 작살꾼이 있으면 더 빨리 쏜다. 등불지기의 빛은 그림자 사이를 튀며 넷을 맞힌다. 엿장수는 엿가락으로 그림자를 줄줄이 붙여 피해를 나눠 받게 한다. 화염병은 둘레를 태운다.'],
  ['그림자','얕게 홀린 이. 달려오는 아이. 깊이 홀린 이(크고 짙다). 방패 든 이(화살이 튕긴다). 아이를 업은 이(깨우면 아이가 뛰어내린다). 꾀는 이(우리 편을 잠깐 한 칸 끌어낸다). 안개를 이끄는 이(우두머리). 금빛 그림자는 설계도 조각을 지녔다.'],
@@ -1661,7 +1661,7 @@ cv.addEventListener('pointerdown',e=>{e.preventDefault();audioInit();if(!N||N.ov
   const t=snap(p.x,p.y);
   if(BUILD[sel]){if(!t)return;const r=toggleBuild(sel,p.x,p.y);
     if(r==='on'){thud(90,.14);tone(160,.08,.04,'triangle');}else if(r==='off')tone(220,.08,.04,'triangle');
-    else notice({none:'일손이 모자라다. 놓인 것을 다시 누르면 치우고 일손을 돌려받는다.',unit:'누가 서 있는 칸에는 놓을 수 없다.',shut:'길을 다 막을 수는 없다. 문까지 오는 길 하나는 남겨야 한다.',rock:'바위와 벼랑에는 놓을 수 없다.',gate:'문 앞은 비워 둔다.',pond:'웅덩이에는 놓을 수 없다.',night:'해가 진 뒤에는 고칠 수 없다.',cap:'해자는 넷까지만 판다. 남은 일손은 구덩이, 망루, 등유통에 쓴다.',lock:'아직 설계도를 맞추지 못한 장치다.',one:'마을 종은 하나만 놓는다.'}[r]||'',2.4);
+    else notice({none:'일손이 모자라다. 놓인 것을 다시 누르면 치우고 일손을 돌려받는다.',unit:'누가 서 있는 칸에는 놓을 수 없다.',shut:'길을 다 막을 수는 없다. 문까지 오는 길 하나는 남겨야 한다.',rock:'바위와 벼랑에는 놓을 수 없다.',gate:'문 앞은 비워 둔다.',pond:'웅덩이에는 놓을 수 없다.',night:'해가 진 뒤에는 고칠 수 없다.',cap:'해자는 셋까지만 판다. 남은 일손은 구덩이, 망루, 등유통에 쓴다.',lock:'아직 설계도를 맞추지 못한 장치다.',one:'마을 종은 하나만 놓는다.'}[r]||'',2.4);
     hud();return;}
   if(look(t)){pend=null;return;}
   if(!sel){notice('먼저 아래에서 세울 이를 고른다.',2);return;}
