@@ -592,7 +592,7 @@ function step(dt){
   const gaps=N.units.filter(u=>u.sp==='gap'&&!u.walk),yuns=N.units.filter(u=>u.sp==='yun'&&!u.walk),suns=N.units.filter(u=>u.sp==='sun'&&!u.walk);
   /* 그림자 */
   for(const f of N.foes){
-    if(f.root>0)f.root-=dt;if(f.pin>0)f.pin-=dt;if(f.pinImm>0)f.pinImm-=dt;if(f.slow>0)f.slow-=dt;if(f.imm>0)f.imm-=dt;if(f.iceImm>0)f.iceImm-=dt;if(f.daze>0)f.daze-=dt;if(f.dzImm>0)f.dzImm-=dt;if(f.iced>0)f.iced-=dt;
+    if(f.root>0)f.root-=dt;if(f.pin>0)f.pin-=dt;if(f.pinImm>0)f.pinImm-=dt;if(f.netImm>0)f.netImm-=dt;if(f.blind>0)f.blind-=dt;if(f.slow>0)f.slow-=dt;if(f.imm>0)f.imm-=dt;if(f.iceImm>0)f.iceImm-=dt;if(f.daze>0)f.daze-=dt;if(f.dzImm>0)f.dzImm-=dt;if(f.iced>0)f.iced-=dt;
     if(f.burn>0){f.burn-=dt;f.fog-=TUNE.burn*(f.burnK||1)*dt;}
     if(f.link){f.link.t-=dt;if(f.link.t<=0)f.link=null;}
     /* 가짜 등불: 끌려가 홀린 듯 서성인다 */
@@ -602,7 +602,7 @@ function step(dt){
     if(f.lureTo&&!(f.root>0)){const o=f.lureTo,d=Math.hypot(o.x-f.x,o.y+8-f.y);if(d<14){f.mesmer=2;f.lureTo=null;N.fx.push({k:'mesmer',x:f.x,y:f.y});}else goto(f,o.x,o.y+8,f.sp*N.mod.slow*dt);continue;}
     const oc=Math.floor(f.x/TILE),or=Math.floor((f.y-4-F_TOP)/TILE),inF=oc>=0&&oc<COLS&&or>=0&&or<ROWS;
     let tg=null,bd=52;
-    for(const u of N.units){const d=Math.hypot(u.x-f.x,u.y-f.y);if(d<bd){bd=d;tg=u;}}
+    if(!(f.blind>0))for(const u of N.units){const d=Math.hypot(u.x-f.x,u.y-f.y);if(d<bd){bd=d;tg=u;}}
     for(const g of gaps){const d=Math.hypot(g.x-f.x,g.y-f.y);if(d<SPIRITS.gap.range&&(!tg||tg.sp!=='gap')){tg=g;bd=d;}}
     let sp=f.sp*N.mod.slow*(f.slow>0?.7:1)*(inF&&N.pond[oc][or]&&f.type!=='hop'?.6:1)*dt;
     for(const y of yuns)if(Math.hypot(y.x-f.x,y.y-f.y)<SPIRITS.yun.range){sp*=.7;break;}
@@ -644,12 +644,12 @@ function step(dt){
         if(tg){const tw2=N.obj[u.c][u.r]&&N.obj[u.c][u.r].k==='tower';let dm=U.dmg*(1+.35*(u.lvl-1))*atkK('lamp')*(u.fresh?TUNE.fresh:1)*(tw2?1.2:1);const n=lbr==='long'?6:4,hit=[tg],pts=[[u.x,u.y-22],[tg.x,tg.y-14]];let cur=tg;
           dmgFoe(tg,dm);gain(u,dm);tg.hurt=.16;
           for(let i=1;i<n;i++){let nx=null,nd=72;for(const f of N.foes){if(hit.includes(f))continue;const d=Math.hypot(f.x-cur.x,f.y-cur.y);if(d<nd){nd=d;nx=f;}}if(!nx)break;dm*=.75;dmgFoe(nx,dm);gain(u,dm);nx.hurt=.16;hit.push(nx);pts.push([nx.x,nx.y-14]);cur=nx;}
-          u.fa=Math.atan2(tg.y-u.y,tg.x-u.x)+Math.PI/2;N.fx.push({k:'chain',pts});u.cd=U.cd;}}
+          u.fa=Math.atan2(tg.y-u.y,tg.x-u.x)+Math.PI/2;if(lbr==='spark')N.beam.c=Math.min(N.beam.need,N.beam.c+.06*hit.length);N.fx.push({k:'chain',pts});u.cd=U.cd;}}
       continue;}
     const tw=N.obj[u.c][u.r]&&N.obj[u.c][u.r].k==='tower'&&!u.walk&&!u.out,dm=U.dmg*(1+.35*(u.lvl-1))*atkK(u.kind)*(u.fresh?TUNE.fresh:1)*(tw?1.2:1);u.tw=tw;
     if(u.kind==='flail'){if(u.spin>0)u.spin-=dt;if(u.cd>0)continue;const fb=brOf('flail'),R=rangeOf('flail')*(tw?1.1:1),hits=N.foes.filter(f=>Math.hypot(u.x-f.x,u.y-f.y)-f.r<R);
       if(!hits.length)continue;const d2=dm*(fb==='heavy'?1.4:1);for(const f of hits){dmgFoe(f,d2);f.hurt=.16;}gain(u,d2*hits.length*.6);
-      N.fx.push({k:'spin',x:u.x,y:u.y,r:R,n:hits.length,id:u.id});u.spin=.45;const again=hits.length>=3&&!u.again;u.again=again;u.cd=again?.45:U.cd*(tierOf('flail')>=1?.8:1);continue;}
+      if(fb==='whirl'&&hits.length>=3){for(const f of hits){if(f.type==='boss')continue;const kk=f.type==='deep'?.5:1,dx=u.x-f.x,dy=u.y-f.y,dd=Math.hypot(dx,dy)||1;if(dd<f.r+16)continue;f.kb=.25;f.kbx=dx/dd*12*kk/.25;f.kby=dy/dd*12*kk/.25;}N.fx.push({k:'whirl',x:u.x,y:u.y,r:R});}N.fx.push({k:'spin',x:u.x,y:u.y,r:R,n:hits.length,id:u.id});u.spin=.45;const again=hits.length>=3&&!u.again;u.again=again;u.cd=again?.45:U.cd*(tierOf('flail')>=1?.8:1);continue;}
     if(u.kind==='bow'||u.kind==='yeot'||u.kind==='fire'){
       if(u.cd>0)continue;let tg=null,bd=BIG;const R=rangeOf(u.kind)*(tw?1.25:1);
       for(const f of N.foes){const d=Math.hypot(u.x-f.x,u.y-f.y)-f.r,pr=d+(u.kind==='yeot'&&(f.root>0||f.link)?900:0)+(u.kind==='bow'&&f.type==='shield'?200:0);if(d<R&&pr<bd){bd=pr;tg=f;}}
@@ -671,7 +671,7 @@ function step(dt){
         const d=Math.hypot(px-u.x,py-u.y),sp=U.run*dt;let nx=px,ny=py;if(d>sp){nx=u.x+(px-u.x)/d*sp;ny=u.y+(py-u.y)/d*sp;}
         if(!blockedAt(nx,ny)){u.x=nx;u.y=ny;}u.out=Math.hypot(u.x-u.hx,u.y-u.hy)>3;}
       if(u.cd<=0&&Math.hypot(tg.x-u.x,tg.y-u.y)-tg.r<30*rngK('spear')){
-        dmgFoe(tg,dm);gain(u,dm);hurtFoe(tg,u.x,u.y,2.2);if(!(tg.pinImm>0)){tg.pin=.5;tg.pinImm=1.4;}N.fx.push({k:'poke',x:u.x,y:u.y,tx:tg.x,ty:tg.y});
+        dmgFoe(tg,dm);gain(u,dm);hurtFoe(tg,u.x,u.y,2.2);if(!(tg.pinImm>0)){tg.pin=.5;tg.pinImm=1.4;}if(brOf('spear')==='net'&&!(tg.netImm>0)){let n=0;for(const g of N.foes)if(Math.hypot(g.x-tg.x,g.y-tg.y)-g.r<20&&!(g.netImm>0)){const big=g.type==='deep'||g.type==='boss';g.root=Math.max(g.root||0,big?.4:.8);g.netImm=2.5;n++;}N.fx.push({k:'net',x:tg.x,y:tg.y,n});}N.fx.push({k:'poke',x:u.x,y:u.y,tx:tg.x,ty:tg.y});
         if(brOf('spear')==='pierce'){let o=null,od=34;for(const f of N.foes){if(f===tg)continue;const d=Math.hypot(f.x-tg.x,f.y-tg.y);if(d<od){od=d;o=f;}}if(o){dmgFoe(o,dm*.6);hurtFoe(o,u.x,u.y,1.2);N.fx.push({k:'poke',x:tg.x,y:tg.y,tx:o.x,ty:o.y});}}
         u.cd=U.cd;}
     }else{
@@ -688,7 +688,7 @@ function step(dt){
       else{s.a=Math.atan2(s.ty-s.y,s.tx-s.x);s.x+=(s.tx-s.x)/d*sp;s.y+=(s.ty-s.y)/d*sp;}
       continue;}
     if(s.kind==='fire'){const d=Math.hypot(s.tx-s.x,s.ty-s.y),sp=190*dt;
-      if(d<=sp){const src=N.units.find(u=>u.id===s.src),ft=tierOf('fire'),fb=brOf('fire'),R=(ft>=1?42:34)+N.mod.boomR;for(const f of N.foes)if(Math.hypot(f.x-s.tx,f.y-s.ty)-f.r<R){dmgFoe(f,s.dmg);f.burn=(fb==='long'?6:3)*N.mod.burn;f.burnK=(fb==='hot'?2:1)*atkK('fire');gain(src,s.dmg);hurtFoe(f,s.tx,s.ty,1.5);}
+      if(d<=sp){const src=N.units.find(u=>u.id===s.src),ft=tierOf('fire'),fb=brOf('fire'),R=(ft>=1?42:34)+N.mod.boomR;for(const f of N.foes)if(Math.hypot(f.x-s.tx,f.y-s.ty)-f.r<R){dmgFoe(f,s.dmg);f.burn=(fb==='long'?6:3)*N.mod.burn;f.burnK=(fb==='hot'?2:1)*atkK('fire');if(fb==='smoke')f.blind=2.5;gain(src,s.dmg);hurtFoe(f,s.tx,s.ty,1.5);}if(fb==='smoke')N.fx.push({k:'smoke',x:s.tx,y:s.ty,r:R});
         N.fx.push({k:'boom',x:s.tx,y:s.ty,r:R});N.shots.splice(i,1);}
       else{s.a=Math.atan2(s.ty-s.y,s.tx-s.x);s.x+=(s.tx-s.x)/d*sp;s.y+=(s.ty-s.y)/d*sp;}
       continue;}
@@ -716,6 +716,7 @@ function step(dt){
       if(f.type==='turn'){N.stats.back++;let n=0;for(const u of N.units)if(!u.sp&&Math.hypot(u.x-f.x,u.y-f.y)<TUNE.backR){u.hp=Math.min(u.max,u.hp+u.max*TUNE.backHeal);n++;}N.woke.push({x:f.x,y:f.y,t:0,big:false});N.fx.push({k:'back',x:f.x,y:f.y,n});}
       else{if(N.t-N.lastWake<1.5)N.chainN++;else N.chainN=1;N.lastWake=N.t;const cb=Math.min(4,N.chainN-1);N.courage+=cb;if(N.chainN>N.stats.chain)N.stats.chain=N.chainN;
         N.beam.c=Math.min(N.beam.need,N.beam.c+(f.type==='boss'?3:f.type==='deep'?2:1));
+        if(f.link&&f.link.t>0&&brOf('yeot')==='trade'){N.courage+=2;N.fx.push({k:'trade',x:f.x,y:f.y});}
         if(f.treasure){N.stats.pieces++;N.fx.push({k:'piece',x:f.x,y:f.y});}
         const cr=Math.round(FOES[f.type].cour*N.mod.courK);N.courage+=cr;N.stats.xp+=FOES[f.type].cour;N.stats.woke++;if(f.type==='deep'||f.type==='boss')N.stats.deep++;if(f.type==='boss')N.stats.boss=true;N.woke.push({x:f.x,y:f.y,t:0,big:f.r>12});N.fx.push({k:'wake',x:f.x,y:f.y,type:f.type,c:cr+cb,chain:N.chainN});if(f.type==='carry'){spawn('run',f.x,f.y+2,{hurt:.2});N.fx.push({k:'hopoff',x:f.x,y:f.y});}}
     }else if(f.y>=GATE){N.foes.splice(i,1);N.lives-=f.type==='boss'?2:1;N.fx.push({k:'breach',x:f.x,treasure:!!f.treasure});}
@@ -766,12 +767,12 @@ const WEAP={spear:['대나무 작살','쇠 작살'],flail:['대나무 도리깨'
 const STEP=['atk','abil','hp','br','rng','atk','hp','all'],STEPS={atk:['공','공격 +15%'],abil:['능','새 능력'],hp:['마','마음(버티는 힘) +20%'],br:['갈','갈래 선택'],rng:['사','사거리 +10%'],all:['명','명인: 공격 +15%, 마음 +20%, 사거리 +10%']};
 const ABIL1={spear:'반 칸까지 달려 나가 붙잡는다',flail:'도는 사이가 20% 짧아진다',bow:'화살이 더 깊이 박힌다',lamp:'빛이 더 넓게 닿는다',yeot:'엿가락이 2초 더 오래 붙는다',fire:'불이 더 넓게 번진다'};
 /* 2단은 갈래를 고른다. 고른 뒤에도 값 없이 바꿀 수 있다 */
-const BR={lamp:[['finish','마무리 빛','빛 안에서 안개가 20% 아래로 떨어진 그림자는 그 자리에서 깨어난다'],['long','긴 사슬','빛이 여섯까지 튄다']],
- yeot:[['many','긴 엿가락','다섯까지 줄줄이 붙인다'],['sticky','찰엿','붙은 그림자끼리 피해를 50% 나눠 받고, 처음 맞은 그림자는 2초 묶인다']],
- flail:[['wide','넓은 도리깨','도는 범위가 35% 넓어진다'],['heavy','쇠 도리깨','한 번 칠 때 피해가 40% 세다']],
- spear:[['swap','교대 작살','한 칸까지 달려 나가고, 지치면 동료와 교대한다'],['pierce','삼지 작살','찌를 때 곁의 그림자까지 함께 꿴다']],
+const BR={lamp:[['finish','마무리 빛','빛 안에서 안개가 20% 아래로 떨어진 그림자는 그 자리에서 깨어난다'],['long','긴 사슬','빛이 여섯까지 튄다'],['spark','등대 불씨','빛이 그림자를 맞힐 때마다 등대 빛이 조금씩 찬다']],
+ yeot:[['many','긴 엿가락','다섯까지 줄줄이 붙인다'],['sticky','찰엿','붙은 그림자끼리 피해를 50% 나눠 받고, 처음 맞은 그림자는 2초 묶인다'],['trade','엿 장사','엿가락에 붙은 그림자가 깨어나면 용기 +2']],
+ flail:[['wide','넓은 도리깨','도는 범위가 35% 넓어진다'],['heavy','쇠 도리깨','한 번 칠 때 피해가 40% 세다'],['whirl','회오리 도리깨','셋 이상 맞히면 그림자들을 도리깨꾼 쪽으로 끌어 모은다']],
+ spear:[['swap','교대 작살','한 칸까지 달려 나가고, 지치면 동료와 교대한다'],['pierce','삼지 작살','찌를 때 곁의 그림자까지 함께 꿴다'],['net','그물 작살','찌른 자리 반 칸 둘레의 그림자를 잠깐 그물로 묶는다']],
  bow:[['fire','불화살','맞은 그림자가 3초 동안 탄다'],['ice','얼음 화살','맞은 그림자가 잠깐 멈추고, 그동안 안개가 더 걷힌다'],['knock','묵직한 화살','더 세게 박히고, 그림자를 밀쳐 잠깐 손을 못 쓰게 한다']],
-   fire:[['long','기름병','불이 두 배 오래 남는다'],['hot','도깨비불','불이 두 배로 뜨겁다']]};
+   fire:[['long','기름병','불이 두 배 오래 남는다'],['hot','도깨비불','불이 두 배로 뜨겁다'],['smoke','연막병','연기 속 그림자는 2.5초 동안 우리 편을 못 보고 길만 따라 걷는다']]};
 const SPREL={gap:'등유 통',chil:'호루라기',sun:'테왁',yun:'뱃종'};
 const jo=(w,a,b)=>w+(((w.charCodeAt(w.length-1)-0xAC00)%28)?a:b);
 
@@ -1399,6 +1400,10 @@ function drainFx(){
     else if(e.k==='mid'){bell(147,.2);}
     else if(e.k==='midpick'){}
     else if(e.k==='treasure'){if(!tut.treasure){tut.treasure=1;notice('금빛 그림자가 왔다. 설계도 조각을 지녔다. 문에 닿기 전에 깨운다.',5);}else notice('금빛 그림자가 왔다.',2);}
+    else if(e.k==='net'){cust((c,p)=>{c.strokeStyle=`rgba(214,200,160,${.8*(1-p)})`;c.lineWidth=1;const R=22;c.save();c.beginPath();c.arc(e.x,e.y-10,R,0,7);c.clip();for(let i=-R;i<=R;i+=6){c.beginPath();c.moveTo(e.x+i-R,e.y-10-R);c.lineTo(e.x+i+R,e.y-10+R);c.moveTo(e.x+i+R,e.y-10-R);c.lineTo(e.x+i-R,e.y-10+R);c.stroke();}c.restore();c.beginPath();c.arc(e.x,e.y-10,R,0,7);c.stroke();},.7);tone(330,.08,.03,'triangle');}
+    else if(e.k==='whirl'){cust((c,p)=>{c.strokeStyle=`rgba(236,224,190,${.6*(1-p)})`;c.lineWidth=2;for(let i=0;i<3;i++){c.beginPath();c.arc(e.x,e.y-8,e.r*(1-p)*(.5+i*.25),p*8+i*2,p*8+i*2+1.6);c.stroke();}},.45);thud(70,.08);}
+    else if(e.k==='smoke'){cust((c,p)=>{for(let i=0;i<6;i++){const a=i*1.05+p,rr=e.r*.55*(1+p*.4);const g=c.createRadialGradient(e.x+Math.cos(a)*rr*.5,e.y-6+Math.sin(a)*rr*.3,0,e.x+Math.cos(a)*rr*.5,e.y-6+Math.sin(a)*rr*.3,rr*.7);g.addColorStop(0,`rgba(150,150,150,${.35*(1-p)})`);g.addColorStop(1,'rgba(150,150,150,0)');c.fillStyle=g;c.beginPath();c.arc(e.x+Math.cos(a)*rr*.5,e.y-6+Math.sin(a)*rr*.3,rr*.7,0,7);c.fill();}},2.5);}
+    else if(e.k==='trade'){pop(e.x,e.y-8,'용기 +2');}
     else if(e.k==='knock'){bits(e.x,e.y,'#cbbf94',5,-1.57,1.6,70,2.2);thud(80,.1);}
     else if(e.k==='toss'){const n=performance.now();if(n-lastHit>40)tone(240+Math.random()*40,.06,.02,'triangle');}
   }
