@@ -321,6 +321,19 @@ body.icons .res::before,body.icons .shards::before{content:"";display:inline-blo
 body.icons .shards::before{background-image:var(--ic-xp)}
 body.icons #btnBeam::before{content:"";width:20px;height:20px;flex:none;background:var(--ic-beam) center/contain no-repeat}
 body.icons #pack .back::before{content:"";display:block;width:88px;height:88px;margin:0 auto 4px;background:var(--ic-pack) center/contain no-repeat}
+/* 설명은 맨 위로 옮겼다 */
+#selInfo{display:none}
+.hrow:has(> #selInfo:only-child){display:none}
+/* 일손 / 용기 묶음 */
+.grp{font-size:12px;color:var(--gold,#f2c230);letter-spacing:.04em;margin:2px 2px -2px;display:flex;gap:4px;align-items:baseline}
+.grp b{color:#e9e1cc;font-weight:700}
+#grpWork{margin-top:0}
+body.night .grp{display:none}
+/* 등대 빛 단추: 충전 전후로 글자가 바뀌어도 높이가 그대로 */
+#btnBeam{white-space:nowrap;flex-direction:row;align-items:center;justify-content:center;gap:6px;min-height:34px;max-height:34px;overflow:hidden}
+#btnBeam b{white-space:nowrap}
+#beamTxt{display:none!important}
+#btnBeam.ready{box-shadow:0 0 0 2px #ffe08a inset}
 </style>
 
 <div id="app">
@@ -367,10 +380,10 @@ body.icons #pack .back::before{content:"";display:block;width:88px;height:88px;m
     <div id="stage"><canvas id="cv"></canvas><div id="notice"></div></div>
     <div id="hud">
       <div class="hrow"><span class="res">용기 <b id="cour">0</b></span><div class="dial"><span id="clock"></span><span class="tide"><span id="tideFill"></span></span></div><button id="btnSpeed" class="mini" aria-label="빠르기">×1</button><button id="btnPause" class="mini" aria-label="멈춤">Ⅱ</button><button id="btnInfo" class="mini" aria-label="도움말">ⓘ</button></div>
-      <div class="hrow" id="dayRow"><button id="b_gate" class="daybtn">문<small>옮김</small></button><button id="b_moat" class="daybtn">해자<small>2</small></button><button id="b_trap" class="daybtn">구덩이<small>2</small></button><button id="b_tower" class="daybtn">망루<small>3</small></button><button id="b_bomb" class="daybtn">등유통<small>3</small></button><button id="btnDusk" class="daybtn go">밤을 맞는다</button></div>
+      <div class="grp" id="grpWork">일손으로 놓기 <b id="grpPts"></b></div><div class="hrow" id="dayRow"><button id="b_gate" class="daybtn">문<small>옮김</small></button><button id="b_moat" class="daybtn">해자<small>2</small></button><button id="b_trap" class="daybtn">구덩이<small>2</small></button><button id="b_tower" class="daybtn">망루<small>3</small></button><button id="b_bomb" class="daybtn">등유통<small>3</small></button><button id="btnDusk" class="daybtn go">밤을 맞는다</button></div>
       <div class="hrow" id="devRow" hidden><button id="b_cannon" class="daybtn">돌 대포<small>5</small></button><button id="b_decoy" class="daybtn">가짜 등불<small>3</small></button><button id="b_bell" class="daybtn">마을 종<small>2</small></button><button id="b_mirror" class="daybtn">거울<small>3</small></button></div>
       <div class="hrow" id="nightRow" hidden><button id="btnBeam" class="skbtn"><b>등대 빛</b><span class="chg"><i id="beamFill"></i></span><span id="beamTxt"></span></button><button id="btnBell" class="skbtn bellb" hidden><b>마을 종</b><span>한 번 울린다</span></button><div class="hrow" id="spRow" hidden></div></div>
-      <div class="hrow act"><button id="u_spear" class="ucard"></button><button id="u_flail" class="ucard"></button><button id="u_bow" class="ucard"></button><button id="u_lamp" class="ucard"></button><button id="u_yeot" class="ucard"></button><button id="u_fire" class="ucard"></button></div>
+      <div class="grp" id="grpCour">용기로 세우기</div><div class="hrow act"><button id="u_spear" class="ucard"></button><button id="u_flail" class="ucard"></button><button id="u_bow" class="ucard"></button><button id="u_lamp" class="ucard"></button><button id="u_yeot" class="ucard"></button><button id="u_fire" class="ucard"></button></div>
       <div class="hrow"><span id="selInfo"></span></div>
     </div>
   </section>
@@ -394,12 +407,12 @@ function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a
 const HOURS=['저녁 8시','저녁 8시 50분','밤 9시 40분','밤 10시 30분','밤 11시 20분','밤 12시 10분','새벽 1시','새벽 1시 50분','새벽 2시 40분','새벽 3시 30분','새벽 4시 20분','새벽 5시 10분'];
 const HSHORT=['20:00','20:50','21:40','22:30','23:20','00:10','01:00','01:50','02:40','03:30','04:20','05:10'];
 const UNITS={
-  spear:{name:'작살꾼',cost:20,hp:40,range:30,dmg:6.5,cd:.7,run:62,tip:'앞을 막아서는 이. 찌른 그림자를 잠깐 꿰어 둔다. 꿴 그림자는 화살과 도리깨에 40% 더 아프다.'},
-  bow:{name:'사냥꾼',cost:30,hp:20,range:130,dmg:5,cd:1,tip:'제자리에서 멀리 쏜다. 꿴 그림자에 40% 더 세다. 달려오는 아이는 꿰거나 늦춰야 잘 맞는다.'},
-  lamp:{name:'등불지기',cost:40,hp:26,range:96,dmg:9,cd:2,tip:'빛이 그림자 넷 사이를 튀며 맞히고, 맞은 그림자를 늦추며 빛으로 잇는다. 이어진 그림자는 피해와 불을 나눠 받는다.'},
+  spear:{name:'작살꾼',cost:20,hp:60,range:30,dmg:5,cd:.7,run:62,role:'근거리 · 막기',tip:'근거리 · 막기. 마음이 단단하고, 가까운 그림자는 이 사람부터 노린다. 찌른 그림자를 꿰어 두면 화살과 도리깨에 40% 더 아프다.'},
+  bow:{name:'사냥꾼',cost:30,hp:20,range:150,dmg:6,cd:1,role:'원거리 · 공격',tip:'원거리 · 공격. 4칸 가까이 멀리 한 마리씩 세게 쏜다. 꿴 그림자에 40% 더 세다. 달려오는 아이는 꿰거나 늦춰야 잘 맞는다.'},
+  lamp:{name:'등불지기',cost:40,hp:26,range:96,dmg:9,cd:2,role:'중거리 · 광역',tip:'중거리 · 광역. 빛이 그림자 넷 사이를 튀며 맞히고, 맞은 그림자를 늦추며 빛으로 잇는다. 이어진 그림자는 피해와 불을 나눠 받는다.'},
   yeot:{name:'엿장수',cost:35,hp:26,range:110,dmg:3,cd:3.2,tip:'엿가락을 늘여 그림자 셋을 줄줄이 붙인다. 붙은 그림자끼리는 받는 피해를 30% 나눠 받는다.'},
-  flail:{name:'도리깨꾼',cost:25,hp:28,range:54,dmg:11,cd:1.5,tip:'작살꾼 뒤에 서서 머리 너머로 도리깨를 휘두른다. 둘레 1.3칸을 한꺼번에 친다. 몸이 약해 맨 앞에 세우면 쉽게 홀린다. 셋 이상 맞히면 한 바퀴 더.'},
-  fire:{name:'화염병',cost:40,hp:22,range:115,dmg:8,cd:2.4,tip:'불병으로 둘레를 태운다. 불이 붙은 동안 깊이 홀린 이의 안개가 되살아나지 못한다.'}};
+  flail:{name:'도리깨꾼',cost:25,hp:30,range:66,dmg:11,cd:1.5,role:'중거리 · 광역',tip:'중거리 · 광역. 작살꾼 뒤에 서서 머리 너머로 도리깨를 휘두른다. 둘레 1.3칸을 한꺼번에 친다. 몸이 약해 맨 앞에 세우면 쉽게 홀린다. 셋 이상 맞히면 한 바퀴 더.'},
+  fire:{name:'화염병',cost:40,hp:22,range:104,dmg:8,cd:2.4,role:'중거리 · 광역',tip:'중거리 · 광역. 불병으로 둘레를 태운다. 불이 붙은 동안 깊이 홀린 이의 안개가 되살아나지 못한다.'}};
 /* 유품으로 불러낸 영혼: 한 밤에 한 번, 잠깐 머문다 */
 const SPIRITS={
   gap:{name:'갑수',role:'막는 이',hp:420,range:70,tip:'광부. 둘레의 그림자를 제게로 끌어 붙들고 버틴다. 홀리지 않는다.'},
@@ -444,7 +457,7 @@ const CARDS=[
   {id:'dark',kind:'내기',name:'달 없는 밤',text:'그림자가 나올 자리가 보이지 않는다. 대신 경험을 두 배로 얻는다.'},
   {id:'few',kind:'내기',name:'꺼진 등불',text:'마을 등불 셋으로 시작한다. 대신 경험 1.5배, 귀한 것이 나올 확률 1.5배.'}];
 const ORDER=['spear','flail','bow','lamp','fire'],MOVE=[0,20,20],LVL=[0,60,200];
-const TUNE={lampSlow:2.5,linkK:.3,markT:1.6,markK:1.4,runMiss:.7,regenD:.02,beamNeed:8,beamN:.3,beamD:.16,beamB:.07,gap:2,spd:1.3,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.22,fog:1.7,atk:.22,ramp:.05,a0:.75,f0:.75,fk:.03,burn:4,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[1,1.3,1.85],na:[1,1.3,1.72]};
+const TUNE={topRows:3,taunt:10,guard:.7,lampSlow:2.5,linkK:.3,markT:2.2,markK:1.4,runMiss:.7,regenD:.02,beamNeed:8,beamN:.38,beamD:.2,beamB:.09,gap:2,spd:1.3,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.22,fog:1.7,atk:.22,ramp:.05,a0:.75,f0:.75,fk:.03,burn:4,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[1,1.3,1.85],na:[1,1.3,1.72]};
 let N=null;
 /* 물결이 12개로 줄어도 강해지는 흐름은 15개 때와 같게: h를 0~14 눈금으로 늘려 쓴다 */
 const hq=h=>h*14/(WAVES-1);
@@ -556,7 +569,7 @@ function mkUnit(kind,t,lvl,xp,hpf){const m=maxHp(kind,lvl);return{id:N.uid++,kin
 function sendOut(u,t){const p=pathTo(t.c,t.r);if(!p)return false;u.x=N.gate*TILE+TILE/2;u.y=GATE+6;u.path=p;u.walk=true;u.out=true;return true;}
 function place(kind,x,y){
   const U=UNITS[kind];if(!N||N.over||!U||!N.unlocked.includes(kind))return'lock';
-  if(N.courage<U.cost)return'poor';const t=canPlace(x,y);if(!t)return'spot';
+  if(N.courage<U.cost)return'poor';const t=canPlace(x,y);if(!t)return'spot';if(t.r<TUNE.topRows)return'high';
   const day=N.phase==='day';if(day&&N.dayPlaced>=TUNE.dayMax)return'daymax';
   const u=mkUnit(kind,t,1,0,1);
   if(day){u.fresh=true;N.dayPlaced++;}else if(!sendOut(u,t))return'nopath';
@@ -627,17 +640,17 @@ function step(dt){
     if(f.lureTo&&!(f.root>0)){const o=f.lureTo,d=Math.hypot(o.x-f.x,o.y+8-f.y);if(d<14){f.mesmer=2;f.lureTo=null;N.fx.push({k:'mesmer',x:f.x,y:f.y});}else goto(f,o.x,o.y+8,f.sp*N.mod.slow*dt);continue;}
     const oc=Math.floor(f.x/TILE),or=Math.floor((f.y-4-F_TOP)/TILE),inF=oc>=0&&oc<COLS&&or>=0&&or<ROWS;
     let tg=null,bd=52;
-    if(!(f.blind>0))for(const u of N.units){const d=Math.hypot(u.x-f.x,u.y-f.y);if(d<bd){bd=d;tg=u;}}
+    if(!(f.blind>0))for(const u of N.units){const d=Math.hypot(u.x-f.x,u.y-f.y)-(u.kind==='spear'?TUNE.taunt:0);if(d<bd){bd=d;tg=u;}}
     for(const g of gaps){const d=Math.hypot(g.x-f.x,g.y-f.y);if(d<SPIRITS.gap.range&&(!tg||tg.sp!=='gap')){tg=g;bd=d;}}
     let sp=f.sp*N.mod.slow*(f.slow>0?.6:1)*(inF&&N.pond[oc][or]&&f.type!=='hop'?.6:1)*dt;
     for(const y of yuns)if(Math.hypot(y.x-f.x,y.y-f.y)<SPIRITS.yun.range){sp*=.7;break;}
-    if(tg&&bd<=f.r+13){turnTo(f,Math.atan2(tg.y-f.y,tg.x-f.x)-Math.PI/2);tg.hp-=f.atk*dt*(tg.sp==='gap'?.5:1)*(f.daze>0?0:1);f.hit=.15;tg.hurt=.12;}
+    if(tg&&bd<=f.r+13){turnTo(f,Math.atan2(tg.y-f.y,tg.x-f.x)-Math.PI/2);tg.hp-=f.atk*dt*(tg.sp==='gap'?.5:tg.kind==='spear'?TUNE.guard:1)*(f.daze>0?0:1);f.hit=.15;tg.hurt=.12;}
     else if(f.root>0||f.pin>0){}
     else if(tg&&(f.type==='hop'||lineOpen(f.x,f.y,tg.x,tg.y))){const nx=f.x+(tg.x-f.x)/bd*sp,ny=f.y+(tg.y-f.y)/bd*sp;if(f.type!=='hop'&&blockedAt(nx,ny))flowStep(f,sp);else{f.x=nx;f.y=ny;turnTo(f,Math.atan2(tg.y-f.y,tg.x-f.x)-Math.PI/2);}}
     else flowStep(f,sp);
     /* 꾀는 이: 가까운 이를 한 칸 앞으로 끌어낸다 */
     if(f.type==='lure'){f.lureCd-=dt;if(f.lureCd<=0){let v=null,vd=130;for(const u of N.units){if(u.sp||u.walk||u.r<=0)continue;const d=Math.hypot(u.hx-f.x,u.hy-f.y);if(d<vd&&freeTile(u.c,u.r-1)){vd=d;v=u;}}
-      if(v){const t=tileXY(v.c,v.r-1);v.path=[t];v.walk=true;v.out=true;v.lured=1.2;v.lureT=3.5;f.lureCd=6;N.fx.push({k:'lure',x:f.x,y:f.y,tx:t.x,ty:t.y});}else f.lureCd=1;}}
+      if(v){v.cd=Math.max(v.cd,2.2);v.dazed=2.2;f.lureCd=6;N.fx.push({k:'lure',x:f.x,y:f.y,tx:v.x,ty:v.y});}else f.lureCd=1;}}
     /* 낮에 놓은 것들 */
     if(inF){const o=N.obj[oc][or],k=1+.2*N.night;
       if(o&&o.k==='trap'&&f.type!=='hop'&&!(f.root>0)&&!(f.imm>0)&&Math.hypot(o.x-f.x,o.y+8-f.y)<16){f.root=f.type==='boss'?1.5:3;f.vuln=1.2;f.imm=7;f.fog-=f.max*(f.type==='boss'||f.type==='deep'?.1:.25);f.hurt=.16;o.uses--;N.fx.push({k:'pit',x:o.x,y:o.y+8});if(o.uses<=0)N.obj[oc][or]=null;}
@@ -692,7 +705,7 @@ function step(dt){
     if(tg){
       turnTo(u,Math.atan2(tg.y-u.y,tg.x-u.x)+Math.PI/2);
       if(mv>0){const a=(u.id*2.399)%6.283;let px=tg.x+Math.cos(a)*(tg.r+13),py=tg.y+Math.sin(a)*(tg.r+13);
-        const hd=Math.hypot(px-u.hx,py-u.hy);if(hd>mv){px=u.hx+(px-u.hx)/hd*mv;py=u.hy+(py-u.hy)/hd*mv;}
+        const hd=Math.hypot(px-u.hx,py-u.hy);if(hd>mv){px=u.hx+(px-u.hx)/hd*mv;py=u.hy+(py-u.hy)/hd*mv;}py=Math.max(py,F_TOP+TUNE.topRows*TILE-12);
         const d=Math.hypot(px-u.x,py-u.y),sp=U.run*dt;let nx=px,ny=py;if(d>sp){nx=u.x+(px-u.x)/d*sp;ny=u.y+(py-u.y)/d*sp;}
         if(!blockedAt(nx,ny)){u.x=nx;u.y=ny;}u.out=Math.hypot(u.x-u.hx,u.y-u.hy)>3;}
       if(u.cd<=0&&Math.hypot(tg.x-u.x,tg.y-u.y)-tg.r<30*rngK('spear')){
@@ -756,7 +769,7 @@ function step(dt){
 /* 등대 빛: 깨운 그림자로 차오르고, 누르면 빛이 들판 전체를 쓸고 지나간다 */
 function beamAll(){
   if(!N||N.over||N.phase==='day'||N.mid)return'wait';if(N.beam.c<N.beam.need)return'charge';const pts=[];
-  for(const f of N.foes){if(f.y<F_TOP-30)continue;f.fog-=f.max*(f.type==='boss'?TUNE.beamB:f.type==='deep'?TUNE.beamD:TUNE.beamN);f.hurt=.16;f.root=Math.max(f.root||0,.4);pts.push([f.x,f.y]);}
+  for(const f of N.foes){if(f.y<F_TOP-30)continue;f.fog-=f.max*(f.type==='boss'?TUNE.beamB:f.type==='deep'?TUNE.beamD:TUNE.beamN);f.hurt=.16;f.root=Math.max(f.root||0,f.type==='boss'?.6:1.2);pts.push([f.x,f.y]);}
   N.beam.c=0;N.fx.push({k:'beam',pts});return'ok';
 }
 function ringBell(){
@@ -1188,7 +1201,7 @@ function spiritFig(c,o,now,ghostly){
 }
 /* ── 조작 띠 ── */
 const isSp=k=>!!SPIRITS[k];
-function pendOk(){if(!pend||!sel)return false;if(!freeTile(pend.c,pend.r))return false;
+function pendOk(){if(!pend||!sel)return false;if(!freeTile(pend.c,pend.r))return false;if(UNITS[sel]&&pend.r<TUNE.topRows)return false;
   if(isSp(sel)){const s=N.sp[sel];return N.phase!=='day'&&s&&!s.used&&N.spUsed<2;}
   return N.courage>=UNITS[sel].cost&&!(N.phase==='day'&&N.dayPlaced>=TUNE.dayMax);}
 function hud(){
@@ -1339,7 +1352,8 @@ function render(dt){
 
   if(pend&&sel&&!BUILD[sel]&&sel!=='gate'&&!N.over){const ok=pendOk(),B=pendBtns();rangeRing(c,pend.x,pend.y,rangeOf(sel),ok?1:.5);
     rr(c,pend.c*TILE+2.5,F_TOP+pend.r*TILE+2.5,TILE-5,TILE-5,3);c.fillStyle=ok?'rgba(242,194,48,.4)':'rgba(160,40,40,.5)';c.fill();c.strokeStyle='#f6dc7a';c.lineWidth=1.6;c.stroke();
-    c.globalAlpha=.7;(isSp(sel)?spiritFig:unitFig)(c,{x:pend.x,y:pend.y,kind:sel,sp:isSp(sel)?sel:null,lvl:1,hp:1,max:1,life:1,maxLife:1},now,true);c.globalAlpha=1;pendUI=B;}else pendUI=null;
+    c.save();c.setLineDash([3,4]);c.lineDashOffset=-now*10;c.strokeStyle=ok?'#ffe08a':'#ff9a96';c.lineWidth=1.8;c.beginPath();c.arc(pend.x,pend.y-2,15,0,7);c.stroke();c.restore();(isSp(sel)?spiritFig:unitFig)(c,{x:pend.x,y:pend.y,kind:sel,sp:isSp(sel)?sel:null,lvl:1,hp:1,max:1,life:1,maxLife:1},now,true);pendUI=B;}else pendUI=null;
+  if(N.phase==='day'&&sel&&UNITS[sel]){const ly=F_TOP+TUNE.topRows*TILE;c.save();c.fillStyle='rgba(10,14,30,.28)';c.fillRect(TILE,F_TOP,W-2*TILE,ly-F_TOP);c.setLineDash([4,5]);c.strokeStyle='rgba(255,224,138,.55)';c.lineWidth=1.4;c.beginPath();c.moveTo(TILE,ly);c.lineTo(W-TILE,ly);c.stroke();c.restore();}
 
 
   if(insp&&inspT>0){inspT-=dt;const u=N.units.find(v=>v.id===insp);if(u)rangeRing(c,u.hx,u.hy,rangeOf(u.kind),Math.min(1,inspT));else insp=null;}
@@ -1862,6 +1876,7 @@ function unitFigT(c,o,now,ghostly){
   if(d.glow&&!ghostly&&!ic){const gx=d.glow[0]-d.cx,gy=d.glow[1]-d.cy,fl=k==='fire'?.85+.15*Math.sin(now*13+(o.id||0)):1+an*.3;sp1(c,glowC(255,k==='fire'?150:200,k==='fire'?70:120),gx,gy,(k==='fire'?34:30)*fl,.5);}
   c.restore();c.restore();
   if(ghostly||ic)return true;
+  if(o.dazed>0){o.dazed-=1/60;c.strokeStyle=`rgba(200,160,255,${Math.min(.9,o.dazed)})`;c.lineWidth=1.6;c.beginPath();for(let i=0;i<18;i++){const a=i*.5+now*6,rr=3+i*.5;c.lineTo(x+Math.cos(a)*rr,y-20+Math.sin(a)*rr*.5);}c.stroke();}
   const top=y-18;
   if(o.rest){c.strokeStyle='rgba(180,210,255,.75)';c.lineWidth=1.3;for(let i=0;i<3;i++){c.beginPath();c.arc(x+12,top-i*4-((now*3+i)%1)*3,1.3+i*.4,0,7);c.stroke();}}
   if(o.lvl>1){for(let i=0;i<o.lvl-1;i++){const sx=x-4*(o.lvl-2)+i*8,sy=top;sp1(c,glowC(255,214,120),sx,sy,4.5,.9);c.fillStyle='#fff3c4';c.beginPath();c.arc(sx,sy,1.6,0,7);c.fill();}}
@@ -1917,6 +1932,9 @@ addEventListener('resize',()=>setTimeout(()=>fitAll(true),60));
 setInterval(()=>fitAll(false),500);
 /* 엿장수가 빠졌으니 벼린 경험을 돌려준다 */
 if(!S.yR){const t=S.tr&&S.tr.yeot;if(t){const f=(n,b,d)=>{let s=0;for(let i=0;i<n;i++)s+=b+d*i;return s;};S.xp+=f(t.a||0,40,30)+f(t.h||0,35,25)+f(t.s||0,50,40)+f(t.r||0,60,50)+(t.x>=1?50:0)+(t.x>=2?90:0);delete S.tr.yeot;S.up.yeot=0;}S.yR=1;try{save();}catch(e){}}
+/* 고른 것의 설명은 아래가 아니라 맨 위에 잠깐 */
+{let last='';const h3=hud;hud=function(){h3();const e=$('selInfo');if(!e)return;const t=e.textContent;if(t!==last){last=t;if(t&&!t.startsWith('아래에서'))notice(t,4.5);}
+  const day=N&&N.phase==='day';$('grpWork').hidden=!day;$('grpCour').hidden=!day;if(day)$('grpPts').textContent=`· 남은 ${N.pts}`;};}
 let last=0;
 function loop(now){
   requestAnimationFrame(loop);
@@ -1939,6 +1957,8 @@ function pendBtns(){const cx=Math.max(40,Math.min(W-40,pend.x)),y=pend.r>=ROWS-2
 function confirmPend(){
   const sp=isSp(sel),r=sp?summon(sel,pend.x,pend.y-8):place(sel,pend.x,pend.y-8);
   if(r==='ok'){pend=null;if(sp)sel=N.unlocked[0];}
+  else if(r==='high'){notice('너무 앞이다. 위쪽 세 줄에는 세우지 않는다.',2);thud(50,.12);}
+  else if(r==='high'){notice('너무 앞이다. 위쪽 세 줄에는 세우지 않는다.',2);thud(50,.12);}
   else if(r==='poor'){notice(`용기가 모자라다. ${jo(UNITS[sel].name,'은','는')} ${UNITS[sel].cost}.`,1.8);thud(50,.12);}
   else if(r==='daymax'){notice('낮에는 셋까지만 미리 세운다. 나머지는 밤에 문으로 내보낸다.',3);pend=null;}
   else if(r==='nopath'){notice('문에서 그 칸까지 갈 길이 없다.',2);pend=null;}
