@@ -461,8 +461,8 @@ function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a
 const HOURS=['저녁 8시','저녁 8시 50분','밤 9시 40분','밤 10시 30분','밤 11시 20분','밤 12시 10분','새벽 1시','새벽 1시 50분','새벽 2시 40분','새벽 3시 30분','새벽 4시 20분','새벽 5시 10분'];
 const HSHORT=['20:00','20:50','21:40','22:30','23:20','00:10','01:00','01:50','02:40','03:30','04:20','05:10'];
 const UNITS={
-  spear:{name:'작살꾼',cost:20,hp:29,range:30,dmg:4.2,cd:1.03,run:50,role:'근거리 · 막기',tip:'근거리 · 막기. 체력이 단단하고, 가까운 그림자는 이 사람부터 노린다. 찌른 그림자를 꿰어 두면 화살과 도리깨에 40% 더 아프다.'},
-  bow:{name:'사냥꾼',cost:30,hp:10,range:125,dmg:1.5,cd:2.1,role:'원거리 · 공격',tip:'원거리 · 공격. 3칸 멀리 한 마리씩 쏜다. 셋에 하나꼴로 맞은 그림자를 뒤로 밀친다. 꿴 그림자에 40% 더 세다. 달려오는 아이는 꿰거나 늦춰야 잘 맞는다.'},
+  spear:{name:'작살꾼',cost:20,hp:29,range:30,dmg:4.2,cd:1.03,run:50,role:'근거리 · 막기',tip:'근거리 · 막기. 마음이 단단하고, 가까운 그림자는 이 사람부터 노린다. 찌른 그림자를 꿰어 두면 화살과 도리깨에 40% 더 아프다.'},
+  bow:{name:'사냥꾼',cost:30,hp:10,range:125,dmg:1.8,cd:1.75,role:'원거리 · 공격',tip:'원거리 · 공격. 3칸 멀리 한 마리씩 세게 쏜다. 꿴 그림자에 40% 더 세다. 달려오는 아이는 꿰거나 늦춰야 잘 맞는다.'},
   lamp:{name:'등불지기',cost:35,hp:13,range:96,dmg:8.5,cd:2.3,role:'중거리 · 광역',tip:'중거리 · 광역. 빛이 그림자 넷 사이를 튀며 맞히고, 맞은 그림자를 늦추며 빛으로 잇는다. 이어진 그림자는 피해와 불을 나눠 받는다.'},
   yeot:{name:'엿장수',cost:35,hp:21,range:110,dmg:2.5,cd:3.68,tip:'엿가락을 늘여 그림자 셋을 줄줄이 붙인다. 붙은 그림자끼리는 받는 피해를 30% 나눠 받는다.'},
   flail:{name:'도리깨꾼',cost:25,hp:18,range:66,dmg:11,cd:1.61,role:'중거리 · 광역',tip:'중거리 · 광역. 작살꾼 뒤에 서서 머리 너머로 도리깨를 휘두른다. 둘레 1.3칸을 한꺼번에 친다. 몸이 약해 맨 앞에 세우면 쉽게 홀린다. 셋 이상 맞히면 한 바퀴 더.'},
@@ -471,7 +471,7 @@ const UNITS={
 const SPIRITS={
   gap:{name:'갑수',role:'막는 이',hp:420,range:70,tip:'광부. 둘레의 그림자를 제게로 끌어 붙들고 버틴다. 홀리지 않는다.'},
   chil:{name:'칠성',role:'걷는 이',hp:120,range:150,tip:'어부와 개 복실이. 복실이가 달려 나가 그림자의 안개를 빠르게 물어뜯는다.'},
-  sun:{name:'순례',role:'보듬는 이',hp:120,range:100,tip:'해녀. 둘레 아군의 체력을 크게 채우고, 홀린 아군을 곧바로 깨운다.'},
+  sun:{name:'순례',role:'보듬는 이',hp:120,range:100,tip:'해녀. 둘레 아군의 마음을 크게 채우고, 홀린 아군을 곧바로 깨운다.'},
   yun:{name:'윤도',role:'북돋는 이',hp:120,range:110,tip:'선장. 뱃종을 쳐서 둘레 아군의 손을 빠르게 하고 그림자의 발을 늦춘다.'}};
 const FOES={
   walk:{name:'얕게 홀린 이',fog:44,sp:17,atk:6,r:11,cour:5},
@@ -491,7 +491,7 @@ const DEVS=['cannon','decoy','bell','mirror'];
 const MIDS=[
   {id:'spirit',kind:'덕',name:'새 기운',text:'용기 40을 바로 얻는다.'},
   {id:'oil',kind:'덕',name:'등대 기름',text:'응원이 곧바로 가득 찬다.'},
-  {id:'ember',kind:'덕',name:'불씨 나눔',text:'들판의 우리 편 체력이 모두 가득 찬다.'},
+  {id:'ember',kind:'덕',name:'불씨 나눔',text:'들판의 우리 편 마음이 모두 가득 찬다.'},
   {id:'gust',kind:'날씨',name:'센바람',text:'남은 밤 화살이 한 칸 더 간다. 그림자도 10% 빨라진다.'},
   {id:'mist',kind:'내기',name:'짙어지는 안개',text:'남은 밤 그림자 안개 +20%. 대신 경험 1.5배.'},
   {id:'gold',kind:'내기',name:'보물 냄새',text:'보물 그림자가 하나 더 온다. 대신 그림자가 10% 빨라진다.'},
@@ -528,7 +528,7 @@ const CARDS=[
   {id:'dark',kind:'내기',name:'달 없는 밤',text:'그림자가 나올 자리가 보이지 않는다. 대신 경험을 두 배로 얻는다.'},
   {id:'few',kind:'내기',name:'꺼진 등불',text:'마을 등불 셋으로 시작한다. 대신 경험 1.5배, 귀한 것이 나올 확률 1.5배.'}];
 const ORDER=['spear','bow','flail','lamp','fire'],MOVE=[0,9,9],LVL=[0,60,200];
-const TUNE={bowKnockP:.35,loseXp:1.5,evoNight:12,duoN:4,duoK:.8,callB:4,callK:2,bossT:.5,bossR:80,bossDaze:3,lampHeal:1.3,regen:.4,cheer:.5,cheerT:3,forgeF:.008,forgeA:.006,topRows:3,taunt:10,guard:.7,lampSlow:3.2,linkK:.3,markT:2.2,markK:1.4,runMiss:.7,regenD:.02,beamNeed:8,beamN:.38,beamD:.2,beamB:.09,gap:2,spd:1.37,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.6,fog:1.25,atk:.6,ramp:.1,a0:.75,f0:.75,fk:.03,burn:5.6,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[.24,.275,.47,.85,.9,1.08,1.13,1.603,1.6,1.7,2.0,2.12,2.1,2.38,2.45,2.6,2.7,3.0],na:[.2,.225,.37,.68,.72,.86,.9,1.282,1.28,1.36,1.6,1.7,1.68,1.9,1.96,2.08,2.16,2.4]};
+const TUNE={loseXp:1.5,evoNight:12,duoN:4,duoK:.8,callB:4,callK:2,bossT:.5,bossR:80,bossDaze:3,lampHeal:1.3,regen:.4,cheer:.5,cheerT:3,forgeF:.008,forgeA:.006,topRows:3,taunt:10,guard:.7,lampSlow:3.2,linkK:.3,markT:2.2,markK:1.4,runMiss:.7,regenD:.02,beamNeed:8,beamN:.38,beamD:.2,beamB:.09,gap:2,spd:1.37,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.6,fog:1.25,atk:.6,ramp:.1,a0:.75,f0:.75,fk:.03,burn:5.6,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[.24,.275,.47,.85,.9,1.08,1.13,1.603,1.6,1.7,2.0,2.12,2.1,2.38,2.45,2.6,2.7,3.0],na:[.2,.225,.37,.68,.72,.86,.9,1.282,1.28,1.36,1.6,1.7,1.68,1.9,1.96,2.08,2.16,2.4]};
 let N=null;
 /* 물결이 12개로 줄어도 강해지는 흐름은 15개 때와 같게: h를 0~14 눈금으로 늘려 쓴다 */
 const hq=h=>h*14/(WAVES-1);
@@ -729,7 +729,7 @@ function step(dt){
   const gaps=N.units.filter(u=>u.sp==='gap'&&!u.walk),yuns=N.units.filter(u=>u.sp==='yun'&&!u.walk),suns=N.units.filter(u=>u.sp==='sun'&&!u.walk);
   /* 그림자 */
   for(const f of N.foes){
-    if(f.root>0)f.root-=dt;if(f.pin>0)f.pin-=dt;if(f.pinImm>0)f.pinImm-=dt;if(f.netImm>0)f.netImm-=dt;if(f.mark>0)f.mark-=dt;if(f.blind>0)f.blind-=dt;if(f.slow>0)f.slow-=dt;if(f.imm>0)f.imm-=dt;if(f.iceImm>0)f.iceImm-=dt;if(f.daze>0)f.daze-=dt;if(f.dzImm>0)f.dzImm-=dt;if(f.kbImm>0)f.kbImm-=dt;if(f.iced>0)f.iced-=dt;
+    if(f.root>0)f.root-=dt;if(f.pin>0)f.pin-=dt;if(f.pinImm>0)f.pinImm-=dt;if(f.netImm>0)f.netImm-=dt;if(f.mark>0)f.mark-=dt;if(f.blind>0)f.blind-=dt;if(f.slow>0)f.slow-=dt;if(f.imm>0)f.imm-=dt;if(f.iceImm>0)f.iceImm-=dt;if(f.daze>0)f.daze-=dt;if(f.dzImm>0)f.dzImm-=dt;if(f.iced>0)f.iced-=dt;
     if(f.nob>0)f.nob-=dt;
     if(f.burnE&&f.burn>0&&N.rng()<dt){for(const o of N.foes)if(o!==f&&!(o.burn>0)&&Math.hypot(o.x-f.x,o.y-f.y)<34){o.burn=2;o.burnK=f.burnK;o.burnE=1;N.fx.push({k:'spread',x:f.x,y:f.y,tx:o.x,ty:o.y});break;}}
     if(f.slowE>0)f.slowE-=dt;
@@ -844,7 +844,7 @@ function step(dt){
         for(const f of hit)f.link={g,t:5+(yt>=1?2:0),k:yb==='sticky'?.5:.3};
         gain(src,8*hit.length);N.fx.push({k:'stick',x:tg.x,y:tg.y,n:hit.length});}
       else if(!s.ev&&tg.type==='run'&&!(tg.mark>0||tg.slow>0||tg.root>0||tg.pin>0)&&N.rng()<TUNE.runMiss){N.fx.push({k:'miss',x:tg.x,y:tg.y});}
-      else{const sh=tg.type==='shield',bb=brOf('bow'),bd2=s.dmg*(sh?.25:1)*(bb==='knock'?TUNE.knockD:1)*(tg.mark>0?TUNE.markK:1);dmgFoe(tg,bd2);gain(src,bd2);if(tg.iceImm>0)tg.iceImm-=0;if(bb==='fire'){tg.burn=Math.max(tg.burn||0,3*N.mod.burn);tg.burnK=Math.max(tg.burnK||0,atkK('bow'));}else if(bb==='ice'&&!sh&&!(tg.iceImm>0)){tg.root=Math.max(tg.root||0,tg.type==='deep'||tg.type==='boss'?.5:1);tg.vuln=TUNE.iceV;tg.iceImm=2.5;tg.iced=1;}if(!sh){hurtFoe(tg,s.x,s.y,.8);if(bb!=='knock'&&!(tg.kbImm>0)&&!(tg.kb>0)&&N.rng()<TUNE.bowKnockP){tg.kbImm=1.2;const kk=tg.type==='boss'?.2:tg.type==='deep'?.4:1,sx=s.x||tg.x,sy=s.y||tg.y+20,dd=Math.hypot(tg.x-sx,tg.y-sy)||1;tg.kb=.18;tg.kbx=(tg.x-sx)/dd*TUNE.knock*.75*kk/.18;tg.kby=(tg.y-sy)/dd*TUNE.knock*.75*kk/.18;N.fx.push({k:'knock',x:tg.x,y:tg.y});}if(bb==='knock'&&!(tg.dzImm>0)){tg.daze=TUNE.daze;tg.dzImm=TUNE.dzImm;{const kk=tg.type==='boss'?.25:tg.type==='deep'?.45:1,sx=s.x||tg.x,sy=s.y||tg.y+20,dd=Math.hypot(tg.x-sx,tg.y-sy)||1;tg.kb=.2;tg.kbx=(tg.x-sx)/dd*TUNE.knock*kk/.2;tg.kby=(tg.y-sy)/dd*TUNE.knock*kk/.2;tg.pin=0;N.fx.push({k:'knock',x:tg.x,y:tg.y});}}}N.fx.push({k:sh?'clang':'thock',x:tg.x,y:tg.y,sx:s.x,sy:s.y});}
+      else{const sh=tg.type==='shield',bb=brOf('bow'),bd2=s.dmg*(sh?.25:1)*(bb==='knock'?TUNE.knockD:1)*(tg.mark>0?TUNE.markK:1);dmgFoe(tg,bd2);gain(src,bd2);if(tg.iceImm>0)tg.iceImm-=0;if(bb==='fire'){tg.burn=Math.max(tg.burn||0,3*N.mod.burn);tg.burnK=Math.max(tg.burnK||0,atkK('bow'));}else if(bb==='ice'&&!sh&&!(tg.iceImm>0)){tg.root=Math.max(tg.root||0,tg.type==='deep'||tg.type==='boss'?.5:1);tg.vuln=TUNE.iceV;tg.iceImm=2.5;tg.iced=1;}if(!sh){hurtFoe(tg,s.x,s.y,.8);if(bb==='knock'&&!(tg.dzImm>0)){tg.daze=TUNE.daze;tg.dzImm=TUNE.dzImm;{const kk=tg.type==='boss'?.25:tg.type==='deep'?.45:1,sx=s.x||tg.x,sy=s.y||tg.y+20,dd=Math.hypot(tg.x-sx,tg.y-sy)||1;tg.kb=.2;tg.kbx=(tg.x-sx)/dd*TUNE.knock*kk/.2;tg.kby=(tg.y-sy)/dd*TUNE.knock*kk/.2;tg.pin=0;N.fx.push({k:'knock',x:tg.x,y:tg.y});}}}N.fx.push({k:sh?'clang':'thock',x:tg.x,y:tg.y,sx:s.x,sy:s.y});}
       N.shots.splice(i,1);}
     else{s.a=Math.atan2(tg.y-s.y,tg.x-s.x);s.x+=(tg.x-s.x)/d*sp;s.y+=(tg.y-s.y)/d*sp;}}
   /* 홀림, 영혼이 돌아감 */
@@ -954,7 +954,7 @@ const STORY={
   {art:'win',who:'',t:['해가 뜬다.','이제 남은 것은 깊은 밤뿐이다.']}]};
 const CLUES=['갯바닥으로 난 발자국은 하람의 장화 자국이다.','하람의 자루에서 남의 유품이 가득 나왔다.','깨어난 만복은 형의 목소리를 들었다고 했다.',,,'하람은 밤마다 배를 빌려 바다에서 무언가를 건져 왔다. 배 바닥에 아이 비단 신 한 짝.',,,'하람은 열 해 전 딸 보름을 바다에서 잃었다. 사당에서 딸의 위패를 가져갔다.',,,'하람은 엿도가 솥에서 검은 등잔을 빚었다. 검은 등불을 다시 켜려는 것이다.',,,'하람은 마지막 기름을 메고 갯마을로 갔다. 보름 밤에 검은 등불을 켠다.',,,'하람은 딸의 목소리를 따라 검은 등불을 켜려 했다. 등잔은 바다에 던져졌다.'];
 const WEAP={spear:['대나무 작살','쇠 작살'],flail:['대나무 도리깨','쇠고리 도리깨'],bow:['나무 활','물푸레 활'],lamp:['종이 등','유리 등'],yeot:['호박엿','깨엿'],fire:['등유병','큰 등유병']},UPCOST=[30,50,60,90,130,170,220,280];
-const STEP=['atk','abil','hp','br','rng','atk','hp','all'],STEPS={atk:['공','공격 +15%'],abil:['능','새 능력'],hp:['마','체력 +20%'],br:['갈','갈래 선택'],rng:['사','사거리 +10%'],all:['명','명인: 공격 +15%, 체력 +20%, 사거리 +10%']};
+const STEP=['atk','abil','hp','br','rng','atk','hp','all'],STEPS={atk:['공','공격 +15%'],abil:['능','새 능력'],hp:['마','마음(버티는 힘) +20%'],br:['갈','갈래 선택'],rng:['사','사거리 +10%'],all:['명','명인: 공격 +15%, 마음 +20%, 사거리 +10%']};
 const ABIL1={spear:'반 칸까지 달려 나가 붙잡는다',flail:'도는 사이가 20% 짧아진다',bow:'화살이 더 깊이 박힌다',lamp:'빛이 더 넓게 닿는다',yeot:'엿가락이 2초 더 오래 붙는다',fire:'불이 더 넓게 번진다'};
 /* 2단은 갈래를 고른다. 고른 뒤에도 값 없이 바꿀 수 있다 */
 const BR={lamp:[['finish','마무리 빛','빛 안에서 안개가 20% 아래로 떨어진 그림자는 그 자리에서 깨어난다'],['long','긴 사슬','빛이 여섯까지 튄다'],['spark','등대 불씨','빛이 그림자를 맞힐 때마다 응원이 조금씩 찬다']],
@@ -980,7 +980,7 @@ document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
 if(!S.trV){S.tr={};for(const k in S.up)S.tr[k]=trFromL(S.up[k]||0);S.trV=1;}
 const TK=k=>S.tr[k]||(S.tr[k]={a:0,h:0,s:0,r:0,x:0});
 /* 다섯 갈래 벼림: 값은 갈래마다 따로 오른다 */
-const TRK=[['a','공격','+15%',n=>40+30*n,99],['h','체력','+20%',n=>35+25*n,99],['s','빠르기','+9%',n=>50+40*n,5],['r','사거리','+10%',n=>60+50*n,4]],XC=[50,90];
+const TRK=[['a','공격','+15%',n=>40+30*n,99],['h','마음','+20%',n=>35+25*n,99],['s','빠르기','+9%',n=>50+40*n,5],['r','사거리','+10%',n=>60+50*n,4]],XC=[50,90];
 const trCost=(k,id)=>{const t=TK(k);if(id==='x')return t.x<2?XC[t.x]:null;const d=TRK.find(q=>q[0]===id);return t[id]>=d[4]?null:d[3](t[id]);};
 const canUp=k=>['a','h','s','r','x'].some(id=>{const c=trCost(k,id);return c!=null&&S.xp>=c;});
 const lvS=k=>{const t=TK(k);return t.a+t.h+t.s+t.r+t.x;},tierS=k=>Math.min(2,TK(k).x),brName=k=>{const b=BR[k].find(x=>x[0]===S.br[k]);return b?b[1]:WEAP[k][1];},dispTier=k=>{const t=tierS(k);return t<2?t:BR[k].findIndex(x=>x[0]===S.br[k])>0?3:2;};
@@ -1135,14 +1135,14 @@ function goHome(){N=null;document.body.classList.remove('battle','night');show('
 /* ── 도움말: 넘겨 보는 쪽지 ── */
 const HELP=[['이기는 법','열두 물결의 그림자를 모두 깨우면 해가 뜬다. 한 물결을 다 깨워야 다음 물결이 온다. 그림자가 문으로 들어오면 마을 등불이 하나 꺼지고, 다 꺼지면 진다. 뒤로 갈수록 그림자가 짙고 세다.'],
  ['낮','울타리를 눌러 문 자리를 정한다. 일손 12로 채비를 놓는다: 해자(돌아가게 함, 셋까지), 구덩이, 망루, 등유통, 그리고 맞춘 장치. 다시 누르면 치운다. 셋까지 미리 세울 수 있고, 그 셋은 밤새 20% 세다.'],
- ['밤','세운 이는 문에서 걸어 나온다. 길을 막는 그림자와는 싸우며 간다. 그림자를 깨울수록 「응원」이 차오른다. 다 차면 눌러 우리 편 모두의 체력을 절반씩 채우고, 3초 동안 받는 피해를 줄인다. 짧은 사이에 잇달아 깨우면 연쇄가 되어 용기를 더 얻는다.'],
+ ['밤','세운 이는 문에서 걸어 나온다. 길을 막는 그림자와는 싸우며 간다. 그림자를 깨울수록 「응원」이 차오른다. 다 차면 눌러 우리 편 모두의 마음을 절반씩 채우고, 3초 동안 받는 피해를 줄인다. 짧은 사이에 잇달아 깨우면 연쇄가 되어 용기를 더 얻는다.'],
  ['우리 편','작살꾼은 앞을 막고, 찌른 그림자를 잠깐 꿴다. 사냥꾼은 멀리 쏜다. 도리깨꾼은 둘레를 한꺼번에 친다. 등불지기의 빛은 그림자 사이를 튀며 넷을 맞히고, 맞은 그림자를 늦추며 빛으로 잇는다. 화염병은 둘레를 태운다.'],
  ['함께 싸우기','꿴 그림자: 화살과 도리깨가 40% 더 세다. 빛으로 이어진 그림자: 하나가 맞으면 나머지도 30% 함께 맞고, 하나에 불이 붙으면 이어진 그림자 모두에게 옮겨붙는다. 불붙은 그림자를 도리깨로 치면 불씨가 둘레로 튄다.'],
  ['그림자','달려오는 아이: 빨라서 화살이 자주 빗나간다. 꿰거나 늦추면 맞는다. 방패 든 이: 화살과 빛이 튕긴다. 작살, 도리깨, 불로 깨운다. 깊이 홀린 이와 우두머리: 셋째 밤부터 불이 꺼져 있으면 안개가 되살아난다. 아이를 업은 이: 깨우면 아이가 뛰어내린다. 꾀는 이: 가까이 온 우리 편을 끌어낸다. 멀리서 쏜다. 금빛 그림자는 설계도 조각을 지녔다.'],
  ['한밤의 선택','여섯째 물결을 넘기면 카드 셋 가운데 하나를 고른다. 덕은 그냥 좋고, 날씨는 양쪽에 걸리고, 내기는 위험한 만큼 더 받는다.'],
  ['장치','금빛 보물 그림자를 깨우면 설계도 조각이 나온다. 다 모이면 새벽에 조각을 돌려 맞춘다. 돌 대포, 가짜 등불, 마을 종, 거울 순서로 얻는다.'],
- ['홀림과 영혼','체력(발밑 줄)이 다한 이는 약한 그림자가 된다. 깨우면 마을로 돌아가고, 곁에 있던 이들의 체력이 30% 찬다. 영혼은 유품으로 부른다. 한 밤에 둘까지, 40초쯤 머문다.'],
- ['벼림과 새벽','대장간에서 공격, 체력, 빠르기, 사거리, 특수를 골라서 벼린다. 특수는 새 능력을 얻은 뒤 갈래 하나를 고른다. 공격과 체력은 끝없이 오른다. 이기면 새벽 꾸러미 하나를 푼다. 빈 꾸러미는 없다.']];
+ ['홀림과 영혼','마음(발밑 줄)이 다한 이는 약한 그림자가 된다. 깨우면 마을로 돌아가고, 곁에 있던 이들의 마음이 30% 찬다. 영혼은 유품으로 부른다. 한 밤에 둘까지, 40초쯤 머문다.'],
+ ['벼림과 새벽','대장간에서 공격, 마음, 빠르기, 사거리, 특수를 골라서 벼린다. 특수는 새 능력을 얻은 뒤 갈래 하나를 고른다. 공격과 마음은 끝없이 오른다. 이기면 새벽 꾸러미 하나를 푼다. 빈 꾸러미는 없다.']];
 let hp=0,helpWas=false;
 function helpPage(){$('helpTitle').textContent=HELP[hp][0];$('helpText').textContent=HELP[hp][1];$('helpNo').textContent=`${hp+1} / ${HELP.length}`;$('helpPrev').disabled=hp===0;$('helpNext').disabled=hp===HELP.length-1;}
 $('btnInfo').onclick=()=>{helpWas=paused;paused=true;helpPage();ov('ovHelp',true);};
@@ -1374,8 +1374,8 @@ function hud(){
   const iu=insp&&inspT>0?N.units.find(v=>v.id===insp):null;
   $('selInfo').textContent=sel==='gate'&&day?'문: 아래 울타리 쪽을 눌러 문 자리를 옮긴다. 우리 편은 여기서 나오고, 그림자는 여기로만 들어온다.'
     :BUILD[sel]&&day?`${BUILD[sel].name}(일손 ${BUILD[sel].cost}) · ${BUILD[sel].tip} 놓인 것을 다시 누르면 치운다.`
-    :iu?(iu.sp?`${SPIRITS[iu.sp].name} · ${Math.ceil(iu.life)}초 뒤 돌아간다`:`${iu.evo?EVO[iu.kind].name+' · '+EVO[iu.kind].tip.split('.')[0]:UNITS[iu.kind].name+' '+iu.lvl+'단'}${iu.fresh?' · 힘을 비축했다':''}${iu.rest?' · 숨 고르는 중':''} · 체력 ${Math.ceil(iu.hp)}/${Math.round(iu.max)}`)
-    :sel==='beam'?'응원: 우리 편 모두의 체력을 절반씩 채우고, 3초 동안 받는 피해를 20% 줄인다.'
+    :iu?(iu.sp?`${SPIRITS[iu.sp].name} · ${Math.ceil(iu.life)}초 뒤 돌아간다`:`${iu.evo?EVO[iu.kind].name+' · '+EVO[iu.kind].tip.split('.')[0]:UNITS[iu.kind].name+' '+iu.lvl+'단'}${iu.fresh?' · 힘을 비축했다':''}${iu.rest?' · 숨 고르는 중':''} · 마음 ${Math.ceil(iu.hp)}/${Math.round(iu.max)}`)
+    :sel==='beam'?'응원: 우리 편 모두의 마음을 절반씩 채우고, 3초 동안 받는 피해를 20% 줄인다.'
     :isSp(sel)?`${SPIRITS[sel].name} · ${SPIRITS[sel].tip}`:sel?`${UNITS[sel].name} · ${UNITS[sel].tip}`:'아래에서 세울 이를 고르고, 들판의 칸을 누른다';
 }
 /* ── 2편 그림체: 1편 느낌의 들판, 연기 망령 그림자 ── */
@@ -1575,9 +1575,9 @@ function drainFx(){
       if(e.type==='boss'){bell(98,.22);bell(147,.14,.25);notice('안개를 이끌던 이가 깨어났다.',3);}else if(e.type==='deep'){bell(165,.12);if(!tut.deep){tut.deep=1;notice('깊이 홀린 이가 깨어났다. 다음 밤에는 다시 올 것이다.',4);}}
       else tone(330+Math.random()*60,.5,.035,'sine');
       if(!tut.wake){tut.wake=1;notice('안개가 다 걷히면 사람으로 돌아온다. 용기가 오른다.',4);}}
-    else if(e.k==='turn'){ring(e.x,e.y,'#7a55d8',38,.7,6);bits(e.x,e.y,'#0a0e1e',12,null,0,90,4);flash(e.x,e.y,30,'#6a4fc0');shakeT=Math.max(shakeT,.1);thud(52,.26);notice(tut.turn?'한 사람이 홀렸다.':'체력이 다한 이가 홀려 약한 그림자가 되었다. 깨워도 싸움터로는 돌아오지 않는다.',tut.turn?1.6:5);tut.turn=1;}
-    else if(e.k==='back'){ring(e.x,e.y,GOLD,70,.7,5);flash(e.x,e.y,34,'#fff6d0');burst(e.x,e.y,GOLD,6);bell(220,.1);bell(330,.07,.12);if(!tut.back)notice('홀렸던 이가 깨어나 마을로 돌아갔다. 곁에 있던 이들의 체력이 조금 찬다.',4.5);tut.back=1;}
-    else if(e.k==='rest'){tone(180,.12,.04,'sine');if(!tut.rest){tut.rest=1;notice('체력이 떨어진 작살꾼은 곁에 동료가 있으면 물러나 숨을 고른다. 혼자면 버티다 홀린다.',5.5);}}
+    else if(e.k==='turn'){ring(e.x,e.y,'#7a55d8',38,.7,6);bits(e.x,e.y,'#0a0e1e',12,null,0,90,4);flash(e.x,e.y,30,'#6a4fc0');shakeT=Math.max(shakeT,.1);thud(52,.26);notice(tut.turn?'한 사람이 홀렸다.':'마음이 다한 이가 홀려 약한 그림자가 되었다. 깨워도 싸움터로는 돌아오지 않는다.',tut.turn?1.6:5);tut.turn=1;}
+    else if(e.k==='back'){ring(e.x,e.y,GOLD,70,.7,5);flash(e.x,e.y,34,'#fff6d0');burst(e.x,e.y,GOLD,6);bell(220,.1);bell(330,.07,.12);if(!tut.back)notice('홀렸던 이가 깨어나 마을로 돌아갔다. 곁에 있던 이들의 마음이 조금 찬다.',4.5);tut.back=1;}
+    else if(e.k==='rest'){tone(180,.12,.04,'sine');if(!tut.rest){tut.rest=1;notice('마음이 흔들린 작살꾼은 곁에 동료가 있으면 물러나 숨을 고른다. 혼자면 버티다 홀린다.',5.5);}}
     else if(e.k==='breach'){if(e.treasure)setTimeout(()=>notice('금빛 그림자를 놓쳤다. 지니던 조각도 사라졌다.',2.6),1400);shakeT=.3;ring(e.x,GATE+8,'#f0564e',60,.8,8);thud(44,.34);notice('그림자가 문으로 들어왔다. 마을 등불이 꺼진다.',2.6);}
     else if(e.k==='place'){thud(110,.09);if(e.walk&&!tut.walk){tut.walk=1;notice('밤에 세운 이는 문에서 걸어 나온다. 길을 막는 그림자와는 싸우며 간다.',5);}
       else if(!e.walk&&!tut.place){tut.place=1;notice('낮에 미리 세운 셋은 힘을 비축해 밤새 20% 세다.',5);}}
@@ -1684,7 +1684,7 @@ function chainWake(e){const n=e.chain;tone(523*Math.pow(1.122,Math.min(8,n-1)),.
   const bell=N.devObjs.find(o=>o.k==='bell'&&o.uses>0);$('btnBell').hidden=!bell;
   const anyDev=DEVS.some(k=>N.devs[k]);$('devRow').hidden=!day||!!N.over||!anyDev;for(const k of DEVS)$('b_'+k).hidden=!N.devs[k];
   if(N.mid==='pick'&&$('ovMid').hidden)showMid();
-  if(rd&&!tut.beam){tut.beam=1;notice('응원이 찼다. 아래 「응원」을 누르면 우리 편 모두의 체력이 차오른다.',5);}};}
+  if(rd&&!tut.beam){tut.beam=1;notice('응원이 찼다. 아래 「응원」을 누르면 우리 편 모두의 마음이 차오른다.',5);}};}
 function showMid(){const pool=MIDS.slice(),three=[];while(three.length<3)three.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
   const row=$('midRow');row.textContent='';three.forEach(cd=>{const bt=document.createElement('button');bt.className='ccard k'+(cd.kind==='덕'?0:cd.kind==='날씨'?1:2);bt.innerHTML='<span class="kd"></span><b></b><span class="tx"></span>';bt.children[0].textContent=cd.kind;bt.children[1].textContent=cd.name;bt.children[2].textContent=cd.text;
     bt.onclick=()=>{pickMid(cd.id);ov('ovMid',false);bell(196,.12);notice(`한밤의 선택: ${cd.name}.`,2.5);hud();};row.appendChild(bt);});
@@ -2140,7 +2140,7 @@ const WOODI={};for(const k in WOOD){const im=new Image();im.onload=()=>{WOODI[k]
   const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);const r=Math.max(w/im.width,h/im.height),iw=im.width*r,ih=im.height*r;c.drawImage(im,(w-iw)/2,(h-ih)/2,iw,ih);
   c.strokeStyle='#14110f';c.lineWidth=5;c.strokeRect(2.5,2.5,w-5,h-5);};}
 /* ── 첫 화면 안개 걷힘(1편처럼), 이어하기, 기록·설정 ── */
-const VER='0.48',CHLOG=['「마음」을 「체력」으로','사냥꾼: 공격력 1.8→1.5, 쏘는 간격 1.75→2.1초, 대신 셋에 하나꼴로 맞은 그림자를 뒤로 밀친다','사냥꾼 크게 약화: 공격력 -28%, 쏘는 간격 +33%(초당 피해 약 절반)','웅덩이: 물을 건너는 그림자 둘레에 물결이 일어 느려지는 것이 보인다','타격감: 찌름 자국, 깨어날 때 짧은 멈칫과 흔들림, 도리깨 여럿 맞히면 묵직하게, 홀릴 때 멈칫','장부에 위협 저울: 오늘 밤 그림자에 견준 우리 힘(넉넉하다 · 해볼 만하다 · 벅차다 · 아직 무리다)','지면 무너진 까닭과 벼릴 곳을 알려 준다','합치기를 없애고 성장은 대장간 하나로. 지면 경험을 모아 벼리고 다시 도전','그림자는 더 세고 우리 편은 더 약하게: 벼리지 않으면 셋째 밤은 넘을 수 없다','등대는 작살꾼 혼자. 곳마다 새 일꾼을 찾는다: 사냥꾼 → 도리깨꾼 → 등불지기 → 화염병','새 목판화 8장: 솔숲 나루 · 사당 · 엿도가 · 폐광 · 갯마을 · 하람 · 꾀는 소리 · 업고 오는 밤','다섯 곳의 이야기: 하람과 딸 보름, 검은 등불의 비밀','여섯 곳 모두 열림: 솔숲 나루 · 사당 · 엿도가 · 폐광 · 갯마을, 곳마다 밤 셋과 고유한 땅 · 우두머리','밤마다 다른 땅: 곶 들판 · 갈림길(바위빛 자갈) · 갯벌 늪(젖은 청록 갯벌, 조개껍데기)','이야기 글이 저절로 흘러감(빠르게 · 넘기기 · 건너뛰기)','물결 앞당기기, 밤별 별 셋, 만복의 안개 터뜨리기','사냥꾼·작살꾼 약화, 화염병·등불지기 강화, 그림자 5% 빨라짐, 벼린 만큼 그림자 강화 두 배','사냥꾼 화살 5.5→3.5, 그림자 안개 +20%: 화살만으로는 못 막고 작살꾼 앞에서 싸우게','회복을 크게 줄임(등불지기 빛 3.5→0.8, 쉴 때 1.2→0.4), 그림자 공격력 1.5배','난이도 다시 맞춤: 물결마다 그림자 수 2배, 유닛 체력 -25%, 셋째 밤 크게 강화','등대 빛 → 응원(우리 편 모두 회복), 유닛 체력 -20%, 물결마다 그림자 힘이 더 크게 오름, 벼린 만큼 그림자도 강해짐','유닛 역할: 근거리 막기 · 중거리 광역 · 원거리 공격','세운 이 거두기, 같은 이 둘 합쳐 승급','난이도, 기록 · 설정 화면, 첫 화면 안개','목판화 삽화(타이틀 · 이야기 · 밤 주제 · 끝 화면)','위에서 본 그림으로 들판 · 그림자 · 영혼 통일','밤마다 주제, 유닛 연계(꿰기 · 빛 잇기 · 불 옮기기)','대장간: 다섯 갈래를 골라 벼림'];
+const VER='0.47',CHLOG=['사냥꾼 크게 약화: 공격력 -28%, 쏘는 간격 +33%(초당 피해 약 절반)','웅덩이: 물을 건너는 그림자 둘레에 물결이 일어 느려지는 것이 보인다','타격감: 찌름 자국, 깨어날 때 짧은 멈칫과 흔들림, 도리깨 여럿 맞히면 묵직하게, 홀릴 때 멈칫','장부에 위협 저울: 오늘 밤 그림자에 견준 우리 힘(넉넉하다 · 해볼 만하다 · 벅차다 · 아직 무리다)','지면 무너진 까닭과 벼릴 곳을 알려 준다','합치기를 없애고 성장은 대장간 하나로. 지면 경험을 모아 벼리고 다시 도전','그림자는 더 세고 우리 편은 더 약하게: 벼리지 않으면 셋째 밤은 넘을 수 없다','등대는 작살꾼 혼자. 곳마다 새 일꾼을 찾는다: 사냥꾼 → 도리깨꾼 → 등불지기 → 화염병','새 목판화 8장: 솔숲 나루 · 사당 · 엿도가 · 폐광 · 갯마을 · 하람 · 꾀는 소리 · 업고 오는 밤','다섯 곳의 이야기: 하람과 딸 보름, 검은 등불의 비밀','여섯 곳 모두 열림: 솔숲 나루 · 사당 · 엿도가 · 폐광 · 갯마을, 곳마다 밤 셋과 고유한 땅 · 우두머리','밤마다 다른 땅: 곶 들판 · 갈림길(바위빛 자갈) · 갯벌 늪(젖은 청록 갯벌, 조개껍데기)','이야기 글이 저절로 흘러감(빠르게 · 넘기기 · 건너뛰기)','물결 앞당기기, 밤별 별 셋, 만복의 안개 터뜨리기','사냥꾼·작살꾼 약화, 화염병·등불지기 강화, 그림자 5% 빨라짐, 벼린 만큼 그림자 강화 두 배','사냥꾼 화살 5.5→3.5, 그림자 안개 +20%: 화살만으로는 못 막고 작살꾼 앞에서 싸우게','회복을 크게 줄임(등불지기 빛 3.5→0.8, 쉴 때 1.2→0.4), 그림자 공격력 1.5배','난이도 다시 맞춤: 물결마다 그림자 수 2배, 유닛 마음 -25%, 셋째 밤 크게 강화','등대 빛 → 응원(우리 편 모두 회복), 유닛 마음 -20%, 물결마다 그림자 힘이 더 크게 오름, 벼린 만큼 그림자도 강해짐','유닛 역할: 근거리 막기 · 중거리 광역 · 원거리 공격','세운 이 거두기, 같은 이 둘 합쳐 승급','난이도, 기록 · 설정 화면, 첫 화면 안개','목판화 삽화(타이틀 · 이야기 · 밤 주제 · 끝 화면)','위에서 본 그림으로 들판 · 그림자 · 영혼 통일','밤마다 주제, 유닛 연계(꿰기 · 빛 잇기 · 불 옮기기)','대장간: 다섯 갈래를 골라 벼림'];
 function titleIntro(){const fog=$('titleFog');if(!fog)return;const t0=performance.now(),set=p=>{const m=`radial-gradient(circle at 22% 16%, transparent ${p*125}%, #000 ${p*125+18}%)`;fog.style.webkitMaskImage=m;fog.style.maskImage=m;};
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){set(1);return;}(function f(now){const p=Math.min(1,(now-t0-300)/2600);set(Math.max(.03,p*p*(3-2*p)));if(p<1)requestAnimationFrame(f);})(t0);}
 function hasProgress(){return S.night>0||S.xp>0||Object.keys(S.up||{}).length>0;}
@@ -2191,15 +2191,15 @@ const setFast=()=>{$('btnFast').textContent=`빠르게 ×${stSpd}`;};setFast();
 $('btnFast').onclick=e=>{e.stopPropagation();stSpd=stSpd===1?2:stSpd===2?3:1;try{localStorage.setItem('stSpd',stSpd);}catch(_){}setFast();if(story){const left=Math.max(0,stDur-(performance.now()-stT0));clearTimeout(stTimer);stDur=(performance.now()-stT0)+left*(.5);stTimer=setTimeout(()=>{if(story)storyTap(true);},left*.5);}};
 $('btnNextPg').onclick=e=>{e.stopPropagation();storyTap(true);};
 /* 위협 저울(장부) · 패배 기록(새벽) */
-const LREQ=[0,3,16,27,37,43,51,59,66,70,78,84,90,101,106,109,113,116];
+const LREQ=[0,3,16,26,34,41,48,57,64,68,76,81,89,99,105,111,114,119];
 function powL(){let s=0;for(const k of ORDER){const t=(S.tr||{})[k];if(t)s+=(t.a||0)+(t.h||0)+(t.s||0)+(t.r||0)+(t.x||0);}return s;}
 function threatOf(n){const D=DIFF[S.diff==null?1:S.diff],req=LREQ[n]*(1+(D.f*D.a-1)*1.6),L=powL();
   if(req<=0)return{r:1.5,req,L,lab:'넉넉하다',c:2};const r=L/req;return{r,req,L,lab:r>=1.12?'넉넉하다':r>=.9?'해볼 만하다':r>=.7?'벅차다':'아직 무리다',c:r>=1.12?2:r>=.9?1:0};}
 {const h0=renderHome;renderHome=function(){const out=h0.apply(this,arguments);const el=$('threat');if(el){const done=S.night>=NIGHTS.length;el.hidden=done;
   if(!done){const t=threatOf(S.night),p=Math.max(.04,Math.min(1,t.r/1.5));el.className='thr c'+t.c;$('thFill').style.width=(p*100).toFixed(1)+'%';$('thTx').textContent=t.lab;
     el.setAttribute('aria-label',`그림자에 견준 우리 힘: ${t.lab}`);}}return out;};}
-const ADV={spear:'작살꾼 체력',bow:'사냥꾼 공격',flail:'도리깨꾼 공격',lamp:'등불지기 체력',fire:'화염병 공격'};
-const LEAKADV={run:'사냥꾼 공격이나 작살꾼 빠르기',shield:'작살꾼 공격',carry:'도리깨꾼이나 화염병 공격',deep:'작살꾼 공격',boss:'작살꾼 공격과 체력',lure:'사냥꾼 사거리',walk:'작살꾼 공격'};
+const ADV={spear:'작살꾼 마음',bow:'사냥꾼 공격',flail:'도리깨꾼 공격',lamp:'등불지기 마음',fire:'화염병 공격'};
+const LEAKADV={run:'사냥꾼 공격이나 작살꾼 빠르기',shield:'작살꾼 공격',carry:'도리깨꾼이나 화염병 공격',deep:'작살꾼 공격',boss:'작살꾼 공격과 마음',lure:'사냥꾼 사거리',walk:'작살꾼 공격'};
 {const d0=showDawn;showDawn=function(){const r=d0.apply(this,arguments);try{if(N&&N.over!=='win'){const st=N.stats,top=o=>{let b=null;for(const k in o||{})if(!b||o[k]>o[b])b=k;return b;};
   const lk=top(st.leak),lt=top(st.lost),bits=[];if(lk)bits.push(`${FOES[lk].name} ${st.leak[lk]}명이 마을까지 왔다`);if(lt)bits.push(`${UNITS[lt].name} ${st.lost[lt]}명이 홀렸다`);
   const adv=lt&&st.lost[lt]>=2&&NIGHTS[Math.min(N.night,NIGHTS.length-1)].units.includes(lt)?ADV[lt]:lk?LEAKADV[lk]:'작살꾼 공격';
@@ -2318,7 +2318,7 @@ function rollDraw(){
     if(s.star<3){s.star++;return{r:2,sp:id,kd:'유품',nm:`${N2.name} ${'★'.repeat(s.star)}`,ln:`같은 이의 물건이 또 왔다. 더 오래 머물고 더 세진다.`};}
     s.w=(s.w||0)+1;return{r:1,sp:id,kd:'영혼의 연장',nm:`${N2.name}의 연장 +${s.w}`,ln:'별이 다 찬 이의 물건은 연장이 된다. 힘이 25% 는다.'};}
   if(kind==='wp'){const id=wp[Math.floor(Math.random()*wp.length)],s=S.sp[id];s.w=(s.w||0)+1;return{r:1,sp:id,kd:'영혼의 연장',nm:`${SPIRITS[id].name}의 연장 +${s.w}`,ln:'생전에 쓰던 연장이다. 힘이 25% 는다.'};}
-  if(kind==='big'){const k=nextU[Math.floor(Math.random()*nextU.length)];const T=TK(k),id=Math.random()<.5?'a':'h';T[id]++;S.up[k]=lvS(k);return{r:2,kd:'큰 벼림',nm:`${UNITS[k].name} ${id==='a'?'공격':'체력'} ${T[id]}`,ln:id==='a'?'무기가 한 번 더 벼려져 왔다. 공격 +15%.':'단단한 옷 한 벌이 왔다. 체력 +20%.'};}
+  if(kind==='big'){const k=nextU[Math.floor(Math.random()*nextU.length)];const T=TK(k),id=Math.random()<.5?'a':'h';T[id]++;S.up[k]=lvS(k);return{r:2,kd:'큰 벼림',nm:`${UNITS[k].name} ${id==='a'?'공격':'마음'} ${T[id]}`,ln:id==='a'?'무기가 한 번 더 벼려져 왔다. 공격 +15%.':'단단한 옷 한 벌이 왔다. 마음 +20%.'};}
   if(kind==='pc'){S.pieces++;const need=BPNEED[S.bp];return{r:1,kd:'설계도 조각',nm:`${DEVNAME[DEVS[S.bp]]} 조각`,ln:`대장간 설계도 한 조각. ${Math.min(S.pieces,need)}/${need}.${S.pieces>=need?' 다 모였다. 곧 맞춘다.':''}`};}
   if(kind==='pts'){S.pts++;return{r:1,kd:'일손',nm:'일꾼 한 사람',ln:'깨어난 이웃이 낮일을 돕겠다고 남았다. 낮의 일손이 밤마다 1 는다.'};}
   S.xp+=60;return{r:0,kd:'벼림쇠',nm:'쇳덩이 한 짐',ln:'대장간에 보탤 쇠다. 경험 +60.'};
