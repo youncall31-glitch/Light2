@@ -485,16 +485,25 @@ const MIDS=[
   {id:'gold',kind:'내기',name:'보물 냄새',text:'보물 그림자가 하나 더 온다. 대신 그림자가 10% 빨라진다.'},
   {id:'dim',kind:'내기',name:'꺼져 가는 등불',text:'마을 등불 하나가 꺼진다. 대신 새벽 꾸러미를 하나 더 푼다.'}];
 const NIGHTS=[
-  {place:'등대',name:'첫째 밤',units:['spear','flail','bow'],foes:['walk','run','deep'],newFoe:null,theme:{id:'run',name:'달음질의 밤',tip:'달려오는 아이가 떼로 온다. 화살이 잘 빗나가니 작살꾼으로 꿰고 도리깨로 쓸어라.'}},
-  {place:'등대',name:'둘째 밤',units:['spear','flail','bow','lamp'],foes:['walk','run','deep','shield','carry'],newFoe:'방패 든 이와 아이를 업은 이',theme:{id:'shield',name:'방패의 밤',tip:'방패 든 이가 줄지어 온다. 화살과 빛이 튕기니 작살과 도리깨를 앞에 세워라.'}},
-  {place:'등대',name:'셋째 밤',units:['spear','flail','bow','lamp','fire'],foes:['walk','run','deep','shield','carry','lure'],boss:'만복',newFoe:'꾀는 이',theme:{id:'deep',name:'되살아나는 안개의 밤',tip:'깊이 홀린 이가 자주 온다. 불이 꺼지면 안개가 되살아나니 화염병을 세워라.'}}];
+  {place:'등대',name:'첫째 밤',units:['spear','bow'],foes:['walk','run','deep'],newFoe:null,theme:{id:'run',name:'달음질의 밤',tip:'달려오는 아이가 떼로 온다. 화살이 잘 빗나가니 작살꾼으로 꿰고 도리깨로 쓸어라.'}},
+  {place:'등대',name:'둘째 밤',units:['spear','bow'],foes:['walk','run','deep','shield','carry'],newFoe:'방패 든 이와 아이를 업은 이',theme:{id:'shield',name:'방패의 밤',tip:'방패 든 이가 줄지어 온다. 화살과 빛이 튕기니 작살과 도리깨를 앞에 세워라.'}},
+  {place:'등대',name:'셋째 밤',units:['spear','bow'],foes:['walk','run','deep','shield','carry','lure'],boss:'만복',newFoe:'꾀는 이',theme:{id:'deep',name:'되살아나는 안개의 밤',tip:'깊이 홀린 이가 자주 온다. 불이 꺼지면 안개가 되살아나니 화염병을 세워라.'}}];
 /* ── 나머지 다섯 곳: 곳마다 밤 셋, 땅과 주제와 우두머리가 다르다 ── */
 const ALLU=['spear','flail','bow','lamp','fire'],ALLF=['walk','run','deep','shield','carry','lure'];
+const NEWU=['도리깨꾼','등불지기','화염병','진화(같은 3단 둘을 합치면 상위 유닛)',null];
+function themeFor(id,U){const t=Object.assign({},THEMES[id]),h=k=>U.includes(k);
+  if(id==='run')t.tip='달려오는 아이가 떼로 온다. 화살이 잘 빗나가니 작살꾼으로 꿰어 두고 쏴라.'+(h('flail')?' 도리깨로 쓸면 더 좋다.':'');
+  if(id==='shield')t.tip='방패 든 이가 줄지어 온다. 화살이 튕기니 작살꾼을 앞에 세워라.'+(h('flail')?' 도리깨도 방패를 깬다.':'');
+  if(id==='deep')t.tip=h('fire')?THEMES.deep.tip:'깊이 홀린 이가 자주 온다. 덩치가 크니 작살꾼으로 붙잡고 화살을 모아라.';
+  if(id==='carry')t.tip='아이를 업은 이가 무리 지어 온다. 깨우면 아이가 뛰어내리니'+(h('fire')?' 도리깨와 불로 함께 쓸어라.':h('flail')?' 도리깨로 함께 쓸어라.':' 작살꾼 둘을 붙여 세워라.');
+  return t;}
 const THEMES={run:NIGHTS[0].theme,shield:NIGHTS[1].theme,deep:NIGHTS[2].theme,
   lure:{id:'lure',name:'꾀는 소리의 밤',tip:'꾀는 이가 자주 온다. 가까이 오기 전에 사냥꾼으로 멀리서 깨워라.'},
   carry:{id:'carry',name:'업힌 아이들의 밤',tip:'아이를 업은 이가 무리 지어 온다. 깨우면 아이가 뛰어내리니 도리깨와 불로 함께 쓸어라.'}};
 [['솔숲 나루','river',['lure','run','carry'],'뱃사공'],['사당','shrine',['shield','lure','deep'],'사당지기'],['엿도가','yeot',['carry','shield','run'],'엿도가 주인'],['폐광','mine',['deep','carry','lure'],'십장'],['갯마을','village',['shield','deep','carry'],'하람']]
- .forEach(([place,map,th,boss],p)=>['첫째 밤','둘째 밤','셋째 밤'].forEach((name,k)=>NIGHTS.push({place,name,map,units:ALLU,foes:ALLF,theme:THEMES[th[k]],boss:k===2?boss:undefined,newFoe:null})));
+ .forEach(([place,map,th,boss],p)=>['첫째 밤','둘째 밤','셋째 밤'].forEach((name,k)=>{const units=ALLU.slice(0,Math.min(5,3+p));NIGHTS.push({place,name,map,units,foes:ALLF,theme:themeFor(th[k],units),boss:k===2?boss:undefined,newFoe:null,newU:k===0?NEWU[p]:null});}));
+/* 등대에는 작살꾼과 사냥꾼뿐: 주제 설명을 그에 맞춘다 */
+NIGHTS[0].theme=themeFor('run',NIGHTS[0].units);NIGHTS[1].theme=themeFor('shield',NIGHTS[1].units);NIGHTS[2].theme=themeFor('lure',NIGHTS[2].units);
 const CARDS=[
   {id:'meal',kind:'덕',name:'든든한 저녁',text:'용기 40을 더 들고 시작한다.'},
   {id:'tools',kind:'덕',name:'묵은 연장',text:'헛간에서 연장을 찾았다. 일손 +4.'},
@@ -506,7 +515,7 @@ const CARDS=[
   {id:'dark',kind:'내기',name:'달 없는 밤',text:'그림자가 나올 자리가 보이지 않는다. 대신 경험을 두 배로 얻는다.'},
   {id:'few',kind:'내기',name:'꺼진 등불',text:'마을 등불 셋으로 시작한다. 대신 경험 1.5배, 귀한 것이 나올 확률 1.5배.'}];
 const ORDER=['spear','flail','bow','lamp','fire'],MOVE=[0,12,12],LVL=[0,60,200];
-const TUNE={callB:4,callK:2,bossT:.5,bossR:80,bossDaze:3,lampHeal:1.3,regen:.4,cheer:.5,cheerT:3,forgeF:.02,forgeA:.015,topRows:3,taunt:10,guard:.7,lampSlow:3.2,linkK:.3,markT:2.2,markK:1.4,runMiss:.7,regenD:.02,beamNeed:8,beamN:.38,beamD:.2,beamB:.09,gap:2,spd:1.37,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.6,fog:1.08,atk:.5,ramp:.1,a0:.75,f0:.75,fk:.03,burn:5.6,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[.5,.82,2,...[1,2,3,4,5].flatMap(p=>[1.3,1.5,1.65].map(v=>+(v*(1+.4*(p-1))).toFixed(2)))],na:[.6,1.1,1.5,...[1,2,3,4,5].flatMap(p=>[1.2,1.3,1.38].map(v=>+(v*(1+.25*(p-1))).toFixed(2)))]};
+const TUNE={evoNight:12,callB:4,callK:2,bossT:.5,bossR:80,bossDaze:3,lampHeal:1.3,regen:.4,cheer:.5,cheerT:3,forgeF:.02,forgeA:.015,topRows:3,taunt:10,guard:.7,lampSlow:3.2,linkK:.3,markT:2.2,markK:1.4,runMiss:.7,regenD:.02,beamNeed:8,beamN:.38,beamD:.2,beamB:.09,gap:2,spd:1.37,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.6,fog:1.08,atk:.5,ramp:.1,a0:.75,f0:.75,fk:.03,burn:5.6,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[.5,.55,.58,...[1,2,3,4,5].flatMap(p=>[1.3,1.5,1.65].map(v=>+(v*(1+.4*(p-1))).toFixed(2)))],na:[.6,.8,.68,...[1,2,3,4,5].flatMap(p=>[1.2,1.3,1.38].map(v=>+(v*(1+.25*(p-1))).toFixed(2)))]};
 let N=null;
 /* 물결이 12개로 줄어도 강해지는 흐름은 15개 때와 같게: h를 0~14 눈금으로 늘려 쓴다 */
 const hq=h=>h*14/(WAVES-1);
@@ -535,9 +544,9 @@ const MAPS={
   open:{name:'곶 들판',tip:'트인 들판. 그림자가 어디로든 온다.',nr:2,np:2},
   fork:{name:'갈림길',tip:'가운데 바위 둔덕이 길을 둘로 가른다. 양쪽을 다 막아야 한다.',rock:[[3,4],[4,4],[5,4]],nr:1,np:2,fogK:.7},
   river:{name:'솔숲 나루',tip:'가운데로 개울이 흐르고 나루 두 곳으로만 건넌다.',pond:[[1,5],[2,5],[3,5],[5,5],[6,5],[7,5]],nr:1,np:0,fogK:1,g:'river'},
-  shrine:{name:'사당 마당',tip:'돌 등롱이 줄지어 서서 길을 꺾는다.',rock:[[2,3],[6,3],[3,6],[5,6]],nr:0,np:1,fogK:1.2,g:'shrine'},
+  shrine:{name:'사당 마당',tip:'돌 등롱이 줄지어 서서 길을 꺾는다.',rock:[[2,3],[6,3],[3,6],[5,6]],nr:0,np:1,fogK:1.17,g:'shrine'},
   yeot:{name:'엿도가 마당',tip:'엿 솥 자리마다 끈적한 웅덩이가 그림자를 늦춘다.',rock:[[4,3]],pond:[[2,4],[6,4],[4,6]],nr:1,np:0,fogK:1.05,g:'yeot'},
-  mine:{name:'폐광 갱도',tip:'바위벽 사이 좁은 갱도 두 줄로만 내려온다.',rock:[[1,4],[2,4],[4,4],[6,4],[7,4],[4,5]],nr:1,np:0,fogK:1.15,g:'mine'},
+  mine:{name:'폐광 갱도',tip:'바위벽 사이 좁은 갱도 두 줄로만 내려온다.',rock:[[1,4],[2,4],[4,4],[6,4],[7,4],[4,5]],nr:1,np:0,fogK:1.22,g:'mine'},
   village:{name:'갯마을 모래톱',tip:'그물 말리는 말뚝과 모래 웅덩이가 흩어져 있다.',rock:[[3,3],[5,7]],pond:[[6,4],[2,6]],nr:2,np:1,fogK:.88,g:'village'},
   marsh:{name:'갯벌 늪',tip:'양쪽 바위가 길을 좁히고, 갯벌 웅덩이가 그림자를 늦춘다.',rock:[[1,3],[7,3]],pond:[[3,6],[5,6]],nr:1,np:0,fogK:1.13}};
 function genTerrain(rng){
@@ -633,7 +642,14 @@ function mkUnit(kind,t,lvl,xp,hpf){const m=maxHp(kind,lvl);return{id:N.uid++,kin
 /* 세운 이를 거두기: 낮에는 다 돌려받고, 밤에는 절반 */
 function removeUnit(id){const i=N.units.findIndex(u=>u.id===id&&!u.sp);if(i<0)return'none';const u=N.units[i],back=Math.round(UNITS[u.kind].cost*(N.phase==='day'?1:.5));N.units.splice(i,1);N.courage+=back;if(N.phase==='day'&&N.dayPlaced>0)N.dayPlaced--;N.fx.push({k:'remove',x:u.x,y:u.y,n:back});return back;}
 /* 같은 이 둘을 합쳐 한 단 올린다: 고른 이는 사라지고 누른 이가 오른다 */
-function mergeUnits(aId,bId){const a=N.units.find(u=>u.id===aId),b=N.units.find(u=>u.id===bId);if(!a||!b||a===b||a.sp||b.sp||a.kind!==b.kind)return'kind';if(a.lvl!==b.lvl)return'lvl';if(b.lvl>=3)return'max';
+const EVO={spear:{name:'작살 대장',tip:'둘레 그림자를 모두 자기에게 끌어당겨 막고, 찌르면 곁의 그림자까지 함께 꿴다. 받는 피해 절반.'},
+  bow:{name:'명궁',tip:'한 번에 화살 세 대를 서로 다른 그림자에게 쏜다. 달려오는 아이에게도 빗나가지 않는다.'},
+  flail:{name:'쇠도리깨 장사',tip:'도는 범위가 40% 넓고, 맞은 그림자를 0.6초 멈춰 세운다.'},
+  lamp:{name:'등대지기',tip:'빛이 여덟까지 튀고, 맞은 그림자를 크게 늦춘다. 빛 안의 우리 편을 두 배 반 빨리 치유한다.'},
+  fire:{name:'불꽃 장인',tip:'불병이 30% 넓게 터지고 불이 60% 뜨겁다. 불붙은 그림자 곁의 그림자에게 불이 옮겨붙는다.'}};
+function evoOpen(){return N.night>=TUNE.evoNight;}
+function mergeUnits(aId,bId){const a=N.units.find(u=>u.id===aId),b=N.units.find(u=>u.id===bId);if(!a||!b||a===b||a.sp||b.sp||a.kind!==b.kind)return'kind';if(a.evo||b.evo)return'evo';if(a.lvl!==b.lvl)return'lvl';
+  if(b.lvl>=3){if(!evoOpen())return'max';N.units.splice(N.units.indexOf(a),1);b.evo=1;b.lvl=4;const m=maxHp(b.kind,4);b.hp=m;b.max=m;N.fx.push({k:'evolve',x:b.x,y:b.y,kind:b.kind});return'evo-ok';}
   N.units.splice(N.units.indexOf(a),1);b.lvl++;b.xp=Math.max(b.xp,LVL[b.lvl-1]||0);const m=maxHp(b.kind,b.lvl);b.hp=Math.min(m,b.hp+(m-b.max)+a.hp*.5);b.max=m;N.fx.push({k:'promo',x:b.x,y:b.y,kind:b.kind,lvl:b.lvl});N.fx.push({k:'merge',x:a.x,y:a.y,tx:b.x,ty:b.y});return'ok';}
 function sendOut(u,t){const p=pathTo(t.c,t.r);if(!p)return false;u.x=N.gate*TILE+TILE/2;u.y=GATE+6;u.path=p;u.walk=true;u.out=true;return true;}
 function place(kind,x,y){
@@ -702,6 +718,8 @@ function step(dt){
   for(const f of N.foes){
     if(f.root>0)f.root-=dt;if(f.pin>0)f.pin-=dt;if(f.pinImm>0)f.pinImm-=dt;if(f.netImm>0)f.netImm-=dt;if(f.mark>0)f.mark-=dt;if(f.blind>0)f.blind-=dt;if(f.slow>0)f.slow-=dt;if(f.imm>0)f.imm-=dt;if(f.iceImm>0)f.iceImm-=dt;if(f.daze>0)f.daze-=dt;if(f.dzImm>0)f.dzImm-=dt;if(f.iced>0)f.iced-=dt;
     if(f.nob>0)f.nob-=dt;
+    if(f.burnE&&f.burn>0&&N.rng()<dt){for(const o of N.foes)if(o!==f&&!(o.burn>0)&&Math.hypot(o.x-f.x,o.y-f.y)<34){o.burn=2;o.burnK=f.burnK;o.burnE=1;N.fx.push({k:'spread',x:f.x,y:f.y,tx:o.x,ty:o.y});break;}}
+    if(f.slowE>0)f.slowE-=dt;
     if(f.type==='boss'&&!f.burst&&f.fog<f.max*TUNE.bossT){f.burst=1;const R=TUNE.bossR*(f.burn>0?.5:1);let n=0;for(const u of N.units)if(!u.sp&&Math.hypot(u.x-f.x,u.y-f.y)<R){u.cd=Math.max(u.cd,TUNE.bossDaze);u.dazed=TUNE.bossDaze;n++;}N.fx.push({k:'burst',x:f.x,y:f.y,r:R,n});}
     if(f.burn>0){f.nob=2.5;f.burn-=dt;f.fog-=TUNE.burn*(f.burnK||1)*dt;if(f.link&&f.link.t>0)for(const o of N.foes)if(o!==f&&o.link&&o.link.g===f.link.g&&o.link.t>0&&!(o.burn>0)){o.burn=2.5*N.mod.burn;o.burnK=f.burnK||1;N.fx.push({k:'spread',x:f.x,y:f.y,tx:o.x,ty:o.y});}}
     else if((f.type==='deep'||f.type==='boss')&&NIGHTS[N.night].units.includes('fire')&&!(f.nob>0)&&f.fog<f.max){f.fog=Math.min(f.max,f.fog+f.max*TUNE.regenD*(f.type==='boss'?.6:1)*dt);f.regen=1;if(!N.tRegen&&f.fog<f.max*.9){N.tRegen=1;N.fx.push({k:'regen',x:f.x,y:f.y});}}
@@ -713,11 +731,11 @@ function step(dt){
     if(f.lureTo&&!(f.root>0)){const o=f.lureTo,d=Math.hypot(o.x-f.x,o.y+8-f.y);if(d<14){f.mesmer=2;f.lureTo=null;N.fx.push({k:'mesmer',x:f.x,y:f.y});}else goto(f,o.x,o.y+8,f.sp*N.mod.slow*dt);continue;}
     const oc=Math.floor(f.x/TILE),or=Math.floor((f.y-4-F_TOP)/TILE),inF=oc>=0&&oc<COLS&&or>=0&&or<ROWS;
     let tg=null,bd=52;
-    if(!(f.blind>0))for(const u of N.units){const d=Math.hypot(u.x-f.x,u.y-f.y)-(u.kind==='spear'?TUNE.taunt:0);if(d<bd){bd=d;tg=u;}}
+    if(!(f.blind>0))for(const u of N.units){const d=Math.hypot(u.x-f.x,u.y-f.y)-(u.kind==='spear'?(u.evo&&Math.hypot(u.x-f.x,u.y-f.y)<76?60:TUNE.taunt):0);if(d<bd){bd=d;tg=u;}}
     for(const g of gaps){const d=Math.hypot(g.x-f.x,g.y-f.y);if(d<SPIRITS.gap.range&&(!tg||tg.sp!=='gap')){tg=g;bd=d;}}
-    let sp=f.sp*N.mod.slow*(f.slow>0?.5:1)*(inF&&N.pond[oc][or]&&f.type!=='hop'?.6:1)*dt;
+    let sp=f.sp*N.mod.slow*(f.slow>0?(f.slowE>0?.32:.5):1)*(inF&&N.pond[oc][or]&&f.type!=='hop'?.6:1)*dt;
     for(const y of yuns)if(Math.hypot(y.x-f.x,y.y-f.y)<SPIRITS.yun.range){sp*=.7;break;}
-    if(tg&&bd<=f.r+13){turnTo(f,Math.atan2(tg.y-f.y,tg.x-f.x)-Math.PI/2);tg.hp-=f.atk*dt*(tg.sp==='gap'?.5:tg.kind==='spear'?TUNE.guard:1)*(tg.cheer>0?.8:1)*(f.daze>0?0:1);f.hit=.15;tg.hurt=.12;}
+    if(tg&&bd<=f.r+13){turnTo(f,Math.atan2(tg.y-f.y,tg.x-f.x)-Math.PI/2);tg.hp-=f.atk*dt*(tg.sp==='gap'?.5:tg.kind==='spear'?(tg.evo?.5:TUNE.guard):1)*(tg.cheer>0?.8:1)*(f.daze>0?0:1);f.hit=.15;tg.hurt=.12;}
     else if(f.root>0||f.pin>0){}
     else if(tg&&(f.type==='hop'||lineOpen(f.x,f.y,tg.x,tg.y))){const nx=f.x+(tg.x-f.x)/bd*sp,ny=f.y+(tg.y-f.y)/bd*sp;if(f.type!=='hop'&&blockedAt(nx,ny))flowStep(f,sp);else{f.x=nx;f.y=ny;turnTo(f,Math.atan2(tg.y-f.y,tg.x-f.x)-Math.PI/2);}}
     else flowStep(f,sp);
@@ -749,25 +767,25 @@ function step(dt){
       else if(u.sp==='gap'){if(u.cd<=0){let tg=null,bd=26;for(const f of N.foes){const d=Math.hypot(u.x-f.x,u.y-f.y)-f.r;if(d<bd){bd=d;tg=f;}}if(tg){dmgFoe(tg,10*u.pw);hurtFoe(tg,u.x,u.y,1);u.fa=Math.atan2(tg.y-u.y,tg.x-u.x)+Math.PI/2;N.fx.push({k:'poke',x:u.x,y:u.y,tx:tg.x,ty:tg.y});u.cd=.8;}}}
       continue;}
     const U=UNITS[u.kind],t=tierOf(u.kind);
-    if(u.kind==='lamp'){for(const v of N.units)if(v!==u&&v.hp<v.max&&Math.hypot(u.hx-v.x,u.hy-v.y)<lr)v.hp=Math.min(v.max,v.hp+TUNE.lampHeal*atkK('lamp')*dt);
+    if(u.kind==='lamp'){for(const v of N.units)if(v!==u&&v.hp<v.max&&Math.hypot(u.hx-v.x,u.hy-v.y)<lr)v.hp=Math.min(v.max,v.hp+TUNE.lampHeal*(u.evo?2.5:1)*atkK('lamp')*dt);
       /* 빛 사슬: 그림자 사이를 튀며 차례로 맞힌다 */
       if(u.cd<=0){let tg=null,bd=lr;for(const f of N.foes){const d=Math.hypot(u.x-f.x,u.y-f.y)-f.r;if(d<bd){bd=d;tg=f;}}
-        if(tg){const tw2=N.obj[u.c][u.r]&&N.obj[u.c][u.r].k==='tower';let dm=U.dmg*(1+.35*(u.lvl-1))*atkK('lamp')*(u.fresh?TUNE.fresh:1)*(tw2?1.2:1);const n=lbr==='long'?6:4,hit=[tg],pts=[[u.x,u.y-22],[tg.x,tg.y-14]];let cur=tg;
+        if(tg){const tw2=N.obj[u.c][u.r]&&N.obj[u.c][u.r].k==='tower';let dm=U.dmg*(1+.35*(u.lvl-1))*atkK('lamp')*(u.fresh?TUNE.fresh:1)*(tw2?1.2:1);const n=(lbr==='long'?6:4)+(u.evo?4:0),hit=[tg],pts=[[u.x,u.y-22],[tg.x,tg.y-14]];let cur=tg;
           if(tg.type==='shield')dm*=.25;dmgFoe(tg,dm);gain(u,dm);tg.hurt=.16;
           for(let i=1;i<n;i++){let nx=null,nd=72;for(const f of N.foes){if(hit.includes(f))continue;const d=Math.hypot(f.x-cur.x,f.y-cur.y);if(d<nd){nd=d;nx=f;}}if(!nx)break;dm*=.75;dmgFoe(nx,dm);gain(u,dm);nx.hurt=.16;hit.push(nx);pts.push([nx.x,nx.y-14]);cur=nx;}
-          u.fa=Math.atan2(tg.y-u.y,tg.x-u.x)+Math.PI/2;{const g=N.uid++;for(const f of hit){f.slow=Math.max(f.slow||0,TUNE.lampSlow);if(hit.length>1)f.link={g,t:4,k:TUNE.linkK};}}if(lbr==='spark')N.beam.c=Math.min(N.beam.need,N.beam.c+.06*hit.length);N.fx.push({k:'chain',pts});u.cd=U.cd;}}
+          u.fa=Math.atan2(tg.y-u.y,tg.x-u.x)+Math.PI/2;{const g=N.uid++;for(const f of hit){f.slow=Math.max(f.slow||0,TUNE.lampSlow);if(u.evo)f.slowE=TUNE.lampSlow;if(hit.length>1)f.link={g,t:4,k:TUNE.linkK};}}if(lbr==='spark')N.beam.c=Math.min(N.beam.need,N.beam.c+.06*hit.length);N.fx.push({k:'chain',pts});u.cd=U.cd;}}
       continue;}
     const tw=N.obj[u.c][u.r]&&N.obj[u.c][u.r].k==='tower'&&!u.walk&&!u.out,dm=U.dmg*(1+.35*(u.lvl-1))*atkK(u.kind)*(u.fresh?TUNE.fresh:1)*(tw?1.2:1);u.tw=tw;
-    if(u.kind==='flail'){if(u.spin>0)u.spin-=dt;if(u.cd>0)continue;const fb=brOf('flail'),R=rangeOf('flail')*(tw?1.1:1),hits=N.foes.filter(f=>Math.hypot(u.x-f.x,u.y-f.y)-f.r<R);
-      if(!hits.length)continue;const d2=dm*(fb==='heavy'?1.4:1);for(const f of hits){dmgFoe(f,d2*(f.mark>0?TUNE.markK:1));f.hurt=.16;}if(hits.some(f=>f.burn>0)){const bk=Math.max(1,...hits.map(f=>f.burnK||0));let n=0;for(const f of hits)if(!(f.burn>0)){f.burn=2*N.mod.burn;f.burnK=bk;n++;}if(n)N.fx.push({k:'sparks',x:u.x,y:u.y,r:R});}gain(u,d2*hits.length*.6);
+    if(u.kind==='flail'){if(u.spin>0)u.spin-=dt;if(u.cd>0)continue;const fb=brOf('flail'),R=rangeOf('flail')*(tw?1.1:1)*(u.evo?1.4:1),hits=N.foes.filter(f=>Math.hypot(u.x-f.x,u.y-f.y)-f.r<R);
+      if(!hits.length)continue;const d2=dm*(fb==='heavy'?1.4:1);for(const f of hits){dmgFoe(f,d2*(f.mark>0?TUNE.markK:1));f.hurt=.16;if(u.evo&&f.type!=='boss')f.root=Math.max(f.root||0,.6);}if(hits.some(f=>f.burn>0)){const bk=Math.max(1,...hits.map(f=>f.burnK||0));let n=0;for(const f of hits)if(!(f.burn>0)){f.burn=2*N.mod.burn;f.burnK=bk;n++;}if(n)N.fx.push({k:'sparks',x:u.x,y:u.y,r:R});}gain(u,d2*hits.length*.6);
       if(fb==='whirl'&&hits.length>=3){for(const f of hits){if(f.type==='boss')continue;const kk=f.type==='deep'?.5:1,dx=u.x-f.x,dy=u.y-f.y,dd=Math.hypot(dx,dy)||1;if(dd<f.r+16)continue;f.kb=.25;f.kbx=dx/dd*12*kk/.25;f.kby=dy/dd*12*kk/.25;}N.fx.push({k:'whirl',x:u.x,y:u.y,r:R});}N.fx.push({k:'spin',x:u.x,y:u.y,r:R,n:hits.length,id:u.id});u.spin=.45;const again=hits.length>=3&&!u.again;u.again=again;u.cd=again?.45:U.cd*(tierOf('flail')>=1?.8:1);continue;}
     if(u.kind==='bow'||u.kind==='yeot'||u.kind==='fire'){
       if(u.cd>0)continue;let tg=null,bd=BIG;const R=rangeOf(u.kind)*(tw?1.25:1);
       for(const f of N.foes){const d=Math.hypot(u.x-f.x,u.y-f.y)-f.r,pr=d+(u.kind==='yeot'&&(f.root>0||f.link)?900:0)+(u.kind==='bow'&&f.type==='shield'?200:0);if(d<R&&pr<bd){bd=pr;tg=f;}}
       if(!tg||(u.kind==='yeot'&&(tg.root>0||tg.link)))continue;u.fa=Math.atan2(tg.y-u.y,tg.x-u.x)+Math.PI/2;
-      if(u.kind==='bow'){N.shots.push({kind:'bow',x:u.x,y:u.y-10,tid:tg.id,dmg:dm,src:u.id});if(N.devObjs.some(o=>o.k==='mirror'&&Math.hypot(o.x-u.x,o.y-u.y)<58)){let o2=null,od=BIG;for(const f of N.foes){if(f===tg)continue;const d=Math.hypot(u.x-f.x,u.y-f.y)-f.r;if(d<R&&d<od){od=d;o2=f;}}if(o2){const mo=N.devObjs.find(o=>o.k==='mirror'&&Math.hypot(o.x-u.x,o.y-u.y)<58);N.shots.push({kind:'bow',x:u.x,y:u.y-10,tid:o2.id,dmg:dm*(mo&&mo.plus?.9:.7),src:u.id,mir:1});N.fx.push({k:'glint',x:u.x,y:u.y});}}N.fx.push({k:'twang'});u.cd=U.cd*(u.cover?.78:1);}
+      if(u.kind==='bow'){N.shots.push({kind:'bow',x:u.x,y:u.y-10,tid:tg.id,dmg:dm,src:u.id,ev:u.evo});if(u.evo){const oth=N.foes.filter(f=>f!==tg&&Math.hypot(u.x-f.x,u.y-f.y)-f.r<R).sort((p,q)=>Math.hypot(u.x-p.x,u.y-p.y)-Math.hypot(u.x-q.x,u.y-q.y)).slice(0,2);for(const f of oth)N.shots.push({kind:'bow',x:u.x,y:u.y-10,tid:f.id,dmg:dm,src:u.id,ev:1});}if(N.devObjs.some(o=>o.k==='mirror'&&Math.hypot(o.x-u.x,o.y-u.y)<58)){let o2=null,od=BIG;for(const f of N.foes){if(f===tg)continue;const d=Math.hypot(u.x-f.x,u.y-f.y)-f.r;if(d<R&&d<od){od=d;o2=f;}}if(o2){const mo=N.devObjs.find(o=>o.k==='mirror'&&Math.hypot(o.x-u.x,o.y-u.y)<58);N.shots.push({kind:'bow',x:u.x,y:u.y-10,tid:o2.id,dmg:dm*(mo&&mo.plus?.9:.7),src:u.id,mir:1});N.fx.push({k:'glint',x:u.x,y:u.y});}}N.fx.push({k:'twang'});u.cd=U.cd*(u.cover?.78:1);}
       else if(u.kind==='yeot'){N.shots.push({kind:'yeot',x:u.x,y:u.y-10,tid:tg.id,dmg:dm,src:u.id});N.fx.push({k:'toss'});u.cd=U.cd;}
-      else{N.shots.push({kind:'fire',x:u.x,y:u.y-10,sx:u.x,sy:u.y-10,tx:tg.x,ty:tg.y,dmg:dm,src:u.id});N.fx.push({k:'toss'});u.cd=U.cd;}
+      else{N.shots.push({kind:'fire',x:u.x,y:u.y-10,sx:u.x,sy:u.y-10,tx:tg.x,ty:tg.y,dmg:dm,src:u.id,ev:u.evo});N.fx.push({k:'toss'});u.cd=U.cd;}
       continue;}
     /* 작살꾼 */
     const mv=moveOf(u.kind);
@@ -782,7 +800,7 @@ function step(dt){
         const d=Math.hypot(px-u.x,py-u.y),sp=U.run*dt;let nx=px,ny=py;if(d>sp){nx=u.x+(px-u.x)/d*sp;ny=u.y+(py-u.y)/d*sp;}
         if(!blockedAt(nx,ny)){u.x=nx;u.y=ny;}u.out=Math.hypot(u.x-u.hx,u.y-u.hy)>3;}
       if(u.cd<=0&&Math.hypot(tg.x-u.x,tg.y-u.y)-tg.r<30*rngK('spear')){
-        dmgFoe(tg,dm);gain(u,dm);hurtFoe(tg,u.x,u.y,2.2);tg.mark=TUNE.markT;if(!(tg.pinImm>0)){tg.pin=.5;tg.pinImm=1.4;}if(brOf('spear')==='net'&&!(tg.netImm>0)){let n=0;for(const g of N.foes)if(Math.hypot(g.x-tg.x,g.y-tg.y)-g.r<20&&!(g.netImm>0)){const big=g.type==='deep'||g.type==='boss';g.root=Math.max(g.root||0,big?.4:.8);g.netImm=2.5;n++;}N.fx.push({k:'net',x:tg.x,y:tg.y,n});}N.fx.push({k:'poke',x:u.x,y:u.y,tx:tg.x,ty:tg.y});
+        dmgFoe(tg,dm);gain(u,dm);hurtFoe(tg,u.x,u.y,2.2);tg.mark=TUNE.markT;if(u.evo&&u.kind==='spear')for(const g of N.foes)if(g!==tg&&Math.hypot(g.x-tg.x,g.y-tg.y)<30){dmgFoe(g,dm*.6);g.mark=TUNE.markT;}if(!(tg.pinImm>0)){tg.pin=.5;tg.pinImm=1.4;}if(brOf('spear')==='net'&&!(tg.netImm>0)){let n=0;for(const g of N.foes)if(Math.hypot(g.x-tg.x,g.y-tg.y)-g.r<20&&!(g.netImm>0)){const big=g.type==='deep'||g.type==='boss';g.root=Math.max(g.root||0,big?.4:.8);g.netImm=2.5;n++;}N.fx.push({k:'net',x:tg.x,y:tg.y,n});}N.fx.push({k:'poke',x:u.x,y:u.y,tx:tg.x,ty:tg.y});
         if(brOf('spear')==='pierce'){let o=null,od=34;for(const f of N.foes){if(f===tg)continue;const d=Math.hypot(f.x-tg.x,f.y-tg.y);if(d<od){od=d;o=f;}}if(o){dmgFoe(o,dm*.6);hurtFoe(o,u.x,u.y,1.2);N.fx.push({k:'poke',x:tg.x,y:tg.y,tx:o.x,ty:o.y});}}
         u.cd=U.cd;}
     }else{
@@ -799,7 +817,7 @@ function step(dt){
       else{s.a=Math.atan2(s.ty-s.y,s.tx-s.x);s.x+=(s.tx-s.x)/d*sp;s.y+=(s.ty-s.y)/d*sp;}
       continue;}
     if(s.kind==='fire'){const d=Math.hypot(s.tx-s.x,s.ty-s.y),sp=190*dt;
-      if(d<=sp){const src=N.units.find(u=>u.id===s.src),ft=tierOf('fire'),fb=brOf('fire'),R=(ft>=1?42:34)+N.mod.boomR;for(const f of N.foes)if(Math.hypot(f.x-s.tx,f.y-s.ty)-f.r<R){dmgFoe(f,s.dmg);f.burn=(fb==='long'?6:3)*N.mod.burn;f.burnK=(fb==='hot'?2:1)*atkK('fire');if(fb==='smoke')f.blind=2.5;gain(src,s.dmg);hurtFoe(f,s.tx,s.ty,1.5);}if(fb==='smoke')N.fx.push({k:'smoke',x:s.tx,y:s.ty,r:R});
+      if(d<=sp){const src=N.units.find(u=>u.id===s.src),ft=tierOf('fire'),fb=brOf('fire'),R=((ft>=1?42:34)+N.mod.boomR)*(s.ev?1.3:1);for(const f of N.foes)if(Math.hypot(f.x-s.tx,f.y-s.ty)-f.r<R){dmgFoe(f,s.dmg);f.burn=(fb==='long'?6:3)*N.mod.burn;f.burnK=(fb==='hot'?2:1)*atkK('fire')*(s.ev?1.6:1);if(s.ev)f.burnE=1;if(fb==='smoke')f.blind=2.5;gain(src,s.dmg);hurtFoe(f,s.tx,s.ty,1.5);}if(fb==='smoke')N.fx.push({k:'smoke',x:s.tx,y:s.ty,r:R});
         N.fx.push({k:'boom',x:s.tx,y:s.ty,r:R});N.shots.splice(i,1);}
       else{s.a=Math.atan2(s.ty-s.y,s.tx-s.x);s.x+=(s.tx-s.x)/d*sp;s.y+=(s.ty-s.y)/d*sp;}
       continue;}
@@ -812,7 +830,7 @@ function step(dt){
         tg.root=(yb==='sticky'?2:1.2)*(big?.5:1);tg.vuln=1.25;dmgFoe(tg,s.dmg,1);
         for(const f of hit)f.link={g,t:5+(yt>=1?2:0),k:yb==='sticky'?.5:.3};
         gain(src,8*hit.length);N.fx.push({k:'stick',x:tg.x,y:tg.y,n:hit.length});}
-      else if(tg.type==='run'&&!(tg.mark>0||tg.slow>0||tg.root>0||tg.pin>0)&&N.rng()<TUNE.runMiss){N.fx.push({k:'miss',x:tg.x,y:tg.y});}
+      else if(!s.ev&&tg.type==='run'&&!(tg.mark>0||tg.slow>0||tg.root>0||tg.pin>0)&&N.rng()<TUNE.runMiss){N.fx.push({k:'miss',x:tg.x,y:tg.y});}
       else{const sh=tg.type==='shield',bb=brOf('bow'),bd2=s.dmg*(sh?.25:1)*(bb==='knock'?TUNE.knockD:1)*(tg.mark>0?TUNE.markK:1);dmgFoe(tg,bd2);gain(src,bd2);if(tg.iceImm>0)tg.iceImm-=0;if(bb==='fire'){tg.burn=Math.max(tg.burn||0,3*N.mod.burn);tg.burnK=Math.max(tg.burnK||0,atkK('bow'));}else if(bb==='ice'&&!sh&&!(tg.iceImm>0)){tg.root=Math.max(tg.root||0,tg.type==='deep'||tg.type==='boss'?.5:1);tg.vuln=TUNE.iceV;tg.iceImm=2.5;tg.iced=1;}if(!sh){hurtFoe(tg,s.x,s.y,.8);if(bb==='knock'&&!(tg.dzImm>0)){tg.daze=TUNE.daze;tg.dzImm=TUNE.dzImm;{const kk=tg.type==='boss'?.25:tg.type==='deep'?.45:1,sx=s.x||tg.x,sy=s.y||tg.y+20,dd=Math.hypot(tg.x-sx,tg.y-sy)||1;tg.kb=.2;tg.kbx=(tg.x-sx)/dd*TUNE.knock*kk/.2;tg.kby=(tg.y-sy)/dd*TUNE.knock*kk/.2;tg.pin=0;N.fx.push({k:'knock',x:tg.x,y:tg.y});}}}N.fx.push({k:sh?'clang':'thock',x:tg.x,y:tg.y,sx:s.x,sy:s.y});}
       N.shots.splice(i,1);}
     else{s.a=Math.atan2(tg.y-s.y,tg.x-s.x);s.x+=(tg.x-s.x)/d*sp;s.y+=(tg.y-s.y)/d*sp;}}
@@ -855,7 +873,7 @@ function pickMid(id){
   else if(id==='gold'){N.extraTreasure=1;N.mod.spdK*=1.1;}else if(id==='dim'){N.lives=Math.max(1,N.lives-1);N.bonusPack=1;}
   N.mid=null;N.midDone=true;N.midCard=id;N.fx.push({k:'midpick',id});
 }
-if(typeof module!=='undefined')module.exports={THEMES,MAPS,callEarly,removeUnit,mergeUnits,spawn,trOf,trFromL,spdK,DEVS,MIDS,beamAll,ringBell,pickMid,TUNE,atkK,hpK,rngK,lvOf,MOVE,UNITS,SPIRITS,FOES,NIGHTS,CARDS,ORDER,TILE,F_TOP,WAVES,BUILD,waveOf,newNight,place,summon,canPlace,snap,step,toggleBuild,setGate,startNightPhase,rangeOf,get:()=>N};
+if(typeof module!=='undefined')module.exports={EVO,evoOpen,themeFor,THEMES,MAPS,callEarly,removeUnit,mergeUnits,spawn,trOf,trFromL,spdK,DEVS,MIDS,beamAll,ringBell,pickMid,TUNE,atkK,hpK,rngK,lvOf,MOVE,UNITS,SPIRITS,FOES,NIGHTS,CARDS,ORDER,TILE,F_TOP,WAVES,BUILD,waveOf,newNight,place,summon,canPlace,snap,step,toggleBuild,setGate,startNightPhase,rangeOf,get:()=>N};
 
 /* ───────── 이야기 ───────── */
 const STORY={
@@ -1339,7 +1357,7 @@ function hud(){
   const iu=insp&&inspT>0?N.units.find(v=>v.id===insp):null;
   $('selInfo').textContent=sel==='gate'&&day?'문: 아래 울타리 쪽을 눌러 문 자리를 옮긴다. 우리 편은 여기서 나오고, 그림자는 여기로만 들어온다.'
     :BUILD[sel]&&day?`${BUILD[sel].name}(일손 ${BUILD[sel].cost}) · ${BUILD[sel].tip} 놓인 것을 다시 누르면 치운다.`
-    :iu?(iu.sp?`${SPIRITS[iu.sp].name} · ${Math.ceil(iu.life)}초 뒤 돌아간다`:`${UNITS[iu.kind].name} ${iu.lvl}단${iu.fresh?' · 힘을 비축했다':''}${iu.rest?' · 숨 고르는 중':''} · 마음 ${Math.ceil(iu.hp)}/${Math.round(iu.max)}`)
+    :iu?(iu.sp?`${SPIRITS[iu.sp].name} · ${Math.ceil(iu.life)}초 뒤 돌아간다`:`${iu.evo?EVO[iu.kind].name+' · '+EVO[iu.kind].tip.split('.')[0]:UNITS[iu.kind].name+' '+iu.lvl+'단'}${iu.fresh?' · 힘을 비축했다':''}${iu.rest?' · 숨 고르는 중':''} · 마음 ${Math.ceil(iu.hp)}/${Math.round(iu.max)}`)
     :sel==='beam'?'응원: 우리 편 모두의 마음을 절반씩 채우고, 3초 동안 받는 피해를 20% 줄인다.'
     :isSp(sel)?`${SPIRITS[sel].name} · ${SPIRITS[sel].tip}`:sel?`${UNITS[sel].name} · ${UNITS[sel].tip}`:'아래에서 세울 이를 고르고, 들판의 칸을 누른다';
 }
@@ -1578,6 +1596,7 @@ function drainFx(){
     else if(e.k==='spread'){fxs.push({line:1,x:e.x,y:e.y-10,tx:e.tx,ty:e.ty-10,t:0,d:.3,col:'#ff9a50'});if(!tut.spread){tut.spread=1;notice('불이 빛으로 이어진 그림자에게 옮겨붙었다.',3.5);}}
     else if(e.k==='sparks'){bits(e.x,e.y-8,'#ffb060',8,null,0,e.r*2.2,2);if(!tut.sparks){tut.sparks=1;notice('도리깨가 불붙은 그림자를 쳐서 불씨가 둘레로 튀었다.',3.5);}}
     else if(e.k==='regen'){if(!tut.regen){tut.regen=1;notice('깊이 홀린 이의 안개가 되살아난다. 불을 붙이면 멈춘다.',5);}}
+    else if(e.k==='evolve'){ring(e.x,e.y,'#f0c86e',70,1.1,8);ring(e.x,e.y,'#fff3c4',44,.8,5);flash(e.x,e.y,46,'#f0c86e');bits(e.x,e.y,'#f0c86e',18,-1.57,2.4,120,2.4);banner={t:0,a:EVO[e.kind].name,b:EVO[e.kind].tip.split('.')[0]};}
     else if(e.k==='cheer'){bell(262,.18);bell(330,.14,.12);tone(523,.6,.05,'sine');for(const[x,y]of e.pts){bits(x,y-6,'#ffe08a',8,null,0,26,2);bits(x,y-6,'#9ff0b0',5,null,0,20,1.6);}if(e.pts.length)pop(e.pts[0][0],e.pts[0][1]-24,'응원!');}
     else if(e.k==='call'){bell(196,.12);pop(W/2,F_TOP+20,`앞당김 · 용기 +${e.n}`);if(!tut.call){tut.call=1;notice('물결을 앞당겼다. 들판에 남은 그림자가 많을수록 용기를 더 받는다.',4);}}
     else if(e.k==='burst'){thud(40,.3);cust((c,p)=>{c.strokeStyle=`rgba(170,120,255,${.8*(1-p)})`;c.lineWidth=4*(1-p)+1;c.beginPath();c.arc(e.x,e.y-14,e.r*(.2+.8*p),0,7);c.stroke();},.9);{const bn=(N&&NIGHTS[N.night].boss)||'우두머리',bj=jo(bn,'이','가');notice(e.n?`${bj} 안개를 터뜨렸다. 둘레 ${e.n}명이 홀렸다. 응원을 하면 깨어난다.`:`${bj} 안개를 터뜨렸다.`,4);}}
@@ -1969,7 +1988,7 @@ function unitFigS(c,o,now,ghostly){
   if(o.cd>(o._c||0)+.05)o.an=.2;o._c=o.cd;if(o.an>0)o.an-=1/60;const an=Math.max(0,o.an||0)/.2;
   if(o.hurt>0)o.hurt-=1/60;const hj=o.hurt>0?Math.sin(now*70)*1.2:0;
   const col=UBC[k],t=o.tier!=null?o.tier:dispTier(k),ic=!!o.icon,{cv,P,d}=S0;
-  const sc=ic?Math.min(44/d.h,46/d.w):.24*(1+.04*((o.lvl||1)-1));
+  const sc=ic?Math.min(44/d.h,46/d.w):.24*(o.evo?1.16:1+.04*((o.lvl||1)-1));
   const x=ic?24.5:o.x+hj,y=ic?47:o.y+8,walk=o.walk||o.out,bob=walk?Math.abs(Math.sin(now*9+(o.id||0)))*1.2:0;
   const face=Math.cos((o.fa||0)-Math.PI/2)<0&&!ic?-1:1;
   c.save();
@@ -1984,7 +2003,9 @@ function unitFigS(c,o,now,ghostly){
   if(ghostly||ic)return true;
   const top=y-d.h*sc-4;
   if(o.rest){c.strokeStyle='rgba(180,210,255,.75)';c.lineWidth=1.3;for(let i=0;i<3;i++){c.beginPath();c.arc(x+12,top-i*4-((now*3+i)%1)*3,1.3+i*.4,0,7);c.stroke();}}
-  if(o.lvl>1){for(let i=0;i<o.lvl-1;i++){const sx=x-4*(o.lvl-2)+i*8,sy=top;sp1(c,glowC(255,214,120),sx,sy,4.5,.9);c.fillStyle='#fff3c4';c.beginPath();c.arc(sx,sy,1.6,0,7);c.fill();}}
+  if(o.evo){const r=19+Math.sin(now*3)*1.2;c.save();c.strokeStyle='rgba(240,200,110,.85)';c.lineWidth=1.6;c.setLineDash([5,3]);c.lineDashOffset=-now*8;c.beginPath();c.ellipse(x,y,r,r*.38,0,0,7);c.stroke();c.restore();
+    const sy=top-2;sp1(c,glowC(255,214,120),x,sy,7,.9);c.fillStyle='#f0c86e';c.strokeStyle='#3a2a12';c.lineWidth=1;c.beginPath();c.moveTo(x-6,sy+3);c.lineTo(x-6,sy-2);c.lineTo(x-3,sy+.5);c.lineTo(x,sy-4);c.lineTo(x+3,sy+.5);c.lineTo(x+6,sy-2);c.lineTo(x+6,sy+3);c.closePath();c.fill();c.stroke();}
+  else if(o.lvl>1){for(let i=0;i<o.lvl-1;i++){const sx=x-4*(o.lvl-2)+i*8,sy=top;sp1(c,glowC(255,214,120),sx,sy,4.5,.9);c.fillStyle='#fff3c4';c.beginPath();c.arc(sx,sy,1.6,0,7);c.fill();}}
   if(o.hp<o.max-.5){const p=Math.max(0,o.hp/o.max);c.fillStyle='rgba(0,0,0,.65)';c.fillRect(x-12,y+6,24,3.2);c.fillStyle=p<.35?'#ff8a96':'#9ff0b0';c.fillRect(x-12,y+6,24*p,3.2);}
   return true;}
 for(const k in USPR)sprPrep(k);
@@ -2019,7 +2040,9 @@ function unitFigT(c,o,now,ghostly){
   if(o.dazed>0){o.dazed-=1/60;c.strokeStyle=`rgba(200,160,255,${Math.min(.9,o.dazed)})`;c.lineWidth=1.6;c.beginPath();for(let i=0;i<18;i++){const a=i*.5+now*6,rr=3+i*.5;c.lineTo(x+Math.cos(a)*rr,y-20+Math.sin(a)*rr*.5);}c.stroke();}
   const top=y-18;
   if(o.rest){c.strokeStyle='rgba(180,210,255,.75)';c.lineWidth=1.3;for(let i=0;i<3;i++){c.beginPath();c.arc(x+12,top-i*4-((now*3+i)%1)*3,1.3+i*.4,0,7);c.stroke();}}
-  if(o.lvl>1){for(let i=0;i<o.lvl-1;i++){const sx=x-4*(o.lvl-2)+i*8,sy=top;sp1(c,glowC(255,214,120),sx,sy,4.5,.9);c.fillStyle='#fff3c4';c.beginPath();c.arc(sx,sy,1.6,0,7);c.fill();}}
+  if(o.evo){const r=19+Math.sin(now*3)*1.2;c.save();c.strokeStyle='rgba(240,200,110,.85)';c.lineWidth=1.6;c.setLineDash([5,3]);c.lineDashOffset=-now*8;c.beginPath();c.ellipse(x,y,r,r*.38,0,0,7);c.stroke();c.restore();
+    const sy=top-2;sp1(c,glowC(255,214,120),x,sy,7,.9);c.fillStyle='#f0c86e';c.strokeStyle='#3a2a12';c.lineWidth=1;c.beginPath();c.moveTo(x-6,sy+3);c.lineTo(x-6,sy-2);c.lineTo(x-3,sy+.5);c.lineTo(x,sy-4);c.lineTo(x+3,sy+.5);c.lineTo(x+6,sy-2);c.lineTo(x+6,sy+3);c.closePath();c.fill();c.stroke();}
+  else if(o.lvl>1){for(let i=0;i<o.lvl-1;i++){const sx=x-4*(o.lvl-2)+i*8,sy=top;sp1(c,glowC(255,214,120),sx,sy,4.5,.9);c.fillStyle='#fff3c4';c.beginPath();c.arc(sx,sy,1.6,0,7);c.fill();}}
   if(o.hp<o.max-.5){const p=Math.max(0,o.hp/o.max);c.fillStyle='rgba(0,0,0,.65)';c.fillRect(x-12,y+15,24,3.2);c.fillStyle=p<.35?'#ff8a96':'#9ff0b0';c.fillRect(x-12,y+15,24*p,3.2);}
   return true;}
 {const u2=unitFig;unitFig=function(c,o,now,g){const L=lookOf();if(L==='disc'&&TSPR[o.kind]&&unitFigT(c,o,now||0,g))return;if(L==='front'&&USPR[o.kind]&&unitFigS(c,o,now||0,g))return;return u2(c,o,now,g);};}
@@ -2082,7 +2105,7 @@ const WOODI={};for(const k in WOOD){const im=new Image();im.onload=()=>{WOODI[k]
   const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);const r=Math.max(w/im.width,h/im.height),iw=im.width*r,ih=im.height*r;c.drawImage(im,(w-iw)/2,(h-ih)/2,iw,ih);
   c.strokeStyle='#14110f';c.lineWidth=5;c.strokeRect(2.5,2.5,w-5,h-5);};}
 /* ── 첫 화면 안개 걷힘(1편처럼), 이어하기, 기록·설정 ── */
-const VER='0.41',CHLOG=['다섯 곳의 이야기: 하람과 딸 보름, 검은 등불의 비밀','여섯 곳 모두 열림: 솔숲 나루 · 사당 · 엿도가 · 폐광 · 갯마을, 곳마다 밤 셋과 고유한 땅 · 우두머리','밤마다 다른 땅: 곶 들판 · 갈림길(바위빛 자갈) · 갯벌 늪(젖은 청록 갯벌, 조개껍데기)','이야기 글이 저절로 흘러감(빠르게 · 넘기기 · 건너뛰기)','물결 앞당기기, 밤별 별 셋, 만복의 안개 터뜨리기','사냥꾼·작살꾼 약화, 화염병·등불지기 강화, 그림자 5% 빨라짐, 벼린 만큼 그림자 강화 두 배','사냥꾼 화살 5.5→3.5, 그림자 안개 +20%: 화살만으로는 못 막고 작살꾼 앞에서 싸우게','회복을 크게 줄임(등불지기 빛 3.5→0.8, 쉴 때 1.2→0.4), 그림자 공격력 1.5배','난이도 다시 맞춤: 물결마다 그림자 수 2배, 유닛 마음 -25%, 셋째 밤 크게 강화','등대 빛 → 응원(우리 편 모두 회복), 유닛 마음 -20%, 물결마다 그림자 힘이 더 크게 오름, 벼린 만큼 그림자도 강해짐','유닛 역할: 근거리 막기 · 중거리 광역 · 원거리 공격','세운 이 거두기, 같은 이 둘 합쳐 승급','난이도, 기록 · 설정 화면, 첫 화면 안개','목판화 삽화(타이틀 · 이야기 · 밤 주제 · 끝 화면)','위에서 본 그림으로 들판 · 그림자 · 영혼 통일','밤마다 주제, 유닛 연계(꿰기 · 빛 잇기 · 불 옮기기)','대장간: 다섯 갈래를 골라 벼림'];
+const VER='0.42',CHLOG=['일꾼이 곳마다 하나씩 늘어난다: 등대(작살꾼·사냥꾼) → 솔숲 도리깨꾼 → 사당 등불지기 → 엿도가 화염병','폐광부터 같은 3단 둘을 겹치면 거듭난 이: 작살 대장 · 명궁 · 쇠도리깨 장사 · 등대지기 · 불꽃 장인','다섯 곳의 이야기: 하람과 딸 보름, 검은 등불의 비밀','여섯 곳 모두 열림: 솔숲 나루 · 사당 · 엿도가 · 폐광 · 갯마을, 곳마다 밤 셋과 고유한 땅 · 우두머리','밤마다 다른 땅: 곶 들판 · 갈림길(바위빛 자갈) · 갯벌 늪(젖은 청록 갯벌, 조개껍데기)','이야기 글이 저절로 흘러감(빠르게 · 넘기기 · 건너뛰기)','물결 앞당기기, 밤별 별 셋, 만복의 안개 터뜨리기','사냥꾼·작살꾼 약화, 화염병·등불지기 강화, 그림자 5% 빨라짐, 벼린 만큼 그림자 강화 두 배','사냥꾼 화살 5.5→3.5, 그림자 안개 +20%: 화살만으로는 못 막고 작살꾼 앞에서 싸우게','회복을 크게 줄임(등불지기 빛 3.5→0.8, 쉴 때 1.2→0.4), 그림자 공격력 1.5배','난이도 다시 맞춤: 물결마다 그림자 수 2배, 유닛 마음 -25%, 셋째 밤 크게 강화','등대 빛 → 응원(우리 편 모두 회복), 유닛 마음 -20%, 물결마다 그림자 힘이 더 크게 오름, 벼린 만큼 그림자도 강해짐','유닛 역할: 근거리 막기 · 중거리 광역 · 원거리 공격','세운 이 거두기, 같은 이 둘 합쳐 승급','난이도, 기록 · 설정 화면, 첫 화면 안개','목판화 삽화(타이틀 · 이야기 · 밤 주제 · 끝 화면)','위에서 본 그림으로 들판 · 그림자 · 영혼 통일','밤마다 주제, 유닛 연계(꿰기 · 빛 잇기 · 불 옮기기)','대장간: 다섯 갈래를 골라 벼림'];
 function titleIntro(){const fog=$('titleFog');if(!fog)return;const t0=performance.now(),set=p=>{const m=`radial-gradient(circle at 22% 16%, transparent ${p*125}%, #000 ${p*125+18}%)`;fog.style.webkitMaskImage=m;fog.style.maskImage=m;};
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){set(1);return;}(function f(now){const p=Math.min(1,(now-t0-300)/2600);set(Math.max(.03,p*p*(3-2*p)));if(p<1)requestAnimationFrame(f);})(t0);}
 function hasProgress(){return S.night>0||S.xp>0||Object.keys(S.up||{}).length>0;}
@@ -2103,7 +2126,7 @@ $('btnNew').onclick=()=>{openSet();$('btnReset').hidden=true;$('btnResetYes').hi
 titleMenu();titleIntro();
 /* 세운 이를 눌렀을 때: ✕(거두기)와 합칠 수 있는 짝 표시 */
 {const d0=drawLinks;drawLinks=function(c,now){d0(c,now);if(!N||!insp||!(inspT>0))return;const u=N.units.find(v=>v.id===insp&&!v.sp);if(!u)return;
-  for(const o of N.units)if(o!==u&&!o.sp&&o.kind===u.kind&&o.lvl===u.lvl&&o.lvl<3){c.save();c.setLineDash([3,4]);c.lineDashOffset=-now*12;c.strokeStyle='rgba(255,224,138,.9)';c.lineWidth=1.8;c.beginPath();c.arc(o.x,o.y-2,17,0,7);c.stroke();c.restore();}
+  for(const o of N.units)if(o!==u&&!o.sp&&o.kind===u.kind&&o.lvl===u.lvl&&!o.evo&&!u.evo&&(o.lvl<3||evoOpen())){c.save();c.setLineDash([3,4]);c.lineDashOffset=-now*12;c.strokeStyle='rgba(255,224,138,.9)';c.lineWidth=1.8;c.beginPath();c.arc(o.x,o.y-2,17,0,7);c.stroke();c.restore();}
   const B=unitBtns(u);c.save();c.beginPath();c.arc(B.x,B.y,11,0,7);c.fillStyle='#3a1e22';c.fill();c.strokeStyle='#14110f';c.lineWidth=2.4;c.stroke();c.strokeStyle='#ffb0a8';c.lineWidth=2.2;c.lineCap='round';c.beginPath();c.moveTo(B.x-4,B.y-4);c.lineTo(B.x+4,B.y+4);c.moveTo(B.x+4,B.y-4);c.lineTo(B.x-4,B.y+4);c.stroke();c.restore();};}
 window.__view=()=>view;
 /* 앞당기기 단추 */
@@ -2179,7 +2202,7 @@ cv.addEventListener('pointerdown',e=>{e.preventDefault();audioInit();if(!N||N.ov
     hud();return;}
   {const iu=insp&&inspT>0?N.units.find(v=>v.id===insp&&!v.sp):null;
     if(iu){const B=unitBtns(iu);if(Math.hypot(p.x-B.x,p.y-B.y)<16){const n=removeUnit(iu.id);insp=null;if(n!=='none'){tone(160,.1,.05,'triangle');notice(`${UNITS[iu.kind].name}${jo(UNITS[iu.kind].name,'을','를').slice(-1)} 거뒀다. 용기 ${n}을 돌려받았다.`,2.4);}hud();return;}
-      const o=t&&unitAt(t.c,t.r);if(o&&o.id!==iu.id&&!o.sp&&o.kind===iu.kind){const r=mergeUnits(iu.id,o.id);insp=null;if(r==='ok'){bell(262,.14);tone(523,.2,.05,'triangle');notice(`${UNITS[o.kind].name} 둘이 합쳐 ${o.lvl}단이 되었다.`,2.4);}else notice(r==='lvl'?'같은 단끼리만 합칠 수 있다.':'이미 가장 높은 단이다.',2);hud();return;}}}
+      const o=t&&unitAt(t.c,t.r);if(o&&o.id!==iu.id&&!o.sp&&o.kind===iu.kind){const r=mergeUnits(iu.id,o.id);insp=null;if(r==='ok'){bell(262,.14);tone(523,.2,.05,'triangle');notice(`${UNITS[o.kind].name} 둘이 합쳐 ${o.lvl}단이 되었다.`,2.4);}else if(r==='evo-ok'){bell(196,.3);bell(294,.22);tone(587,.4,.06,'triangle');notice(`${UNITS[o.kind].name} 둘이 하나 되어 ${EVO[o.kind].name}${jo(EVO[o.kind].name,'이','가')} 되었다.`,3);}else notice(r==='lvl'?'같은 단끼리만 합칠 수 있다.':r==='max'?'3단 둘은 폐광에 이르러서야 하나로 거듭난다.':'이미 거듭난 이다.',2.2);hud();return;}}}
   if(look(t)){pend=null;const u=N.units.find(v=>v.id===insp);if(u&&!u.sp){inspT=5;if(!tut.unitAct){tut.unitAct=1;notice('✕를 누르면 거둔다(낮엔 용기를 다, 밤엔 절반 돌려받음). 같은 단의 같은 이를 누르면 합쳐 한 단 오른다.',6);}}return;}
   if(!sel){notice('먼저 아래에서 세울 이를 고른다.',2);return;}
   if(!t){notice('점선 칸 안에 세운다.',1.6);return;}
@@ -2210,7 +2233,7 @@ function begin(n,cd){
   sel='gate';pend=null;insp=null;paused=false;speed=1;banner={t:0,a:'낮',b:`${NIGHTS[n].theme?NIGHTS[n].theme.name+' · ':''}${cd.name}`};$('btnSpeed').textContent='×1';for(const k of ORDER)delete $('u_'+k).dataset.open;$('spRow').dataset.k='-';fxs=[];
   const o=S.night>0;$('nightRow').hidden=true;tut={treasure:!!S.draws&&S.night>1,carry:S.night>1,place:o,wake:o,turn:o,deep:o,promo:o,pend:o,rest:o,back:o,root:o,walk:o};shown=false;dawnA=0;
   document.body.classList.add('battle');show('sBattle');resize();hud();
-  {const th=NIGHTS[n].theme,mp=MAPS[N.map];notice(o?`「${th.name}」 ${th.tip} 땅은 「${mp.name}」: ${mp.tip}`:`낮이다. 문 자리를 정하고 채비를 놓는다. 오늘은 「${th.name}」: ${th.tip}`,o?9:12);}
+  {const th=NIGHTS[n].theme,mp=MAPS[N.map],nu=NIGHTS[n].newU,nk=nu&&ORDER.find(k=>UNITS[k].name===nu),nw=!nu?'':nk?`새로 서는 이: ${nu}. ${UNITS[nk].tip} `:'새 길: 같은 3단 둘을 겹치면 하나로 거듭난다. ';if(nu)banner={t:0,a:nk?'새 일꾼':'거듭남',b:nk?nu:'3단 둘 → 거듭난 이'};notice(nw+(o?`「${th.name}」 ${th.tip} 땅은 「${mp.name}」: ${mp.tip}`:`낮이다. 문 자리를 정하고 채비를 놓는다. 오늘은 「${th.name}」: ${th.tip}`),o?(nu?12:9):12);}
 }
 /* ── 새벽: 셈과 꾸러미 하나 ── */
 let draw=null,drawQ=[];
