@@ -493,7 +493,7 @@ const ALLU=['spear','flail','bow','lamp','fire'],ALLF=['walk','run','deep','shie
 const THEMES={run:NIGHTS[0].theme,shield:NIGHTS[1].theme,deep:NIGHTS[2].theme,
   lure:{id:'lure',name:'꾀는 소리의 밤',tip:'꾀는 이가 자주 온다. 가까이 오기 전에 사냥꾼으로 멀리서 깨워라.'},
   carry:{id:'carry',name:'업힌 아이들의 밤',tip:'아이를 업은 이가 무리 지어 온다. 깨우면 아이가 뛰어내리니 도리깨와 불로 함께 쓸어라.'}};
-[['솔숲 나루','river',['lure','run','carry'],'뱃사공'],['사당','shrine',['shield','lure','deep'],'사당지기'],['엿도가','yeot',['carry','shield','run'],'엿도가 주인'],['폐광','mine',['deep','carry','lure'],'십장'],['갯마을','village',['shield','deep','carry'],'촌장']]
+[['솔숲 나루','river',['lure','run','carry'],'뱃사공'],['사당','shrine',['shield','lure','deep'],'사당지기'],['엿도가','yeot',['carry','shield','run'],'엿도가 주인'],['폐광','mine',['deep','carry','lure'],'십장'],['갯마을','village',['shield','deep','carry'],'하람']]
  .forEach(([place,map,th,boss],p)=>['첫째 밤','둘째 밤','셋째 밤'].forEach((name,k)=>NIGHTS.push({place,name,map,units:ALLU,foes:ALLF,theme:THEMES[th[k]],boss:k===2?boss:undefined,newFoe:null})));
 const CARDS=[
   {id:'meal',kind:'덕',name:'든든한 저녁',text:'용기 40을 더 들고 시작한다.'},
@@ -866,14 +866,58 @@ const STORY={
  post0:[{art:'chil',who:'',t:['깨어난 이웃이 새벽에 꾸러미를 맡기고 갔다.','호루라기를 불씨 곁에서 불자, 늙은 어부와 개가 잠깐 돌아왔다.']},
   {art:'chil',who:'칠성',t:['복실아. …이제 왔구나.']},
   {art:'flat',who:'단서',t:['갯바닥 쪽으로 발자국이 한 줄 나 있다.','어부의 장화 자국. 하람의 것이다.']}],
- pre1:[{art:'flat',who:'',t:['둘째 밤. 그림자가 달라졌다.','방패를 든 이는 화살이 튕기고, 넘는 이는 해자를 건넌다.']}],
+ pre1:[{art:'flat',who:'',t:['둘째 밤. 그림자가 달라졌다.','방패를 든 이는 화살이 튕기고,','아이를 업은 이는 깨우면 아이가 뛰어내린다.']}],
  post1:[{art:'flat',who:'단서',t:['나루의 빈 배에서 하람의 자루가 나왔다.','남의 유품이 가득하다. 호루라기, 테왁, 등유 통.']},
   {art:'jail',who:'돌쇠',t:['죽은 사람 물건을 훔쳐다','잠든 등불 자리에 뿌리는 거야. 그러니 안개가 다시 피지.']}],
- pre2:[{art:'flat',who:'',t:['셋째 밤. 꾀는 이가 섞여 온다.','눈이 마주친 사람은 한 칸씩 앞으로 끌려 나간다.']}],
+ pre2:[{art:'flat',who:'',t:['셋째 밤. 꾀는 이가 섞여 온다.','눈이 마주친 사람은 잠깐 넋을 놓고 손을 멈춘다.']}],
  post2:[{art:'dawn',who:'',t:['안개를 이끌던 이를 깨우니 만복이다.','형 만석을 바다에서 잃은 사람.']},
   {art:'dawn',who:'만복',t:['형님 목소리가 들렸소.','…나만 그런 게 아닐 거요.']},
-  {art:'dawn',who:'',t:['등대의 안개가 걷혔다.','첫 곳은 여기까지. 다음은 솔숲 나루다.']}]};
-const CLUES=['갯바닥으로 난 발자국은 하람의 장화 자국이다.','하람의 자루에서 남의 유품이 가득 나왔다.','깨어난 만복은 형의 목소리를 들었다고 했다.'];
+  {art:'dawn',who:'',t:['등대의 안개가 걷혔다.','하람의 발자국은 솔숲 나루로 이어진다.']}],
+ /* ── 솔숲 나루 ── */
+ pre3:[{art:'map',who:'',t:['솔숲 나루. 배가 한 척도 없다.','개울 건너에서 그림자들이 노 젓는 시늉을 한다.']},
+  {art:'fire',who:'스승',t:['물을 건너는 곳은 두 군데뿐이다.','거기를 지키면 된다.']}],
+ pre4:[{art:'th_run',who:'',t:['둘째 밤. 솔숲 사이로','아이들 그림자가 뛰어온다.']}],
+ pre5:[{art:'flat',who:'',t:['셋째 밤. 강 건너에서 노 젓는 소리.','아이를 업은 그림자들이 배에서 내린다.']}],
+ post5:[{art:'dawn',who:'',t:['안개를 끌고 온 이를 깨우니','나루의 뱃사공 덕배다.']},
+  {art:'dawn',who:'덕배',t:['하람이 밤마다 내 배를 빌려 갔소.','바다에 나가 무언가를 건져 오더이다.']},
+  {art:'flat',who:'단서',t:['배 바닥에 젖은 비단 신 한 짝.','아이의 신이다.']}],
+ /* ── 사당 ── */
+ pre6:[{art:'map',who:'',t:['다음은 바닷가 언덕의 사당.','바다에서 죽은 이들의 이름을 모시는 곳이다.']},
+  {art:'fire',who:'스승',t:['그런데 안개가 거기서 가장 짙다.','이름을 부르는 소리가 들려도 돌아보지 마라.']}],
+ pre7:[{art:'th_shield',who:'',t:['둘째 밤. 돌 등롱 사이로','방패 든 그림자가 줄지어 내려온다.']}],
+ pre8:[{art:'flat',who:'',t:['셋째 밤. 깨운 이들이 하나같이 말한다.','사당에서 누가 제 이름을 불렀다고.']}],
+ post8:[{art:'dawn',who:'',t:['안개를 이끌던 이는','사당지기 순덕 할멈이다.']},
+  {art:'dawn',who:'순덕',t:['하람이 위패 하나를 가져갔다.','열 해 전 바다에 간 제 딸, 보름이 것.']},
+  {art:'fire',who:'단서',t:['하람은 딸 보름을 바다에서 잃었다.']}],
+ /* ── 엿도가 ── */
+ pre9:[{art:'map',who:'',t:['언덕 아래 엿도가에서 단내가 난다.','이 밤중에.']},
+  {art:'fire',who:'스승',t:['엿 고는 불은 꺼진 적이 없다던 곳이다.','누군가 그 불을 빌려 쓰고 있다.']}],
+ pre10:[{art:'th_shield',who:'',t:['둘째 밤. 솥 둘레 끈적한 바닥에','그림자들 발이 붙는다. 늦어진 틈을 놓치지 마라.']}],
+ pre11:[{art:'th_run',who:'',t:['셋째 밤. 아이들 그림자가','엿 냄새를 따라 몰려온다.']}],
+ post11:[{art:'dawn',who:'',t:['엿도가 주인 곰보 영감이 깨어났다.']},
+  {art:'dawn',who:'곰보 영감',t:['하람이 밤마다 솥에 무얼 녹였소.','검은 엿 같았는데, 굳으니 등잔 모양이 되더이다.']},
+  {art:'jail',who:'돌쇠',t:['검은 등잔을 새로 빚은 거야.','잠든 검은 등불을 다시 켤 생각이로군.']}],
+ /* ── 폐광 ── */
+ pre12:[{art:'map',who:'',t:['검은 등잔에 넣을 기름은','폐광에서 난다.']},
+  {art:'fire',who:'스승',t:['옛 검은 등불도 그 굴의 기름으로 켰다.','갱도는 좁다. 두 줄을 다 막아라.']}],
+ pre13:[{art:'flat',who:'',t:['둘째 밤. 갱도 안쪽에서','아이를 업은 그림자들이 줄지어 나온다.']}],
+ pre14:[{art:'flat',who:'',t:['셋째 밤. 갱도 깊은 곳에서','누가 꾀는 소리를 낸다. 귀를 막아라.']}],
+ post14:[{art:'dawn',who:'',t:['안개를 이끌던 이는','광산 십장 억쇠다.']},
+  {art:'dawn',who:'억쇠',t:['하람이 마지막 기름 통을 메고 갯마을로 갔소.','보름날 밤에 등불을 켠다고.']},
+  {art:'flat',who:'단서',t:['다음 보름이 사흘 뒤다.']}],
+ /* ── 갯마을 ── */
+ pre15:[{art:'map',who:'',t:['마지막은 갯마을.','하람이 사는 곳이다.']},
+  {art:'flat',who:'',t:['마을 사람 거의 모두가 그림자가 되어','모래톱을 걷고 있다.']},
+  {art:'fire',who:'스승',t:['검은 등불이 켜지기 전에','다 깨워야 한다.']}],
+ pre16:[{art:'th_deep',who:'',t:['둘째 밤. 바다 쪽 안개가','걷혔다가 다시 되살아난다. 불을 꺼뜨리지 마라.']}],
+ pre17:[{art:'flat',who:'',t:['셋째 밤. 보름달이 떴다.','모래톱 끝에서 검은 등불이 깜박인다.']},
+  {art:'fire',who:'스승',t:['안개를 이끄는 이가 오면,','그게 누구든 깨워라.']}],
+ post17:[{art:'dawn',who:'',t:['안개를 이끌던 이를 깨우니 하람이다.','손에 아이 비단 신 한 짝을 쥐고 있다.']},
+  {art:'dawn',who:'하람',t:['보름이 목소리가 들렸어.','등불만 켜면 돌아온다고…']},
+  {art:'fire',who:'스승',t:['돌아오는 건 목소리뿐이다.','안개는 산 사람을 데려갈 뿐이고.']},
+  {art:'win',who:'',t:['하람이 검은 등잔을 바다에 던졌다.','여섯 곳의 안개가 모두 걷혔다.']},
+  {art:'win',who:'',t:['해가 뜬다.','이제 남은 것은 깊은 밤뿐이다.']}]};
+const CLUES=['갯바닥으로 난 발자국은 하람의 장화 자국이다.','하람의 자루에서 남의 유품이 가득 나왔다.','깨어난 만복은 형의 목소리를 들었다고 했다.',,,'하람은 밤마다 배를 빌려 바다에서 무언가를 건져 왔다. 배 바닥에 아이 비단 신 한 짝.',,,'하람은 열 해 전 딸 보름을 바다에서 잃었다. 사당에서 딸의 위패를 가져갔다.',,,'하람은 엿도가 솥에서 검은 등잔을 빚었다. 검은 등불을 다시 켜려는 것이다.',,,'하람은 마지막 기름을 메고 갯마을로 갔다. 보름 밤에 검은 등불을 켠다.',,,'하람은 딸의 목소리를 따라 검은 등불을 켜려 했다. 등잔은 바다에 던져졌다.'];
 const WEAP={spear:['대나무 작살','쇠 작살'],flail:['대나무 도리깨','쇠고리 도리깨'],bow:['나무 활','물푸레 활'],lamp:['종이 등','유리 등'],yeot:['호박엿','깨엿'],fire:['등유병','큰 등유병']},UPCOST=[30,50,60,90,130,170,220,280];
 const STEP=['atk','abil','hp','br','rng','atk','hp','all'],STEPS={atk:['공','공격 +15%'],abil:['능','새 능력'],hp:['마','마음(버티는 힘) +20%'],br:['갈','갈래 선택'],rng:['사','사거리 +10%'],all:['명','명인: 공격 +15%, 마음 +20%, 사거리 +10%']};
 const ABIL1={spear:'반 칸까지 달려 나가 붙잡는다',flail:'도는 사이가 20% 짧아진다',bow:'화살이 더 깊이 박힌다',lamp:'빛이 더 넓게 닿는다',yeot:'엿가락이 2초 더 오래 붙는다',fire:'불이 더 넓게 번진다'};
@@ -1046,8 +1090,8 @@ function renderHome(){
     const a=document.createElement('div');a.innerHTML='<span class="nm"></span><p class="ds"></p>';a.children[0].textContent=have?`${DEVNAME[k]}${S.devs[k]===2?' ★':''} · 일손 ${BUILD[k].cost}`:cur?`${DEVNAME[k]} 설계도`:'아직 모르는 장치';
     a.children[1].textContent=have?BUILD[k].tip:cur?`조각 ${Math.min(S.pieces,BPNEED[i])}/${BPNEED[i]}. 금빛 보물 그림자를 문에 닿기 전에 깨우면 조각이 나온다. 다 모이면 새벽에 맞춘다.`:'앞의 설계도를 맞추면 드러난다.';
     d.append(ic,a);if(cur){const bar=document.createElement('div');bar.className='pbar';bar.innerHTML='<i></i>';bar.firstChild.style.width=Math.min(100,S.pieces/BPNEED[i]*100)+'%';d.append(bar);}dl.appendChild(d);});
-  const cl=$('clues');cl.textContent='';if(!S.clues.length){const p=document.createElement('p');p.className='note';p.textContent='아직 단서가 없다. 밤을 넘길 때마다 하나씩 적힌다.';cl.appendChild(p);}
-  S.clues.forEach((t,i)=>{const p=document.createElement('p');p.textContent=`${i+1}. ${t}`;cl.appendChild(p);});
+  const cl=$('clues');cl.textContent='';if(!S.clues.filter(Boolean).length){const p=document.createElement('p');p.className='note';p.textContent='아직 단서가 없다. 밤을 넘길 때마다 하나씩 적힌다.';cl.appendChild(p);}
+  S.clues.filter(Boolean).forEach((t,i)=>{const p=document.createElement('p');p.textContent=`${i+1}. ${t}`;cl.appendChild(p);});
   if(htab==='map')drawMap($('homeMap'),0,Math.floor(S.night/3),null,null);
   const done=S.night>=NIGHTS.length;$('btnGo').textContent=done?`깊은 밤 · 깊이 ${(S.deep||0)+1}`:`${NIGHTS[S.night].place} · ${NIGHTS[S.night].name}을 맞는다`;$('goNote').hidden=false;if(!done){const th=NIGHTS[S.night].theme;$('goNote').textContent=`오늘 밤 「${th.name}」 · 땅 「${MAPS[NIGHTS[S.night].map||['open','fork','marsh'][S.night]]?.name||'곶 들판'}」. ${th.tip}`;}else $('goNote').textContent='첫 곳은 여기까지다. 셋째 밤을 다시 이길 때마다 꾸러미를 하나 풀고, 그림자가 한 층 짙어진다.';
 }
@@ -1536,7 +1580,7 @@ function drainFx(){
     else if(e.k==='regen'){if(!tut.regen){tut.regen=1;notice('깊이 홀린 이의 안개가 되살아난다. 불을 붙이면 멈춘다.',5);}}
     else if(e.k==='cheer'){bell(262,.18);bell(330,.14,.12);tone(523,.6,.05,'sine');for(const[x,y]of e.pts){bits(x,y-6,'#ffe08a',8,null,0,26,2);bits(x,y-6,'#9ff0b0',5,null,0,20,1.6);}if(e.pts.length)pop(e.pts[0][0],e.pts[0][1]-24,'응원!');}
     else if(e.k==='call'){bell(196,.12);pop(W/2,F_TOP+20,`앞당김 · 용기 +${e.n}`);if(!tut.call){tut.call=1;notice('물결을 앞당겼다. 들판에 남은 그림자가 많을수록 용기를 더 받는다.',4);}}
-    else if(e.k==='burst'){thud(40,.3);cust((c,p)=>{c.strokeStyle=`rgba(170,120,255,${.8*(1-p)})`;c.lineWidth=4*(1-p)+1;c.beginPath();c.arc(e.x,e.y-14,e.r*(.2+.8*p),0,7);c.stroke();},.9);notice(e.n?`만복이 안개를 터뜨렸다. 둘레 ${e.n}명이 홀렸다. 응원을 하면 깨어난다.`:'만복이 안개를 터뜨렸다.',4);}
+    else if(e.k==='burst'){thud(40,.3);cust((c,p)=>{c.strokeStyle=`rgba(170,120,255,${.8*(1-p)})`;c.lineWidth=4*(1-p)+1;c.beginPath();c.arc(e.x,e.y-14,e.r*(.2+.8*p),0,7);c.stroke();},.9);{const bn=(N&&NIGHTS[N.night].boss)||'우두머리',bj=jo(bn,'이','가');notice(e.n?`${bj} 안개를 터뜨렸다. 둘레 ${e.n}명이 홀렸다. 응원을 하면 깨어난다.`:`${bj} 안개를 터뜨렸다.`,4);}}
     else if(e.k==='knock'){bits(e.x,e.y,'#cbbf94',5,-1.57,1.6,70,2.2);thud(80,.1);}
     else if(e.k==='toss'){const n=performance.now();if(n-lastHit>40)tone(240+Math.random()*40,.06,.02,'triangle');}
   }
@@ -2038,7 +2082,7 @@ const WOODI={};for(const k in WOOD){const im=new Image();im.onload=()=>{WOODI[k]
   const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);const r=Math.max(w/im.width,h/im.height),iw=im.width*r,ih=im.height*r;c.drawImage(im,(w-iw)/2,(h-ih)/2,iw,ih);
   c.strokeStyle='#14110f';c.lineWidth=5;c.strokeRect(2.5,2.5,w-5,h-5);};}
 /* ── 첫 화면 안개 걷힘(1편처럼), 이어하기, 기록·설정 ── */
-const VER='0.40',CHLOG=['여섯 곳 모두 열림: 솔숲 나루 · 사당 · 엿도가 · 폐광 · 갯마을, 곳마다 밤 셋과 고유한 땅 · 우두머리','밤마다 다른 땅: 곶 들판 · 갈림길(바위빛 자갈) · 갯벌 늪(젖은 청록 갯벌, 조개껍데기)','이야기 글이 저절로 흘러감(빠르게 · 넘기기 · 건너뛰기)','물결 앞당기기, 밤별 별 셋, 만복의 안개 터뜨리기','사냥꾼·작살꾼 약화, 화염병·등불지기 강화, 그림자 5% 빨라짐, 벼린 만큼 그림자 강화 두 배','사냥꾼 화살 5.5→3.5, 그림자 안개 +20%: 화살만으로는 못 막고 작살꾼 앞에서 싸우게','회복을 크게 줄임(등불지기 빛 3.5→0.8, 쉴 때 1.2→0.4), 그림자 공격력 1.5배','난이도 다시 맞춤: 물결마다 그림자 수 2배, 유닛 마음 -25%, 셋째 밤 크게 강화','등대 빛 → 응원(우리 편 모두 회복), 유닛 마음 -20%, 물결마다 그림자 힘이 더 크게 오름, 벼린 만큼 그림자도 강해짐','유닛 역할: 근거리 막기 · 중거리 광역 · 원거리 공격','세운 이 거두기, 같은 이 둘 합쳐 승급','난이도, 기록 · 설정 화면, 첫 화면 안개','목판화 삽화(타이틀 · 이야기 · 밤 주제 · 끝 화면)','위에서 본 그림으로 들판 · 그림자 · 영혼 통일','밤마다 주제, 유닛 연계(꿰기 · 빛 잇기 · 불 옮기기)','대장간: 다섯 갈래를 골라 벼림'];
+const VER='0.41',CHLOG=['다섯 곳의 이야기: 하람과 딸 보름, 검은 등불의 비밀','여섯 곳 모두 열림: 솔숲 나루 · 사당 · 엿도가 · 폐광 · 갯마을, 곳마다 밤 셋과 고유한 땅 · 우두머리','밤마다 다른 땅: 곶 들판 · 갈림길(바위빛 자갈) · 갯벌 늪(젖은 청록 갯벌, 조개껍데기)','이야기 글이 저절로 흘러감(빠르게 · 넘기기 · 건너뛰기)','물결 앞당기기, 밤별 별 셋, 만복의 안개 터뜨리기','사냥꾼·작살꾼 약화, 화염병·등불지기 강화, 그림자 5% 빨라짐, 벼린 만큼 그림자 강화 두 배','사냥꾼 화살 5.5→3.5, 그림자 안개 +20%: 화살만으로는 못 막고 작살꾼 앞에서 싸우게','회복을 크게 줄임(등불지기 빛 3.5→0.8, 쉴 때 1.2→0.4), 그림자 공격력 1.5배','난이도 다시 맞춤: 물결마다 그림자 수 2배, 유닛 마음 -25%, 셋째 밤 크게 강화','등대 빛 → 응원(우리 편 모두 회복), 유닛 마음 -20%, 물결마다 그림자 힘이 더 크게 오름, 벼린 만큼 그림자도 강해짐','유닛 역할: 근거리 막기 · 중거리 광역 · 원거리 공격','세운 이 거두기, 같은 이 둘 합쳐 승급','난이도, 기록 · 설정 화면, 첫 화면 안개','목판화 삽화(타이틀 · 이야기 · 밤 주제 · 끝 화면)','위에서 본 그림으로 들판 · 그림자 · 영혼 통일','밤마다 주제, 유닛 연계(꿰기 · 빛 잇기 · 불 옮기기)','대장간: 다섯 갈래를 골라 벼림'];
 function titleIntro(){const fog=$('titleFog');if(!fog)return;const t0=performance.now(),set=p=>{const m=`radial-gradient(circle at 22% 16%, transparent ${p*125}%, #000 ${p*125+18}%)`;fog.style.webkitMaskImage=m;fog.style.maskImage=m;};
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){set(1);return;}(function f(now){const p=Math.min(1,(now-t0-300)/2600);set(Math.max(.03,p*p*(3-2*p)));if(p<1)requestAnimationFrame(f);})(t0);}
 function hasProgress(){return S.night>0||S.xp>0||Object.keys(S.up||{}).length>0;}
