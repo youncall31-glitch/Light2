@@ -437,12 +437,12 @@ function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a
 const HOURS=['저녁 8시','저녁 8시 50분','밤 9시 40분','밤 10시 30분','밤 11시 20분','밤 12시 10분','새벽 1시','새벽 1시 50분','새벽 2시 40분','새벽 3시 30분','새벽 4시 20분','새벽 5시 10분'];
 const HSHORT=['20:00','20:50','21:40','22:30','23:20','00:10','01:00','01:50','02:40','03:30','04:20','05:10'];
 const UNITS={
-  spear:{name:'작살꾼',cost:20,hp:36,range:30,dmg:5,cd:.7,run:62,role:'근거리 · 막기',tip:'근거리 · 막기. 마음이 단단하고, 가까운 그림자는 이 사람부터 노린다. 찌른 그림자를 꿰어 두면 화살과 도리깨에 40% 더 아프다.'},
-  bow:{name:'사냥꾼',cost:30,hp:12,range:140,dmg:3.5,cd:1,role:'원거리 · 공격',tip:'원거리 · 공격. 3.5칸 멀리 한 마리씩 세게 쏜다. 꿴 그림자에 40% 더 세다. 달려오는 아이는 꿰거나 늦춰야 잘 맞는다.'},
+  spear:{name:'작살꾼',cost:20,hp:36,range:30,dmg:5,cd:.9,run:62,role:'근거리 · 막기',tip:'근거리 · 막기. 마음이 단단하고, 가까운 그림자는 이 사람부터 노린다. 찌른 그림자를 꿰어 두면 화살과 도리깨에 40% 더 아프다.'},
+  bow:{name:'사냥꾼',cost:30,hp:12,range:125,dmg:3,cd:1.15,role:'원거리 · 공격',tip:'원거리 · 공격. 3칸 멀리 한 마리씩 세게 쏜다. 꿴 그림자에 40% 더 세다. 달려오는 아이는 꿰거나 늦춰야 잘 맞는다.'},
   lamp:{name:'등불지기',cost:35,hp:16,range:96,dmg:10,cd:2,role:'중거리 · 광역',tip:'중거리 · 광역. 빛이 그림자 넷 사이를 튀며 맞히고, 맞은 그림자를 늦추며 빛으로 잇는다. 이어진 그림자는 피해와 불을 나눠 받는다.'},
   yeot:{name:'엿장수',cost:35,hp:26,range:110,dmg:3,cd:3.2,tip:'엿가락을 늘여 그림자 셋을 줄줄이 붙인다. 붙은 그림자끼리는 받는 피해를 30% 나눠 받는다.'},
   flail:{name:'도리깨꾼',cost:25,hp:22,range:66,dmg:13,cd:1.4,role:'중거리 · 광역',tip:'중거리 · 광역. 작살꾼 뒤에 서서 머리 너머로 도리깨를 휘두른다. 둘레 1.3칸을 한꺼번에 친다. 몸이 약해 맨 앞에 세우면 쉽게 홀린다. 셋 이상 맞히면 한 바퀴 더.'},
-  fire:{name:'화염병',cost:35,hp:14,range:104,dmg:9,cd:2.4,role:'중거리 · 광역',tip:'중거리 · 광역. 불병으로 둘레를 태운다. 불이 붙은 동안 깊이 홀린 이의 안개가 되살아나지 못한다.'}};
+  fire:{name:'화염병',cost:35,hp:14,range:104,dmg:11,cd:2.4,role:'중거리 · 광역',tip:'중거리 · 광역. 불병으로 둘레를 태운다. 불이 붙은 동안 깊이 홀린 이의 안개가 되살아나지 못한다.'}};
 /* 유품으로 불러낸 영혼: 한 밤에 한 번, 잠깐 머문다 */
 const SPIRITS={
   gap:{name:'갑수',role:'막는 이',hp:420,range:70,tip:'광부. 둘레의 그림자를 제게로 끌어 붙들고 버틴다. 홀리지 않는다.'},
@@ -486,8 +486,8 @@ const CARDS=[
   {id:'thick',kind:'내기',name:'짙은 안개',text:'그림자의 안개가 30% 짙다. 대신 새벽 꾸러미에서 귀한 것이 나올 확률이 두 배.'},
   {id:'dark',kind:'내기',name:'달 없는 밤',text:'그림자가 나올 자리가 보이지 않는다. 대신 경험을 두 배로 얻는다.'},
   {id:'few',kind:'내기',name:'꺼진 등불',text:'마을 등불 셋으로 시작한다. 대신 경험 1.5배, 귀한 것이 나올 확률 1.5배.'}];
-const ORDER=['spear','flail','bow','lamp','fire'],MOVE=[0,20,20],LVL=[0,60,200];
-const TUNE={lampHeal:.8,regen:.4,cheer:.5,cheerT:3,forgeF:.012,forgeA:.01,topRows:3,taunt:10,guard:.7,lampSlow:2.5,linkK:.3,markT:2.2,markK:1.4,runMiss:.7,regenD:.02,beamNeed:8,beamN:.38,beamD:.2,beamB:.09,gap:2,spd:1.3,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.6,fog:1.08,atk:.5,ramp:.1,a0:.75,f0:.75,fk:.03,burn:4,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[.8,1.4,2.2],na:[.85,1.35,1.5]};
+const ORDER=['spear','flail','bow','lamp','fire'],MOVE=[0,12,12],LVL=[0,60,200];
+const TUNE={lampHeal:1.3,regen:.4,cheer:.5,cheerT:3,forgeF:.02,forgeA:.015,topRows:3,taunt:10,guard:.7,lampSlow:3.2,linkK:.3,markT:2.2,markK:1.4,runMiss:.7,regenD:.02,beamNeed:8,beamN:.38,beamD:.2,beamB:.09,gap:2,spd:1.37,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.6,fog:1.08,atk:.5,ramp:.1,a0:.75,f0:.75,fk:.03,burn:5.6,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[.5,.82,2],na:[.6,1.1,1.5]};
 let N=null;
 /* 물결이 12개로 줄어도 강해지는 흐름은 15개 때와 같게: h를 0~14 눈금으로 늘려 쓴다 */
 const hq=h=>h*14/(WAVES-1);
@@ -499,7 +499,7 @@ function waveOf(night,h0){
   const a=[];for(let i=0;i<w;i++){a.push('walk');if(i<r)a.push('run');}
   const ins=(t,n)=>{for(let i=0;i<n;i++)a.splice(Math.floor(a.length*(i+1)/(n+1)),0,t);};
   const TH=NIGHTS[night].theme&&NIGHTS[night].theme.id;
-  if(TH==='run'&&h>=1){const extra=Math.round((1+h*.35)*TUNE.count*.55);for(let i=0;i<extra;i++)a.splice(Math.floor(a.length*(i+1)/(extra+1)),0,'run');for(let i=0;i<Math.floor(extra/2);i++){const j=a.lastIndexOf('walk');if(j>=0&&a.filter(t=>t==='walk').length>1)a.splice(j,1);}}
+  if(TH==='run'&&h>=1){const extra=Math.round((1+h*.35)*TUNE.count*.3);for(let i=0;i<extra;i++)a.splice(Math.floor(a.length*(i+1)/(extra+1)),0,'run');for(let i=0;i<Math.floor(extra/2);i++){const j=a.lastIndexOf('walk');if(j>=0&&a.filter(t=>t==='walk').length>1)a.splice(j,1);}}
   if(TH==='deep'&&h>=2&&h%2===0)d+=1;
   ins('deep',d);
   if(F.includes('shield')&&h>=3&&h%2===1)ins('shield',h>=11?2:1);
@@ -546,7 +546,7 @@ function hpK(kind){return 1+(GROW[kind]||[0,.2])[1]*trOf(kind).h}
 function rngK(kind){return 1+.1*trOf(kind).r}
 function spdK(kind){return UNITS[kind]?1/Math.pow(.92,trOf(kind).s):1}
 function brOf(kind){return tierOf(kind)>=2?N.br[kind]||null:null}
-function moveOf(kind){return kind==='spear'?(brOf('spear')==='swap'?40:MOVE[tierOf(kind)])*N.mod.move:0}
+function moveOf(kind){return kind==='spear'?(brOf('spear')==='swap'?26:MOVE[tierOf(kind)])*N.mod.move:0}
 function rangeOf(kind){const t=tierOf(kind);if(SPIRITS[kind])return SPIRITS[kind].range;const k=rngK(kind);return kind==='spear'?moveOf(kind)+30*k:kind==='lamp'?(UNITS.lamp.range+(t>=1?14:0))*k:kind==='flail'?UNITS.flail.range*k*(brOf('flail')==='wide'?1.35:1):kind==='bow'?UNITS.bow.range*k+N.mod.bowR:UNITS[kind].range*k}
 function maxHp(kind,lvl){return UNITS[kind].hp*(1+.3*((lvl||1)-1))*hpK(kind)}
 const tileXY=(c,r)=>({c,r,x:c*TILE+TILE/2,y:F_TOP+r*TILE+28});
@@ -678,7 +678,7 @@ function step(dt){
     let tg=null,bd=52;
     if(!(f.blind>0))for(const u of N.units){const d=Math.hypot(u.x-f.x,u.y-f.y)-(u.kind==='spear'?TUNE.taunt:0);if(d<bd){bd=d;tg=u;}}
     for(const g of gaps){const d=Math.hypot(g.x-f.x,g.y-f.y);if(d<SPIRITS.gap.range&&(!tg||tg.sp!=='gap')){tg=g;bd=d;}}
-    let sp=f.sp*N.mod.slow*(f.slow>0?.6:1)*(inF&&N.pond[oc][or]&&f.type!=='hop'?.6:1)*dt;
+    let sp=f.sp*N.mod.slow*(f.slow>0?.5:1)*(inF&&N.pond[oc][or]&&f.type!=='hop'?.6:1)*dt;
     for(const y of yuns)if(Math.hypot(y.x-f.x,y.y-f.y)<SPIRITS.yun.range){sp*=.7;break;}
     if(tg&&bd<=f.r+13){turnTo(f,Math.atan2(tg.y-f.y,tg.x-f.x)-Math.PI/2);tg.hp-=f.atk*dt*(tg.sp==='gap'?.5:tg.kind==='spear'?TUNE.guard:1)*(tg.cheer>0?.8:1)*(f.daze>0?0:1);f.hit=.15;tg.hurt=.12;}
     else if(f.root>0||f.pin>0){}
@@ -1992,7 +1992,7 @@ const WOODI={};for(const k in WOOD){const im=new Image();im.onload=()=>{WOODI[k]
   const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);const r=Math.max(w/im.width,h/im.height),iw=im.width*r,ih=im.height*r;c.drawImage(im,(w-iw)/2,(h-ih)/2,iw,ih);
   c.strokeStyle='#14110f';c.lineWidth=5;c.strokeRect(2.5,2.5,w-5,h-5);};}
 /* ── 첫 화면 안개 걷힘(1편처럼), 이어하기, 기록·설정 ── */
-const VER='0.31',CHLOG=['사냥꾼 화살 5.5→3.5, 그림자 안개 +20%: 화살만으로는 못 막고 작살꾼 앞에서 싸우게','회복을 크게 줄임(등불지기 빛 3.5→0.8, 쉴 때 1.2→0.4), 그림자 공격력 1.5배','난이도 다시 맞춤: 물결마다 그림자 수 2배, 유닛 마음 -25%, 셋째 밤 크게 강화','등대 빛 → 응원(우리 편 모두 회복), 유닛 마음 -20%, 물결마다 그림자 힘이 더 크게 오름, 벼린 만큼 그림자도 강해짐','유닛 역할: 근거리 막기 · 중거리 광역 · 원거리 공격','세운 이 거두기, 같은 이 둘 합쳐 승급','난이도, 기록 · 설정 화면, 첫 화면 안개','목판화 삽화(타이틀 · 이야기 · 밤 주제 · 끝 화면)','위에서 본 그림으로 들판 · 그림자 · 영혼 통일','밤마다 주제, 유닛 연계(꿰기 · 빛 잇기 · 불 옮기기)','대장간: 다섯 갈래를 골라 벼림'];
+const VER='0.32',CHLOG=['사냥꾼·작살꾼 약화, 화염병·등불지기 강화, 그림자 5% 빨라짐, 벼린 만큼 그림자 강화 두 배','사냥꾼 화살 5.5→3.5, 그림자 안개 +20%: 화살만으로는 못 막고 작살꾼 앞에서 싸우게','회복을 크게 줄임(등불지기 빛 3.5→0.8, 쉴 때 1.2→0.4), 그림자 공격력 1.5배','난이도 다시 맞춤: 물결마다 그림자 수 2배, 유닛 마음 -25%, 셋째 밤 크게 강화','등대 빛 → 응원(우리 편 모두 회복), 유닛 마음 -20%, 물결마다 그림자 힘이 더 크게 오름, 벼린 만큼 그림자도 강해짐','유닛 역할: 근거리 막기 · 중거리 광역 · 원거리 공격','세운 이 거두기, 같은 이 둘 합쳐 승급','난이도, 기록 · 설정 화면, 첫 화면 안개','목판화 삽화(타이틀 · 이야기 · 밤 주제 · 끝 화면)','위에서 본 그림으로 들판 · 그림자 · 영혼 통일','밤마다 주제, 유닛 연계(꿰기 · 빛 잇기 · 불 옮기기)','대장간: 다섯 갈래를 골라 벼림'];
 function titleIntro(){const fog=$('titleFog');if(!fog)return;const t0=performance.now(),set=p=>{const m=`radial-gradient(circle at 22% 16%, transparent ${p*125}%, #000 ${p*125+18}%)`;fog.style.webkitMaskImage=m;fog.style.maskImage=m;};
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){set(1);return;}(function f(now){const p=Math.min(1,(now-t0-300)/2600);set(Math.max(.03,p*p*(3-2*p)));if(p<1)requestAnimationFrame(f);})(t0);}
 function hasProgress(){return S.night>0||S.xp>0||Object.keys(S.up||{}).length>0;}
