@@ -488,6 +488,13 @@ const NIGHTS=[
   {place:'등대',name:'첫째 밤',units:['spear','flail','bow'],foes:['walk','run','deep'],newFoe:null,theme:{id:'run',name:'달음질의 밤',tip:'달려오는 아이가 떼로 온다. 화살이 잘 빗나가니 작살꾼으로 꿰고 도리깨로 쓸어라.'}},
   {place:'등대',name:'둘째 밤',units:['spear','flail','bow','lamp'],foes:['walk','run','deep','shield','carry'],newFoe:'방패 든 이와 아이를 업은 이',theme:{id:'shield',name:'방패의 밤',tip:'방패 든 이가 줄지어 온다. 화살과 빛이 튕기니 작살과 도리깨를 앞에 세워라.'}},
   {place:'등대',name:'셋째 밤',units:['spear','flail','bow','lamp','fire'],foes:['walk','run','deep','shield','carry','lure'],boss:'만복',newFoe:'꾀는 이',theme:{id:'deep',name:'되살아나는 안개의 밤',tip:'깊이 홀린 이가 자주 온다. 불이 꺼지면 안개가 되살아나니 화염병을 세워라.'}}];
+/* ── 나머지 다섯 곳: 곳마다 밤 셋, 땅과 주제와 우두머리가 다르다 ── */
+const ALLU=['spear','flail','bow','lamp','fire'],ALLF=['walk','run','deep','shield','carry','lure'];
+const THEMES={run:NIGHTS[0].theme,shield:NIGHTS[1].theme,deep:NIGHTS[2].theme,
+  lure:{id:'lure',name:'꾀는 소리의 밤',tip:'꾀는 이가 자주 온다. 가까이 오기 전에 사냥꾼으로 멀리서 깨워라.'},
+  carry:{id:'carry',name:'업힌 아이들의 밤',tip:'아이를 업은 이가 무리 지어 온다. 깨우면 아이가 뛰어내리니 도리깨와 불로 함께 쓸어라.'}};
+[['솔숲 나루','river',['lure','run','carry'],'뱃사공'],['사당','shrine',['shield','lure','deep'],'사당지기'],['엿도가','yeot',['carry','shield','run'],'엿도가 주인'],['폐광','mine',['deep','carry','lure'],'십장'],['갯마을','village',['shield','deep','carry'],'촌장']]
+ .forEach(([place,map,th,boss],p)=>['첫째 밤','둘째 밤','셋째 밤'].forEach((name,k)=>NIGHTS.push({place,name,map,units:ALLU,foes:ALLF,theme:THEMES[th[k]],boss:k===2?boss:undefined,newFoe:null})));
 const CARDS=[
   {id:'meal',kind:'덕',name:'든든한 저녁',text:'용기 40을 더 들고 시작한다.'},
   {id:'tools',kind:'덕',name:'묵은 연장',text:'헛간에서 연장을 찾았다. 일손 +4.'},
@@ -499,7 +506,7 @@ const CARDS=[
   {id:'dark',kind:'내기',name:'달 없는 밤',text:'그림자가 나올 자리가 보이지 않는다. 대신 경험을 두 배로 얻는다.'},
   {id:'few',kind:'내기',name:'꺼진 등불',text:'마을 등불 셋으로 시작한다. 대신 경험 1.5배, 귀한 것이 나올 확률 1.5배.'}];
 const ORDER=['spear','flail','bow','lamp','fire'],MOVE=[0,12,12],LVL=[0,60,200];
-const TUNE={callB:4,callK:2,bossT:.5,bossR:80,bossDaze:3,lampHeal:1.3,regen:.4,cheer:.5,cheerT:3,forgeF:.02,forgeA:.015,topRows:3,taunt:10,guard:.7,lampSlow:3.2,linkK:.3,markT:2.2,markK:1.4,runMiss:.7,regenD:.02,beamNeed:8,beamN:.38,beamD:.2,beamB:.09,gap:2,spd:1.37,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.6,fog:1.08,atk:.5,ramp:.1,a0:.75,f0:.75,fk:.03,burn:5.6,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[.5,.82,2],na:[.6,1.1,1.5]};
+const TUNE={callB:4,callK:2,bossT:.5,bossR:80,bossDaze:3,lampHeal:1.3,regen:.4,cheer:.5,cheerT:3,forgeF:.02,forgeA:.015,topRows:3,taunt:10,guard:.7,lampSlow:3.2,linkK:.3,markT:2.2,markK:1.4,runMiss:.7,regenD:.02,beamNeed:8,beamN:.38,beamD:.2,beamB:.09,gap:2,spd:1.37,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.6,fog:1.08,atk:.5,ramp:.1,a0:.75,f0:.75,fk:.03,burn:5.6,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[.5,.82,2,...[1,2,3,4,5].flatMap(p=>[1.3,1.5,1.65].map(v=>+(v*(1+.4*(p-1))).toFixed(2)))],na:[.6,1.1,1.5,...[1,2,3,4,5].flatMap(p=>[1.2,1.3,1.38].map(v=>+(v*(1+.25*(p-1))).toFixed(2)))]};
 let N=null;
 /* 물결이 12개로 줄어도 강해지는 흐름은 15개 때와 같게: h를 0~14 눈금으로 늘려 쓴다 */
 const hq=h=>h*14/(WAVES-1);
@@ -513,6 +520,8 @@ function waveOf(night,h0){
   const TH=NIGHTS[night].theme&&NIGHTS[night].theme.id;
   if(TH==='run'&&h>=1){const extra=Math.round((1+h*.35)*TUNE.count*.3);for(let i=0;i<extra;i++)a.splice(Math.floor(a.length*(i+1)/(extra+1)),0,'run');for(let i=0;i<Math.floor(extra/2);i++){const j=a.lastIndexOf('walk');if(j>=0&&a.filter(t=>t==='walk').length>1)a.splice(j,1);}}
   if(TH==='deep'&&h>=2&&h%2===0)d+=1;
+  if(TH==='lure'&&h>=2&&h%3===2)a.splice(Math.floor(a.length/2),0,'lure');
+  if(TH==='carry'&&h>=2&&h%2===1)a.splice(Math.floor(a.length/2),0,'carry');
   ins('deep',d);
   if(F.includes('shield')&&h>=3&&h%2===1)ins('shield',h>=11?2:1);
   if(TH==='shield'&&h>=2&&h%2===0)ins('shield',h>=10?2:1);
@@ -525,6 +534,11 @@ function waveOf(night,h0){
 const MAPS={
   open:{name:'곶 들판',tip:'트인 들판. 그림자가 어디로든 온다.',nr:2,np:2},
   fork:{name:'갈림길',tip:'가운데 바위 둔덕이 길을 둘로 가른다. 양쪽을 다 막아야 한다.',rock:[[3,4],[4,4],[5,4]],nr:1,np:2,fogK:.7},
+  river:{name:'솔숲 나루',tip:'가운데로 개울이 흐르고 나루 두 곳으로만 건넌다.',pond:[[1,5],[2,5],[3,5],[5,5],[6,5],[7,5]],nr:1,np:0,fogK:1,g:'river'},
+  shrine:{name:'사당 마당',tip:'돌 등롱이 줄지어 서서 길을 꺾는다.',rock:[[2,3],[6,3],[3,6],[5,6]],nr:0,np:1,fogK:1.2,g:'shrine'},
+  yeot:{name:'엿도가 마당',tip:'엿 솥 자리마다 끈적한 웅덩이가 그림자를 늦춘다.',rock:[[4,3]],pond:[[2,4],[6,4],[4,6]],nr:1,np:0,fogK:1.05,g:'yeot'},
+  mine:{name:'폐광 갱도',tip:'바위벽 사이 좁은 갱도 두 줄로만 내려온다.',rock:[[1,4],[2,4],[4,4],[6,4],[7,4],[4,5]],nr:1,np:0,fogK:1.15,g:'mine'},
+  village:{name:'갯마을 모래톱',tip:'그물 말리는 말뚝과 모래 웅덩이가 흩어져 있다.',rock:[[3,3],[5,7]],pond:[[6,4],[2,6]],nr:2,np:1,fogK:.88,g:'village'},
   marsh:{name:'갯벌 늪',tip:'양쪽 바위가 길을 좁히고, 갯벌 웅덩이가 그림자를 늦춘다.',rock:[[1,3],[7,3]],pond:[[3,6],[5,6]],nr:1,np:0,fogK:1.13}};
 function genTerrain(rng){
   for(let tries=0;tries<40;tries++){
@@ -550,7 +564,7 @@ function newNight(night,seed,up,o){
     devs:o.devs||{},beam:{c:4,need:TUNE.beamNeed},chainN:0,lastWake:-9,mid:null,midDone:false,xpK:1,bonusPack:0,tw:[],devObjs:[]};
   N.mod.spdK=1;
   for(const k in sp)if(sp[k]&&sp[k].star)N.sp[k]={star:sp[k].star,w:sp[k].w||0,used:false};
-  N.map=o.map||['open','fork','marsh'][night]||'open';genTerrain(N.rng);N.mod.fogK*=(MAPS[N.map].fogK||1);N.side=['all','left','right'][Math.floor(N.rng()*3)];
+  N.map=o.map||NIGHTS[night].map||['open','fork','marsh'][night]||'open';genTerrain(N.rng);N.mod.fogK*=(MAPS[N.map].fogK||1);N.side=['all','left','right'][Math.floor(N.rng()*3)];
   N.tw=[2+Math.floor(N.rng()*3),6+Math.floor(N.rng()*4)];
   return N;
 }
@@ -841,7 +855,7 @@ function pickMid(id){
   else if(id==='gold'){N.extraTreasure=1;N.mod.spdK*=1.1;}else if(id==='dim'){N.lives=Math.max(1,N.lives-1);N.bonusPack=1;}
   N.mid=null;N.midDone=true;N.midCard=id;N.fx.push({k:'midpick',id});
 }
-if(typeof module!=='undefined')module.exports={MAPS,callEarly,removeUnit,mergeUnits,spawn,trOf,trFromL,spdK,DEVS,MIDS,beamAll,ringBell,pickMid,TUNE,atkK,hpK,rngK,lvOf,MOVE,UNITS,SPIRITS,FOES,NIGHTS,CARDS,ORDER,TILE,F_TOP,WAVES,BUILD,waveOf,newNight,place,summon,canPlace,snap,step,toggleBuild,setGate,startNightPhase,rangeOf,get:()=>N};
+if(typeof module!=='undefined')module.exports={THEMES,MAPS,callEarly,removeUnit,mergeUnits,spawn,trOf,trFromL,spdK,DEVS,MIDS,beamAll,ringBell,pickMid,TUNE,atkK,hpK,rngK,lvOf,MOVE,UNITS,SPIRITS,FOES,NIGHTS,CARDS,ORDER,TILE,F_TOP,WAVES,BUILD,waveOf,newNight,place,summon,canPlace,snap,step,toggleBuild,setGate,startNightPhase,rangeOf,get:()=>N};
 
 /* ───────── 이야기 ───────── */
 const STORY={
@@ -992,9 +1006,9 @@ function fig(kind,cls,sp){const c2=document.createElement('canvas');c2.width=c2.
 function renderHome(){
   $('xpA').textContent=S.xp;
   const nl=$('nightList');nl.textContent='';
-  NIGHTS.forEach((n,i)=>{const d=document.createElement('div');d.className='nchip'+(i<S.night?' done':i===S.night?' cur':'');d.innerHTML='<b></b><span></span>';d.children[0].textContent=n.name+(S.stars&&S.stars[i]?' '+'★'.repeat(S.stars[i])+'☆'.repeat(3-S.stars[i]):'');d.children[1].textContent=i<S.night?'해가 떴다':i===S.night?'오늘 밤':'아직';nl.appendChild(d);});
+  {const pi=Math.floor(Math.min(S.night,NIGHTS.length-1)/3);NIGHTS.slice(pi*3,pi*3+3).forEach((n,j)=>{const i=pi*3+j;const d=document.createElement('div');d.className='nchip'+(i<S.night?' done':i===S.night?' cur':'');d.innerHTML='<b></b><span></span>';d.children[0].textContent=n.name+(S.stars&&S.stars[i]?' '+'★'.repeat(S.stars[i])+'☆'.repeat(3-S.stars[i]):'');d.children[1].textContent=i<S.night?'해가 떴다':i===S.night?'오늘 밤':'아직';nl.appendChild(d);});}
   for(const t of['forge','dev','sp','clue','map']){$('tab_'+t).classList.toggle('on',htab===t);$('p_'+t).hidden=htab!==t;}
-  const open=NIGHTS[Math.min(S.night,2)].units;if(!open.includes(fsel))fsel=open[0];
+  const open=NIGHTS[Math.min(S.night,NIGHTS.length-1)].units;if(!open.includes(fsel))fsel=open[0];
   /* 대장간: 위에 다섯 칸, 아래에 고른 이의 다음 벼림 하나 */
   const fg=$('forge');fg.textContent='';
   ORDER.forEach(k=>{const met=open.includes(k),b=document.createElement('button');b.className='utile'+(fsel===k?' on':'')+(met?'':' lock');b.disabled=!met;
@@ -1034,8 +1048,8 @@ function renderHome(){
     d.append(ic,a);if(cur){const bar=document.createElement('div');bar.className='pbar';bar.innerHTML='<i></i>';bar.firstChild.style.width=Math.min(100,S.pieces/BPNEED[i]*100)+'%';d.append(bar);}dl.appendChild(d);});
   const cl=$('clues');cl.textContent='';if(!S.clues.length){const p=document.createElement('p');p.className='note';p.textContent='아직 단서가 없다. 밤을 넘길 때마다 하나씩 적힌다.';cl.appendChild(p);}
   S.clues.forEach((t,i)=>{const p=document.createElement('p');p.textContent=`${i+1}. ${t}`;cl.appendChild(p);});
-  if(htab==='map')drawMap($('homeMap'),0,S.night>=3?1:0,null,null);
-  const done=S.night>=3;$('btnGo').textContent=done?`셋째 밤 · 깊이 ${(S.deep||0)+1}`:`${NIGHTS[S.night].name}을 맞는다`;$('goNote').hidden=false;if(!done){const th=NIGHTS[S.night].theme;$('goNote').textContent=`오늘 밤 「${th.name}」 · 땅 「${MAPS[['open','fork','marsh'][S.night]]?.name||'곶 들판'}」. ${th.tip}`;}else $('goNote').textContent='첫 곳은 여기까지다. 셋째 밤을 다시 이길 때마다 꾸러미를 하나 풀고, 그림자가 한 층 짙어진다.';
+  if(htab==='map')drawMap($('homeMap'),0,Math.floor(S.night/3),null,null);
+  const done=S.night>=NIGHTS.length;$('btnGo').textContent=done?`깊은 밤 · 깊이 ${(S.deep||0)+1}`:`${NIGHTS[S.night].place} · ${NIGHTS[S.night].name}을 맞는다`;$('goNote').hidden=false;if(!done){const th=NIGHTS[S.night].theme;$('goNote').textContent=`오늘 밤 「${th.name}」 · 땅 「${MAPS[NIGHTS[S.night].map||['open','fork','marsh'][S.night]]?.name||'곶 들판'}」. ${th.tip}`;}else $('goNote').textContent='첫 곳은 여기까지다. 셋째 밤을 다시 이길 때마다 꾸러미를 하나 풀고, 그림자가 한 층 짙어진다.';
 }
 for(const t of['forge','dev','sp','clue','map'])$('tab_'+t).onclick=()=>{htab=t;tone(196,.08,.04,'triangle');renderHome();};
 function goHome(){N=null;document.body.classList.remove('battle','night');show('sHome');renderHome();}
@@ -1298,7 +1312,12 @@ function drawBase(){
   const c=base.getContext('2d');c.setTransform(k,0,0,k,ex*k,ey*k);const R=mulberry(N.night*211+9),L=-ex,Rt=W+ex,T=-ey,B=H+ey;
   let g=c.createLinearGradient(0,T,0,B);g.addColorStop(0,'#0c0a18');g.addColorStop(.3,'#0f1320');g.addColorStop(.75,'#111a22');g.addColorStop(1,'#0c1520');c.fillStyle=g;c.fillRect(L,T,Rt-L,B-T);
   {const mp=N.map||'open';if(mp==='fork'){c.fillStyle='rgba(120,118,138,.13)';c.fillRect(L,F_TOP-30,Rt-L,GATE-F_TOP+30);for(let i=0;i<420;i++){const x=TILE+R()*(W-2*TILE),y=F_TOP+R()*(F_BOT-F_TOP);c.fillStyle=`rgba(${150+R()*40|0},${150+R()*40|0},${165+R()*40|0},${.12+R()*.18})`;c.beginPath();c.ellipse(x,y,1+R()*2.6,.8+R()*1.8,R()*3,0,7);c.fill();}}
-    else if(mp==='marsh'){c.fillStyle='rgba(30,88,96,.2)';c.fillRect(L,F_TOP-30,Rt-L,GATE-F_TOP+30);c.fillStyle='rgba(70,52,34,.16)';c.fillRect(L,F_TOP-30,Rt-L,GATE-F_TOP+30);for(let i=0;i<70;i++){const x=TILE+R()*(W-2*TILE),y=F_TOP+R()*(F_BOT-F_TOP),rx=6+R()*16;c.strokeStyle=`rgba(140,200,205,${.06+R()*.1})`;c.lineWidth=1;c.beginPath();c.ellipse(x,y,rx,rx*.3,0,0,7);c.stroke();}for(let i=0;i<40;i++){const x=TILE+R()*(W-2*TILE),y=F_TOP+R()*(F_BOT-F_TOP);c.fillStyle='rgba(225,215,190,.22)';c.beginPath();c.ellipse(x,y,1.6,1,R()*3,0,7);c.fill();}}}
+    else if(mp==='marsh'){c.fillStyle='rgba(30,88,96,.2)';c.fillRect(L,F_TOP-30,Rt-L,GATE-F_TOP+30);c.fillStyle='rgba(70,52,34,.16)';c.fillRect(L,F_TOP-30,Rt-L,GATE-F_TOP+30);for(let i=0;i<70;i++){const x=TILE+R()*(W-2*TILE),y=F_TOP+R()*(F_BOT-F_TOP),rx=6+R()*16;c.strokeStyle=`rgba(140,200,205,${.06+R()*.1})`;c.lineWidth=1;c.beginPath();c.ellipse(x,y,rx,rx*.3,0,0,7);c.stroke();}for(let i=0;i<40;i++){const x=TILE+R()*(W-2*TILE),y=F_TOP+R()*(F_BOT-F_TOP);c.fillStyle='rgba(225,215,190,.22)';c.beginPath();c.ellipse(x,y,1.6,1,R()*3,0,7);c.fill();}}
+    else if(mp==='river'){c.fillStyle='rgba(20,60,50,.22)';c.fillRect(L,F_TOP-30,Rt-L,GATE-F_TOP+30);for(let i=0;i<500;i++){const x=TILE+R()*(W-2*TILE),y=F_TOP+R()*(F_BOT-F_TOP);c.strokeStyle=`rgba(60,110,70,${.15+R()*.2})`;c.lineWidth=1;c.beginPath();c.moveTo(x,y);c.lineTo(x+(R()-.5)*5,y-3-R()*3);c.stroke();}}
+    else if(mp==='shrine'){c.fillStyle='rgba(110,100,130,.16)';c.fillRect(L,F_TOP-30,Rt-L,GATE-F_TOP+30);c.strokeStyle='rgba(190,180,210,.07)';c.lineWidth=1;for(let x=TILE;x<=W-TILE;x+=20){c.beginPath();c.moveTo(x,F_TOP);c.lineTo(x,F_BOT);c.stroke();}for(let y=F_TOP;y<=F_BOT;y+=20){c.beginPath();c.moveTo(TILE,y);c.lineTo(W-TILE,y);c.stroke();}}
+    else if(mp==='yeot'){c.fillStyle='rgba(120,80,30,.18)';c.fillRect(L,F_TOP-30,Rt-L,GATE-F_TOP+30);for(let i=0;i<60;i++){const x=TILE+R()*(W-2*TILE),y=F_TOP+R()*(F_BOT-F_TOP),rr=3+R()*9;c.fillStyle=`rgba(210,150,60,${.05+R()*.08})`;c.beginPath();c.ellipse(x,y,rr,rr*.6,R()*3,0,7);c.fill();}}
+    else if(mp==='mine'){c.fillStyle='rgba(8,8,12,.38)';c.fillRect(L,F_TOP-30,Rt-L,GATE-F_TOP+30);for(let i=0;i<900;i++){const x=TILE+R()*(W-2*TILE),y=F_TOP+R()*(F_BOT-F_TOP);c.fillStyle=`rgba(0,0,0,${.2+R()*.3})`;c.fillRect(x,y,1+R()*2,1+R()*2);}c.strokeStyle='rgba(150,120,90,.22)';c.lineWidth=2;for(const x of[W/2-7,W/2+7]){c.beginPath();c.moveTo(x,F_TOP);c.lineTo(x,F_BOT);c.stroke();}for(let y=F_TOP;y<F_BOT;y+=14){c.fillStyle='rgba(110,80,50,.25)';c.fillRect(W/2-11,y,22,3);}}
+    else if(mp==='village'){c.fillStyle='rgba(150,130,90,.17)';c.fillRect(L,F_TOP-30,Rt-L,GATE-F_TOP+30);c.strokeStyle='rgba(200,190,160,.06)';c.lineWidth=1;for(let i=-20;i<40;i++){c.beginPath();c.moveTo(TILE+i*14,F_TOP);c.lineTo(TILE+i*14+200,F_BOT);c.stroke();c.beginPath();c.moveTo(TILE+i*14+200,F_TOP);c.lineTo(TILE+i*14,F_BOT);c.stroke();}}}
   for(let i=0;i<2200;i++){const x=L+R()*(Rt-L),y=T+R()*(B-T);c.fillStyle=R()<.5?`rgba(120,150,120,${R()*.07})`:`rgba(70,60,95,${R()*.08})`;c.fillRect(x,y,1+R()*2.2,1+R()*2.2);}
   c.lineCap='round';for(let i=0;i<260;i++){const x=L+R()*(Rt-L),y=F_TOP-20+R()*(GATE-F_TOP+10);c.strokeStyle=`rgba(${70+R()*30|0},${90+R()*30|0},${80+R()*20|0},${.18+R()*.2})`;c.lineWidth=.8;for(let j=0;j<3;j++){c.beginPath();c.moveTo(x+j*1.5,y);c.lineTo(x+j*1.5+(R()-.5)*4,y-3-R()*4);c.stroke();}}
   /* 양옆: 1편처럼 낮은 돌담과 어두운 가장자리 */
@@ -2019,14 +2038,14 @@ const WOODI={};for(const k in WOOD){const im=new Image();im.onload=()=>{WOODI[k]
   const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);const r=Math.max(w/im.width,h/im.height),iw=im.width*r,ih=im.height*r;c.drawImage(im,(w-iw)/2,(h-ih)/2,iw,ih);
   c.strokeStyle='#14110f';c.lineWidth=5;c.strokeRect(2.5,2.5,w-5,h-5);};}
 /* ── 첫 화면 안개 걷힘(1편처럼), 이어하기, 기록·설정 ── */
-const VER='0.35',CHLOG=['밤마다 다른 땅: 곶 들판 · 갈림길(바위빛 자갈) · 갯벌 늪(젖은 청록 갯벌, 조개껍데기)','이야기 글이 저절로 흘러감(빠르게 · 넘기기 · 건너뛰기)','물결 앞당기기, 밤별 별 셋, 만복의 안개 터뜨리기','사냥꾼·작살꾼 약화, 화염병·등불지기 강화, 그림자 5% 빨라짐, 벼린 만큼 그림자 강화 두 배','사냥꾼 화살 5.5→3.5, 그림자 안개 +20%: 화살만으로는 못 막고 작살꾼 앞에서 싸우게','회복을 크게 줄임(등불지기 빛 3.5→0.8, 쉴 때 1.2→0.4), 그림자 공격력 1.5배','난이도 다시 맞춤: 물결마다 그림자 수 2배, 유닛 마음 -25%, 셋째 밤 크게 강화','등대 빛 → 응원(우리 편 모두 회복), 유닛 마음 -20%, 물결마다 그림자 힘이 더 크게 오름, 벼린 만큼 그림자도 강해짐','유닛 역할: 근거리 막기 · 중거리 광역 · 원거리 공격','세운 이 거두기, 같은 이 둘 합쳐 승급','난이도, 기록 · 설정 화면, 첫 화면 안개','목판화 삽화(타이틀 · 이야기 · 밤 주제 · 끝 화면)','위에서 본 그림으로 들판 · 그림자 · 영혼 통일','밤마다 주제, 유닛 연계(꿰기 · 빛 잇기 · 불 옮기기)','대장간: 다섯 갈래를 골라 벼림'];
+const VER='0.40',CHLOG=['여섯 곳 모두 열림: 솔숲 나루 · 사당 · 엿도가 · 폐광 · 갯마을, 곳마다 밤 셋과 고유한 땅 · 우두머리','밤마다 다른 땅: 곶 들판 · 갈림길(바위빛 자갈) · 갯벌 늪(젖은 청록 갯벌, 조개껍데기)','이야기 글이 저절로 흘러감(빠르게 · 넘기기 · 건너뛰기)','물결 앞당기기, 밤별 별 셋, 만복의 안개 터뜨리기','사냥꾼·작살꾼 약화, 화염병·등불지기 강화, 그림자 5% 빨라짐, 벼린 만큼 그림자 강화 두 배','사냥꾼 화살 5.5→3.5, 그림자 안개 +20%: 화살만으로는 못 막고 작살꾼 앞에서 싸우게','회복을 크게 줄임(등불지기 빛 3.5→0.8, 쉴 때 1.2→0.4), 그림자 공격력 1.5배','난이도 다시 맞춤: 물결마다 그림자 수 2배, 유닛 마음 -25%, 셋째 밤 크게 강화','등대 빛 → 응원(우리 편 모두 회복), 유닛 마음 -20%, 물결마다 그림자 힘이 더 크게 오름, 벼린 만큼 그림자도 강해짐','유닛 역할: 근거리 막기 · 중거리 광역 · 원거리 공격','세운 이 거두기, 같은 이 둘 합쳐 승급','난이도, 기록 · 설정 화면, 첫 화면 안개','목판화 삽화(타이틀 · 이야기 · 밤 주제 · 끝 화면)','위에서 본 그림으로 들판 · 그림자 · 영혼 통일','밤마다 주제, 유닛 연계(꿰기 · 빛 잇기 · 불 옮기기)','대장간: 다섯 갈래를 골라 벼림'];
 function titleIntro(){const fog=$('titleFog');if(!fog)return;const t0=performance.now(),set=p=>{const m=`radial-gradient(circle at 22% 16%, transparent ${p*125}%, #000 ${p*125+18}%)`;fog.style.webkitMaskImage=m;fog.style.maskImage=m;};
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){set(1);return;}(function f(now){const p=Math.min(1,(now-t0-300)/2600);set(Math.max(.03,p*p*(3-2*p)));if(p<1)requestAnimationFrame(f);})(t0);}
 function hasProgress(){return S.night>0||S.xp>0||Object.keys(S.up||{}).length>0;}
 function titleMenu(){const h=hasProgress();$('btnStart').textContent=h?'이어하기':'등불을 든다';$('btnNew').hidden=!h;$('tVer').textContent=`판 ${VER} · ${['쉬움','보통','어려움'][S.diff==null?1:S.diff]}`;}
 function setPage(){const d=S.diff==null?1:S.diff;document.querySelectorAll('#diffSeg button').forEach(b=>b.classList.toggle('on',+b.dataset.d===d));$('diffNote').textContent=DIFF[d].t+'. 다음 밤부터 적용.';
   const lv=ORDER.map(k=>`${UNITS[k].name} ${lvS(k)}`).join(' · '),dv=Object.keys(S.devs||{}).filter(k=>S.devs[k]).length,sp=Object.keys(S.sp||{}).length;
-  $('stat').textContent=`${Math.min(S.night,3)}/3 밤을 넘김${S.night>=3?` · 깊은 밤 ${S.deep||0}`:''} · 경험 ${S.xp} · 장치 ${dv}/4 · 영웅 ${sp} · 벼림: ${lv} · 벼린 만큼 그림자 안개 +${Math.round(TUNE.forgeF*ORDER.reduce((a,k)=>a+lvS(k),0)*100)}%`;
+  $('stat').textContent=`${Math.min(S.night,NIGHTS.length)}/${NIGHTS.length} 밤을 넘김 · ${S.night<NIGHTS.length?NIGHTS[S.night].place+'에 있음':'여섯 곳을 모두 지켜 냄'}${S.night>=NIGHTS.length?` · 깊은 밤 ${S.deep||0}`:''} · 경험 ${S.xp} · 장치 ${dv}/4 · 영웅 ${sp} · 벼림: ${lv} · 벼린 만큼 그림자 안개 +${Math.round(TUNE.forgeF*ORDER.reduce((a,k)=>a+lvS(k),0)*100)}%`;
   $('saveNote').textContent=S.savedAt?`마지막 저장 ${new Date(S.savedAt).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})} · 밤이 끝날 때마다 저절로 저장한다.`:'아직 저장한 적이 없다.';
   const ul=$('chLog');ul.textContent='';CHLOG.slice(0,5).forEach(t=>{const li=document.createElement('li');li.textContent=t;ul.appendChild(li);});
   $('btnResetYes').hidden=true;$('btnReset').hidden=false;}
@@ -2130,19 +2149,19 @@ window.addEventListener('resize',resize);
 
 /* ── 밤의 시작: 이야기 → 조건 카드 셋 중 하나 → 낮 ── */
 function startNight(){
-  const n=Math.min(S.night,2);audioInit();S.seen=S.seen||{};
+  const n=Math.min(S.night,NIGHTS.length-1);audioInit();S.seen=S.seen||{};
   if(S.seen['pre'+n])pickCard(n);else playStory('pre'+n,()=>{S.seen['pre'+n]=1;save();pickCard(n);});
 }
 function pickCard(n){
   const pool=CARDS.slice(),three=[];while(three.length<3)three.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
-  $('cardsTitle').textContent=`${NIGHTS[n].name}의 조건`;const row=$('cardRow');row.textContent='';
+  $('cardsTitle').textContent=`${NIGHTS[n].place} · ${NIGHTS[n].name}의 조건`;const row=$('cardRow');row.textContent='';
   three.forEach(cd=>{const b=document.createElement('button');b.className='ccard k'+(cd.kind==='덕'?0:cd.kind==='날씨'?1:2);b.innerHTML='<span class="kd"></span><b></b><span class="tx"></span>';b.children[0].textContent=cd.kind;b.children[1].textContent=cd.name;b.children[2].textContent=cd.text;
     b.onclick=()=>{ov('ovCards',false);bell(196,.12);begin(n,cd);};row.appendChild(b);});
   {const th=NIGHTS[n].theme,im=$('thImg'),src=th&&WOOD['th_'+th.id];im.hidden=!src;if(src)im.src=src;}
   ov('ovCards',true);tone(147,.5,.05,'sine');
 }
 function begin(n,cd){
-  newNight(n,(Math.random()*1e9)|0,S.up,{map:S.night>=3?['open','fork','marsh'][Math.floor(Math.random()*3)]:null,tr:S.tr,card:cd.id,spirits:S.sp,pts:S.pts,br:S.br,devs:S.devs,depth:S.night>=3?(S.deep||0):0});
+  newNight(n,(Math.random()*1e9)|0,S.up,{map:S.night>=NIGHTS.length?Object.keys(MAPS)[Math.floor(Math.random()*Object.keys(MAPS).length)]:null,tr:S.tr,card:cd.id,spirits:S.sp,pts:S.pts,br:S.br,devs:S.devs,depth:S.night>=NIGHTS.length?(S.deep||0):0});
   {const D=DIFF[S.diff==null?1:S.diff],fl=ORDER.reduce((a,k)=>a+lvS(k),0);N.forgeLv=fl;N.mod.fogK*=D.f*(1+TUNE.forgeF*fl);N.mod.atkK=D.a*(1+TUNE.forgeA*fl);N.courage=Math.round(N.courage*D.c);}
   sel='gate';pend=null;insp=null;paused=false;speed=1;banner={t:0,a:'낮',b:`${NIGHTS[n].theme?NIGHTS[n].theme.name+' · ':''}${cd.name}`};$('btnSpeed').textContent='×1';for(const k of ORDER)delete $('u_'+k).dataset.open;$('spRow').dataset.k='-';fxs=[];
   const o=S.night>0;$('nightRow').hidden=true;tut={treasure:!!S.draws&&S.night>1,carry:S.night>1,place:o,wake:o,turn:o,deep:o,promo:o,pend:o,rest:o,back:o,root:o,walk:o};shown=false;dawnA=0;
@@ -2153,7 +2172,7 @@ function begin(n,cd){
 let draw=null,drawQ=[];
 function rollDraw(){
   const rk=N.card==='thick'?2:N.card==='few'?1.5:1,ids=Object.keys(SPIRITS),own=ids.filter(k=>starOf(k)),grow=ids.filter(k=>!S.sp[k]||S.sp[k].star<3||(S.sp[k].w||0)<3);
-  const wp=own.filter(k=>(S.sp[k].w||0)<3),nextU=NIGHTS[Math.min(S.night+1,2)].units.filter(k=>true);
+  const wp=own.filter(k=>(S.sp[k].w||0)<3),nextU=NIGHTS[Math.min(S.night+1,NIGHTS.length-1)].units.filter(k=>true);
   const w={sp:grow.length?.25*rk:0,wp:wp.length?.2:0,big:nextU.length?.05*rk:0,pc:S.bp<4?.12:0,xp:.25,pts:.13};
   let kind='xp';if(!S.draws||(S.pity>=3&&grow.length))kind='sp';else{let r=Math.random()*(w.sp+w.wp+w.big+w.xp+w.pts);for(const k in w){r-=w[k];if(r<0){kind=k;break;}}}
   const first=!S.draws;S.draws++;if(kind==='sp')S.pity=0;else S.pity++;
@@ -2193,8 +2212,8 @@ function nextAfterDawn(){
   const win=N&&N.over==='win',n=N?N.night:0,first=S.night===n;
   if(win&&!first){S.deep=(S.deep||0)+1;save();}
   if(!win||!first){goHome();return;}
-  playStory('post'+n,()=>{S.clues[n]=CLUES[n];S.night=n+1;save();
-    if(S.night>=3)showMap(0,()=>{mapAnim=null;goHome();});else goHome();});
+  playStory('post'+n,()=>{if(CLUES[n])S.clues[n]=CLUES[n];S.night=n+1;save();
+    if(S.night%3===0)showMap(S.night/3-1,()=>{mapAnim=null;goHome();});else goHome();});
 }
 $('btnAgain').onclick=()=>{ov('ovDawn',false);startNight();};
 $('b_gate').onclick=()=>{sel=sel==='gate'?null:'gate';pend=null;tone(196,.1,.05,'triangle');if(N)hud();};
