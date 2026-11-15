@@ -462,7 +462,7 @@ const HOURS=['저녁 8시','저녁 8시 50분','밤 9시 40분','밤 10시 30분
 const HSHORT=['20:00','20:50','21:40','22:30','23:20','00:10','01:00','01:50','02:40','03:30','04:20','05:10'];
 const UNITS={
   spear:{name:'작살꾼',cost:20,hp:29,range:30,dmg:4.2,cd:1.03,run:50,role:'근거리 · 막기',tip:'근거리 · 막기. 마음이 단단하고, 가까운 그림자는 이 사람부터 노린다. 찌른 그림자를 꿰어 두면 화살과 도리깨에 40% 더 아프다.'},
-  bow:{name:'사냥꾼',cost:30,hp:10,range:125,dmg:2.5,cd:1.32,role:'원거리 · 공격',tip:'원거리 · 공격. 3칸 멀리 한 마리씩 세게 쏜다. 꿴 그림자에 40% 더 세다. 달려오는 아이는 꿰거나 늦춰야 잘 맞는다.'},
+  bow:{name:'사냥꾼',cost:30,hp:10,range:125,dmg:1.8,cd:1.75,role:'원거리 · 공격',tip:'원거리 · 공격. 3칸 멀리 한 마리씩 세게 쏜다. 꿴 그림자에 40% 더 세다. 달려오는 아이는 꿰거나 늦춰야 잘 맞는다.'},
   lamp:{name:'등불지기',cost:35,hp:13,range:96,dmg:8.5,cd:2.3,role:'중거리 · 광역',tip:'중거리 · 광역. 빛이 그림자 넷 사이를 튀며 맞히고, 맞은 그림자를 늦추며 빛으로 잇는다. 이어진 그림자는 피해와 불을 나눠 받는다.'},
   yeot:{name:'엿장수',cost:35,hp:21,range:110,dmg:2.5,cd:3.68,tip:'엿가락을 늘여 그림자 셋을 줄줄이 붙인다. 붙은 그림자끼리는 받는 피해를 30% 나눠 받는다.'},
   flail:{name:'도리깨꾼',cost:25,hp:18,range:66,dmg:11,cd:1.61,role:'중거리 · 광역',tip:'중거리 · 광역. 작살꾼 뒤에 서서 머리 너머로 도리깨를 휘두른다. 둘레 1.3칸을 한꺼번에 친다. 몸이 약해 맨 앞에 세우면 쉽게 홀린다. 셋 이상 맞히면 한 바퀴 더.'},
@@ -528,7 +528,7 @@ const CARDS=[
   {id:'dark',kind:'내기',name:'달 없는 밤',text:'그림자가 나올 자리가 보이지 않는다. 대신 경험을 두 배로 얻는다.'},
   {id:'few',kind:'내기',name:'꺼진 등불',text:'마을 등불 셋으로 시작한다. 대신 경험 1.5배, 귀한 것이 나올 확률 1.5배.'}];
 const ORDER=['spear','bow','flail','lamp','fire'],MOVE=[0,9,9],LVL=[0,60,200];
-const TUNE={loseXp:1.5,evoNight:12,duoN:4,duoK:.8,callB:4,callK:2,bossT:.5,bossR:80,bossDaze:3,lampHeal:1.3,regen:.4,cheer:.5,cheerT:3,forgeF:.008,forgeA:.006,topRows:3,taunt:10,guard:.7,lampSlow:3.2,linkK:.3,markT:2.2,markK:1.4,runMiss:.7,regenD:.02,beamNeed:8,beamN:.38,beamD:.2,beamB:.09,gap:2,spd:1.37,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.6,fog:1.25,atk:.6,ramp:.1,a0:.75,f0:.75,fk:.03,burn:5.6,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[.24,.275,.47,.9,.95,1.2,1.13,1.603,1.6,1.7,2.0,2.12,2.1,2.45,2.55,2.6,2.8,3.0],na:[.2,.225,.37,.72,.76,.96,.9,1.282,1.28,1.36,1.6,1.7,1.68,1.96,2.04,2.08,2.24,2.4]};
+const TUNE={loseXp:1.5,evoNight:12,duoN:4,duoK:.8,callB:4,callK:2,bossT:.5,bossR:80,bossDaze:3,lampHeal:1.3,regen:.4,cheer:.5,cheerT:3,forgeF:.008,forgeA:.006,topRows:3,taunt:10,guard:.7,lampSlow:3.2,linkK:.3,markT:2.2,markK:1.4,runMiss:.7,regenD:.02,beamNeed:8,beamN:.38,beamD:.2,beamB:.09,gap:2,spd:1.37,rest:5,back:5,iceV:1.25,knock:16,knockD:1.2,daze:1.5,dzImm:2.5,backR:70,backHeal:.3,count:.6,fog:1.25,atk:.6,ramp:.1,a0:.75,f0:.75,fk:.03,burn:5.6,regen:.18,start:65,pts:12,dayMax:3,fresh:1.2,nf:[.24,.275,.47,.85,.9,1.08,1.13,1.603,1.6,1.7,2.0,2.12,2.1,2.38,2.45,2.6,2.7,3.0],na:[.2,.225,.37,.68,.72,.86,.9,1.282,1.28,1.36,1.6,1.7,1.68,1.9,1.96,2.08,2.16,2.4]};
 let N=null;
 /* 물결이 12개로 줄어도 강해지는 흐름은 15개 때와 같게: h를 0~14 눈금으로 늘려 쓴다 */
 const hq=h=>h*14/(WAVES-1);
@@ -556,7 +556,7 @@ function waveOf(night,h0){
 const MAPS={
   open:{name:'곶 들판',tip:'트인 들판. 그림자가 어디로든 온다.',nr:2,np:2},
   fork:{name:'갈림길',tip:'가운데 바위 둔덕이 길을 둘로 가른다. 양쪽을 다 막아야 한다.',rock:[[3,4],[4,4],[5,4]],nr:1,np:2,fogK:.7},
-  river:{name:'솔숲 나루',tip:'가운데로 개울이 흐르고 나루 두 곳으로만 건넌다.',pond:[[1,5],[2,5],[3,5],[5,5],[6,5],[7,5]],nr:1,np:0,fogK:1,g:'river'},
+  river:{name:'솔숲 나루',tip:'가운데로 개울이 흐른다. 물을 건너는 그림자는 느려진다.',pond:[[1,5],[2,5],[3,5],[5,5],[6,5],[7,5]],nr:1,np:0,fogK:1,g:'river'},
   shrine:{name:'사당 마당',tip:'돌 등롱이 줄지어 서서 길을 꺾는다.',rock:[[2,3],[6,3],[3,6],[5,6]],nr:0,np:1,fogK:1.17,g:'shrine'},
   yeot:{name:'엿도가 마당',tip:'엿 솥 자리마다 끈적한 웅덩이가 그림자를 늦춘다.',rock:[[4,3]],pond:[[2,4],[6,4],[4,6]],nr:1,np:0,fogK:1.05,g:'yeot'},
   mine:{name:'폐광 갱도',tip:'바위벽 사이 좁은 갱도 두 줄로만 내려온다.',rock:[[1,4],[2,4],[4,4],[6,4],[7,4],[4,5]],nr:1,np:0,fogK:1.22,g:'mine'},
@@ -595,7 +595,7 @@ function lvOf(kind){return N.up[kind]||0}
 function trFromL(L){const e=Math.max(0,L-8);return{a:(L>=1)+(L>=6)+(L>=8)+Math.ceil(e/2),h:(L>=3)+(L>=7)+(L>=8)+Math.floor(e/2),s:0,r:(L>=5)+(L>=8),x:(L>=2)+(L>=4)};}
 function trOf(kind){if(N.tr){const t=N.tr[kind]||{};return{a:t.a||0,h:t.h||0,s:t.s||0,r:t.r||0,x:t.x||0};}return trFromL(lvOf(kind));}
 function tierOf(kind){return Math.min(2,trOf(kind).x)}
-const GROW={spear:[.10,.25],bow:[.12,.15],flail:[.16,.20],lamp:[.17,.15],fire:[.17,.15]};
+const GROW={spear:[.10,.25],bow:[.09,.15],flail:[.16,.20],lamp:[.17,.15],fire:[.17,.15]};
 function atkK(kind){return 1+(GROW[kind]||[.15])[0]*trOf(kind).a}
 function hpK(kind){return 1+(GROW[kind]||[0,.2])[1]*trOf(kind).h}
 function rngK(kind){return 1+.1*trOf(kind).r}
@@ -2106,10 +2106,18 @@ Object.assign(FMAP,{walk:['f_walk',1],run:['f_run',.92],shield:['f_shield',1.05]
 for(const k in FSPR)if(k.startsWith('f_'))fPrep(k);
 /* 홀린 우리 편: 우리 편 그림이 잿빛으로 바랜 것. 아래(마을 쪽)를 보고 걷는다 */
 {const s1=shade;shade=function(c,f,now){if(f.type!=='turn'||!OSPI['c_'+f.kind])return s1(c,f,now);const k='c_'+f.kind,d=OSPR[k],T=TSPR[f.kind],w=44,h=w*d.h/d.w;
+
   if(f.hurt>0)f.hurt-=1/60;c.fillStyle='rgba(0,0,0,.45)';c.beginPath();c.arc(f.x+1.5,f.y+2,11,0,7);c.fill();
   c.save();c.translate(f.x,f.y-2);c.rotate(Math.PI/2+Math.sin(now*3+f.ph)*.05);const cx=T?T.cx/T.w:.35,cy=T?T.cy/T.h:.5;c.drawImage(OSPI[k],-w*cx,-h*cy,w,h);c.restore();
   const top=f.y-24;if(f.fog<f.max-.5){const ww=22,p=Math.max(0,f.fog/f.max);c.fillStyle=OUT;c.fillRect(f.x-ww/2,top,ww,4.6);if(p>.05){c.fillStyle='#8fb6d4';c.fillRect(f.x-ww/2+1,top+1,(ww-2)*p,2.6);}}
   f._top=top;};}
+{const s2=shade;shade=function(c,f,now){const r=s2(c,f,now);try{const oc=Math.floor(f.x/TILE),or=Math.floor((f.y-4-F_TOP)/TILE);
+  if(N&&f.type!=='hop'&&oc>=0&&oc<COLS&&or>=0&&or<ROWS&&N.pond[oc]&&N.pond[oc][or]){const ph=(now*1.4+(f.id||0)*.37)%1,R=(f.r||12)+6;c.save();c.lineWidth=1.7;
+    c.fillStyle='rgba(120,165,210,.28)';c.beginPath();c.ellipse(f.x,f.y+6,R*.95,R*.36,0,0,7);c.fill();
+    for(const q of[ph,(ph+.5)%1]){c.strokeStyle=`rgba(190,220,245,${(.55*(1-q)).toFixed(3)})`;c.beginPath();c.ellipse(f.x,f.y+6,R*(.7+q*.8),R*(.26+q*.3),0,0,7);c.stroke();}
+    c.restore();
+    if(!(S.seen&&S.seen.pond)){S.seen=S.seen||{};S.seen.pond=1;notice('물을 건너는 그림자는 느려진다. 웅덩이 앞을 지키면 오래 찌를 수 있다.',4);}}}catch(e){}
+  return r;};}
 /* ── 어느 화면이든 스크롤 없이: 넘치면 내용을 조금씩 줄여 한 화면에 맞춘다 ── */
 function fitBox(e,reset){const kids=[...e.children].filter(k=>!k.hidden);if(reset)for(const k of kids)k.style.zoom='';
   let z=parseFloat(kids[0]&&kids[0].style.zoom)||1;
@@ -2132,7 +2140,7 @@ const WOODI={};for(const k in WOOD){const im=new Image();im.onload=()=>{WOODI[k]
   const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);const r=Math.max(w/im.width,h/im.height),iw=im.width*r,ih=im.height*r;c.drawImage(im,(w-iw)/2,(h-ih)/2,iw,ih);
   c.strokeStyle='#14110f';c.lineWidth=5;c.strokeRect(2.5,2.5,w-5,h-5);};}
 /* ── 첫 화면 안개 걷힘(1편처럼), 이어하기, 기록·설정 ── */
-const VER='0.46',CHLOG=['타격감: 찌름 자국, 깨어날 때 짧은 멈칫과 흔들림, 도리깨 여럿 맞히면 묵직하게, 홀릴 때 멈칫','장부에 위협 저울: 오늘 밤 그림자에 견준 우리 힘(넉넉하다 · 해볼 만하다 · 벅차다 · 아직 무리다)','지면 무너진 까닭과 벼릴 곳을 알려 준다','합치기를 없애고 성장은 대장간 하나로. 지면 경험을 모아 벼리고 다시 도전','그림자는 더 세고 우리 편은 더 약하게: 벼리지 않으면 셋째 밤은 넘을 수 없다','등대는 작살꾼 혼자. 곳마다 새 일꾼을 찾는다: 사냥꾼 → 도리깨꾼 → 등불지기 → 화염병','새 목판화 8장: 솔숲 나루 · 사당 · 엿도가 · 폐광 · 갯마을 · 하람 · 꾀는 소리 · 업고 오는 밤','다섯 곳의 이야기: 하람과 딸 보름, 검은 등불의 비밀','여섯 곳 모두 열림: 솔숲 나루 · 사당 · 엿도가 · 폐광 · 갯마을, 곳마다 밤 셋과 고유한 땅 · 우두머리','밤마다 다른 땅: 곶 들판 · 갈림길(바위빛 자갈) · 갯벌 늪(젖은 청록 갯벌, 조개껍데기)','이야기 글이 저절로 흘러감(빠르게 · 넘기기 · 건너뛰기)','물결 앞당기기, 밤별 별 셋, 만복의 안개 터뜨리기','사냥꾼·작살꾼 약화, 화염병·등불지기 강화, 그림자 5% 빨라짐, 벼린 만큼 그림자 강화 두 배','사냥꾼 화살 5.5→3.5, 그림자 안개 +20%: 화살만으로는 못 막고 작살꾼 앞에서 싸우게','회복을 크게 줄임(등불지기 빛 3.5→0.8, 쉴 때 1.2→0.4), 그림자 공격력 1.5배','난이도 다시 맞춤: 물결마다 그림자 수 2배, 유닛 마음 -25%, 셋째 밤 크게 강화','등대 빛 → 응원(우리 편 모두 회복), 유닛 마음 -20%, 물결마다 그림자 힘이 더 크게 오름, 벼린 만큼 그림자도 강해짐','유닛 역할: 근거리 막기 · 중거리 광역 · 원거리 공격','세운 이 거두기, 같은 이 둘 합쳐 승급','난이도, 기록 · 설정 화면, 첫 화면 안개','목판화 삽화(타이틀 · 이야기 · 밤 주제 · 끝 화면)','위에서 본 그림으로 들판 · 그림자 · 영혼 통일','밤마다 주제, 유닛 연계(꿰기 · 빛 잇기 · 불 옮기기)','대장간: 다섯 갈래를 골라 벼림'];
+const VER='0.47',CHLOG=['사냥꾼 크게 약화: 공격력 -28%, 쏘는 간격 +33%(초당 피해 약 절반)','웅덩이: 물을 건너는 그림자 둘레에 물결이 일어 느려지는 것이 보인다','타격감: 찌름 자국, 깨어날 때 짧은 멈칫과 흔들림, 도리깨 여럿 맞히면 묵직하게, 홀릴 때 멈칫','장부에 위협 저울: 오늘 밤 그림자에 견준 우리 힘(넉넉하다 · 해볼 만하다 · 벅차다 · 아직 무리다)','지면 무너진 까닭과 벼릴 곳을 알려 준다','합치기를 없애고 성장은 대장간 하나로. 지면 경험을 모아 벼리고 다시 도전','그림자는 더 세고 우리 편은 더 약하게: 벼리지 않으면 셋째 밤은 넘을 수 없다','등대는 작살꾼 혼자. 곳마다 새 일꾼을 찾는다: 사냥꾼 → 도리깨꾼 → 등불지기 → 화염병','새 목판화 8장: 솔숲 나루 · 사당 · 엿도가 · 폐광 · 갯마을 · 하람 · 꾀는 소리 · 업고 오는 밤','다섯 곳의 이야기: 하람과 딸 보름, 검은 등불의 비밀','여섯 곳 모두 열림: 솔숲 나루 · 사당 · 엿도가 · 폐광 · 갯마을, 곳마다 밤 셋과 고유한 땅 · 우두머리','밤마다 다른 땅: 곶 들판 · 갈림길(바위빛 자갈) · 갯벌 늪(젖은 청록 갯벌, 조개껍데기)','이야기 글이 저절로 흘러감(빠르게 · 넘기기 · 건너뛰기)','물결 앞당기기, 밤별 별 셋, 만복의 안개 터뜨리기','사냥꾼·작살꾼 약화, 화염병·등불지기 강화, 그림자 5% 빨라짐, 벼린 만큼 그림자 강화 두 배','사냥꾼 화살 5.5→3.5, 그림자 안개 +20%: 화살만으로는 못 막고 작살꾼 앞에서 싸우게','회복을 크게 줄임(등불지기 빛 3.5→0.8, 쉴 때 1.2→0.4), 그림자 공격력 1.5배','난이도 다시 맞춤: 물결마다 그림자 수 2배, 유닛 마음 -25%, 셋째 밤 크게 강화','등대 빛 → 응원(우리 편 모두 회복), 유닛 마음 -20%, 물결마다 그림자 힘이 더 크게 오름, 벼린 만큼 그림자도 강해짐','유닛 역할: 근거리 막기 · 중거리 광역 · 원거리 공격','세운 이 거두기, 같은 이 둘 합쳐 승급','난이도, 기록 · 설정 화면, 첫 화면 안개','목판화 삽화(타이틀 · 이야기 · 밤 주제 · 끝 화면)','위에서 본 그림으로 들판 · 그림자 · 영혼 통일','밤마다 주제, 유닛 연계(꿰기 · 빛 잇기 · 불 옮기기)','대장간: 다섯 갈래를 골라 벼림'];
 function titleIntro(){const fog=$('titleFog');if(!fog)return;const t0=performance.now(),set=p=>{const m=`radial-gradient(circle at 22% 16%, transparent ${p*125}%, #000 ${p*125+18}%)`;fog.style.webkitMaskImage=m;fog.style.maskImage=m;};
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){set(1);return;}(function f(now){const p=Math.min(1,(now-t0-300)/2600);set(Math.max(.03,p*p*(3-2*p)));if(p<1)requestAnimationFrame(f);})(t0);}
 function hasProgress(){return S.night>0||S.xp>0||Object.keys(S.up||{}).length>0;}
@@ -2183,7 +2191,7 @@ const setFast=()=>{$('btnFast').textContent=`빠르게 ×${stSpd}`;};setFast();
 $('btnFast').onclick=e=>{e.stopPropagation();stSpd=stSpd===1?2:stSpd===2?3:1;try{localStorage.setItem('stSpd',stSpd);}catch(_){}setFast();if(story){const left=Math.max(0,stDur-(performance.now()-stT0));clearTimeout(stTimer);stDur=(performance.now()-stT0)+left*(.5);stTimer=setTimeout(()=>{if(story)storyTap(true);},left*.5);}};
 $('btnNextPg').onclick=e=>{e.stopPropagation();storyTap(true);};
 /* 위협 저울(장부) · 패배 기록(새벽) */
-const LREQ=[0,3,16,25,33,39,50,56,61,64,72,82,86,98,103,105,108,112];
+const LREQ=[0,3,16,26,34,41,48,57,64,68,76,81,89,99,105,111,114,119];
 function powL(){let s=0;for(const k of ORDER){const t=(S.tr||{})[k];if(t)s+=(t.a||0)+(t.h||0)+(t.s||0)+(t.r||0)+(t.x||0);}return s;}
 function threatOf(n){const D=DIFF[S.diff==null?1:S.diff],req=LREQ[n]*(1+(D.f*D.a-1)*1.6),L=powL();
   if(req<=0)return{r:1.5,req,L,lab:'넉넉하다',c:2};const r=L/req;return{r,req,L,lab:r>=1.12?'넉넉하다':r>=.9?'해볼 만하다':r>=.7?'벅차다':'아직 무리다',c:r>=1.12?2:r>=.9?1:0};}
